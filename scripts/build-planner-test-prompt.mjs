@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
-const request = readFileSync("fixtures/planner-request.sample.json", "utf8");
+const requestPath = process.argv[2] ?? "fixtures/planner-request.sample.json";
+const request = readFileSync(requestPath, "utf8");
 const responseSchema = readFileSync("schemas/planner-response.schema.json", "utf8");
 
 const prompt = `You are the Essenplanner planning backend.
@@ -26,6 +27,7 @@ Important rules:
 - Use stable ids for dayId, mealId, and sourceMealIds.
 - Use personId values "bugra" and "sena".
 - Prefer practical quantities and buying hints over perfect nutrition math.
+- Write user-facing titles, notes, plannerNotes, warnings, and buyingHint values in German.
 `;
 
 process.stdout.write(prompt);

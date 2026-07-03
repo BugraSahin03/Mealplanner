@@ -1,0 +1,200 @@
+{
+  "schemaVersion": "1.0",
+  "week": {
+    "weekStartDate": "2026-07-06",
+    "days": [
+      {
+        "dayId": "2026-07-06",
+        "date": "2026-07-06",
+        "weekday": "monday",
+        "personContexts": [
+          {
+            "personId": "bugra",
+            "dayContext": "office",
+            "notes": "Needs transportable breakfast and lunch."
+          },
+          {
+            "personId": "sena",
+            "dayContext": "home",
+            "notes": "Can eat breakfast and lunch at home."
+          }
+        ]
+      },
+      {
+        "dayId": "2026-07-07",
+        "date": "2026-07-07",
+        "weekday": "tuesday",
+        "personContexts": [
+          {
+            "personId": "bugra",
+            "dayContext": "home",
+            "notes": "Can eat at home."
+          },
+          {
+            "personId": "sena",
+            "dayContext": "office",
+            "notes": "Needs transportable breakfast and lunch."
+          }
+        ]
+      },
+      {
+        "dayId": "2026-07-08",
+        "date": "2026-07-08",
+        "weekday": "wednesday",
+        "personContexts": [
+          {
+            "personId": "bugra",
+            "dayContext": "office",
+            "notes": "Needs meal prep lunch."
+          },
+          {
+            "personId": "sena",
+            "dayContext": "office",
+            "notes": "Needs lighter transportable lunch."
+          }
+        ]
+      },
+      {
+        "dayId": "2026-07-09",
+        "date": "2026-07-09",
+        "weekday": "thursday",
+        "personContexts": [
+          {
+            "personId": "bugra",
+            "dayContext": "home",
+            "notes": "Flexible lunch."
+          },
+          {
+            "personId": "sena",
+            "dayContext": "home",
+            "notes": "Flexible lunch."
+          }
+        ]
+      },
+      {
+        "dayId": "2026-07-10",
+        "date": "2026-07-10",
+        "weekday": "friday",
+        "personContexts": [
+          {
+            "personId": "bugra",
+            "dayContext": "office",
+            "notes": "Needs easy office meals."
+          },
+          {
+            "personId": "sena",
+            "dayContext": "home",
+            "notes": "Can eat at home."
+          }
+        ]
+      },
+      {
+        "dayId": "2026-07-11",
+        "date": "2026-07-11",
+        "weekday": "saturday",
+        "personContexts": [
+          {
+            "personId": "bugra",
+            "dayContext": "home",
+            "notes": "Weekend, more cooking time."
+          },
+          {
+            "personId": "sena",
+            "dayContext": "home",
+            "notes": "Weekend, more cooking time."
+          }
+        ]
+      },
+      {
+        "dayId": "2026-07-12",
+        "date": "2026-07-12",
+        "weekday": "sunday",
+        "personContexts": [
+          {
+            "personId": "bugra",
+            "dayContext": "home",
+            "notes": "Can prep for next week."
+          },
+          {
+            "personId": "sena",
+            "dayContext": "home",
+            "notes": "Can prep for next week."
+          }
+        ]
+      }
+    ]
+  },
+  "people": [
+    {
+      "schemaVersion": "1.0",
+      "personId": "bugra",
+      "displayName": "Buğra",
+      "goals": {
+        "primaryGoal": "muscle_gain",
+        "dailyCaloriesTarget": 2800,
+        "proteinFocus": true,
+        "notes": "Wants protein-rich meals and slight weight gain."
+      },
+      "preferences": {
+        "favoriteMeals": [],
+        "likedIngredients": ["chicken", "rice", "skyr", "eggs", "salmon"],
+        "dislikedIngredients": [],
+        "likedCuisines": ["Mediterranean", "Turkish", "Italian"],
+        "dislikedCuisines": [],
+        "notes": "Open to meat and varied meals."
+      },
+      "mealGuidance": {
+        "breakfast": "Office breakfast should be simple and transportable.",
+        "lunch": "Office lunch should work as meal prep.",
+        "dinner": "Shared main meal with Sena.",
+        "officeDay": "Prefer transportable meals.",
+        "homeOfficeDay": "More flexible.",
+        "mealPrep": "Welcome for office days."
+      },
+      "hardRules": [],
+      "softRules": ["High protein", "Practical office meals"],
+      "updatedAt": "2026-07-03T00:00:00+02:00"
+    },
+    {
+      "schemaVersion": "1.0",
+      "personId": "sena",
+      "displayName": "Sena",
+      "goals": {
+        "primaryGoal": "weight_loss",
+        "dailyCaloriesTarget": 1700,
+        "proteinFocus": false,
+        "notes": "Wants weight loss support without separate dinners."
+      },
+      "preferences": {
+        "favoriteMeals": [],
+        "likedIngredients": ["skyr", "salad", "chicken", "vegetables", "eggs"],
+        "dislikedIngredients": [],
+        "likedCuisines": ["Mediterranean", "Turkish", "Italian"],
+        "dislikedCuisines": [],
+        "notes": "Open to varied meals."
+      },
+      "mealGuidance": {
+        "breakfast": "Can be simple; home days are flexible.",
+        "lunch": "Homeoffice lunch can be fresh or prepared.",
+        "dinner": "Shared main meal with Buğra.",
+        "officeDay": "Prefer transportable meals when in office.",
+        "homeOfficeDay": "More flexible.",
+        "mealPrep": "Welcome for office days."
+      },
+      "hardRules": [],
+      "softRules": ["Calorie-conscious", "Practical office meals"],
+      "updatedAt": "2026-07-03T00:00:00+02:00"
+    }
+  ],
+  "planningRules": {
+    "mealsPerDay": ["breakfast", "lunch", "dinner"],
+    "budget": {
+      "monthlyBudgetEur": 500,
+      "weeklyTargetEur": 115,
+      "notes": "Budget should not be exhausted if cheaper planning is possible. Reuse ingredients across meals when practical."
+    },
+    "shoppingMode": "weekly",
+    "stores": ["Netto", "Lidl"],
+    "globalNotes": "Dinner should normally be shared. Avoid planning too many expensive fish meals. Use leftovers and repeated ingredients intelligently without making the week boring."
+  }
+}

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build:planner-test-prompt": "node scripts/build-planner-test-prompt.mjs",
+    "validate:planner-request": "node scripts/validate-planner-request.mjs",
     "validate:planner-response": "node scripts/validate-openclaw-planner-response.mjs"
   },
   "devDependencies": {
