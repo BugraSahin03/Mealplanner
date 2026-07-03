@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { buildHomeOverview, countOfficeSlots } from "@/src/home/overview";
 
 export default function HomePage() {
@@ -13,9 +15,9 @@ export default function HomePage() {
         </div>
 
         <nav className="nav-list" aria-label="Hauptnavigation">
-          <a className="nav-link nav-link-active" href="#profile">
+          <Link className="nav-link nav-link-active" href="/profile">
             Profile
-          </a>
+          </Link>
           <a className="nav-link" href="#woche">
             Woche
           </a>

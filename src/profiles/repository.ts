@@ -1,29 +1,16 @@
 import { parseJson, stringifyJson } from "../db/json";
 import type { SqliteDatabase } from "../db/sqlite";
+import {
+  normalizeMealGuidance,
+  normalizePreferences,
+  validateProfileInput,
+  type PersonId,
+  type PrimaryGoal,
+  type Profile,
+  type ProfileInput,
+} from "./model";
 
-export type PersonId = "bugra" | "sena";
-export type PrimaryGoal =
-  | "muscle_gain"
-  | "weight_gain"
-  | "fat_loss"
-  | "weight_loss"
-  | "maintenance";
-
-export type Profile = {
-  personId: PersonId;
-  displayName: string;
-  primaryGoal: PrimaryGoal;
-  dailyCaloriesTarget: number | null;
-  preferences: Record<string, unknown>;
-  mealGuidance: Record<string, unknown>;
-  hardRules: string[];
-  softRules: string[];
-  profileNotesMarkdown: string | null;
-};
-
-export type ProfileInput = Omit<Profile, "dailyCaloriesTarget"> & {
-  dailyCaloriesTarget?: number | null;
-};
+export type { PersonId, PrimaryGoal, Profile, ProfileInput } from "./model";
 
 type ProfileRow = {
   person_id: PersonId;
@@ -43,8 +30,8 @@ function mapProfile(row: ProfileRow): Profile {
     displayName: row.display_name,
     primaryGoal: row.primary_goal,
     dailyCaloriesTarget: row.daily_calories_target,
-    preferences: parseJson(row.preferences_json, {}),
-    mealGuidance: parseJson(row.meal_guidance_json, {}),
+    preferences: normalizePreferences(parseJson(row.preferences_json, {})),
+    mealGuidance: normalizeMealGuidance(parseJson(row.meal_guidance_json, {})),
     hardRules: parseJson(row.hard_rules_json, []),
     softRules: parseJson(row.soft_rules_json, []),
     profileNotesMarkdown: row.profile_notes_markdown,
@@ -84,6 +71,11 @@ export function getProfile(db: SqliteDatabase, personId: PersonId): Profile | nu
 }
 
 export function upsertProfile(db: SqliteDatabase, profile: ProfileInput): Profile {
+  const validationErrors = validateProfileInput(profile);
+  if (validationErrors.length > 0) {
+    throw new Error(`Invalid profile: ${validationErrors.join(" ")}`);
+  }
+
   db.prepare(
     `
       INSERT INTO profiles (
@@ -107,7 +99,7 @@ export function upsertProfile(db: SqliteDatabase, profile: ProfileInput): Profil
     profile.personId,
     profile.displayName,
     profile.primaryGoal,
-    profile.dailyCaloriesTarget ?? null,
+    profile.dailyCaloriesTarget,
     stringifyJson(profile.preferences),
     stringifyJson(profile.mealGuidance),
     stringifyJson(profile.hardRules),

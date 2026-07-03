@@ -106,6 +106,20 @@ Moeglicher UI-Ansatz:
 
 Damit bleiben Buğra und Sena die Besitzer der Profile. OpenClaw darf lernen helfen, aber nicht eigenmaechtig die langfristige Wahrheit aendern.
 
+## App-seitige Profilpflege im MVP
+
+Die erste App-Oberflaeche fuer Profile speichert strukturierte Felder in SQLite:
+
+- Ziel,
+- Tageskalorienziel als grober Richtwert,
+- Lieblingsgerichte,
+- Vorlieben,
+- Abneigungen,
+- Hinweise fuer Fruehstueck, Mittagessen und Abendessen,
+- weiche Regeln und Notizen.
+
+Diese Felder sind die Grundlage fuer spaetere Planner-Requests. Sie ersetzen die Markdown-Profilmemory nicht. Die Markdown-Dateien bleiben die menschlich lesbare Langzeit-Erinnerung; App-Daten koennen spaeter kontrolliert in Vorschlaege fuer diese Memory uebersetzt werden.
+
 ## JSON-Strukturen
 
 Es gibt bewusst mehrere JSON-Strukturen:
