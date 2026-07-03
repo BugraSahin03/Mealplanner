@@ -295,3 +295,5 @@ Wichtige Beobachtung:
 - Die JSON-Struktur ist fuer den MVP brauchbar.
 - Das endgueltige Schema muss noch strenger definiert und validiert werden.
 - Fuer App-Integration sollte die OpenClaw-Ausgabe aus `payloads[0].text` extrahiert und gegen ein eigenes Schema validiert werden.
+
+Ergaenzender Schema-Validation-Spike: `docs/spikes/planner-schema-validation.md`

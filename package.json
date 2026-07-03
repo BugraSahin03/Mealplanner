@@ -1,0 +1,14 @@
+{
+  "name": "essenplanner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:planner-test-prompt": "node scripts/build-planner-test-prompt.mjs",
+    "validate:planner-response": "node scripts/validate-openclaw-planner-response.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

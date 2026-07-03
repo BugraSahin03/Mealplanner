@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "1.0",
+  "week": {
+    "weekStartDate": "2026-07-06",
+    "days": [
+      {
+        "dayId": "2026-07-06",
+        "date": "2026-07-06",
+        "weekday": "monday",
+        "personContexts": [
+          {
+            "personId": "bugra",
+            "dayContext": "office",
+            "notes": "Needs transportable breakfast and lunch."
+          },
+          {
+            "personId": "sena",
+            "dayContext": "home",
+            "notes": "Can eat breakfast and lunch at home."
+          }
+        ]
+      }
+    ]
+  },
+  "people": [
+    {
+      "schemaVersion": "1.0",
+      "personId": "bugra",
+      "displayName": "Buğra",
+      "goals": {
+        "primaryGoal": "muscle_gain",
+        "dailyCaloriesTarget": 2800,
+        "proteinFocus": true,
+        "notes": "Wants protein-rich meals and slight weight gain."
+      },
+      "preferences": {
+        "favoriteMeals": [],
+        "likedIngredients": [],
+        "dislikedIngredients": [],
+        "likedCuisines": [],
+        "dislikedCuisines": [],
+        "notes": "Open to meat and varied meals."
+      },
+      "mealGuidance": {
+        "breakfast": "Office breakfast should be simple and transportable.",
+        "lunch": "Office lunch should work as meal prep.",
+        "dinner": "Shared main meal with Sena.",
+        "officeDay": "Prefer transportable meals.",
+        "homeOfficeDay": "More flexible.",
+        "mealPrep": "Welcome for office days."
+      },
+      "hardRules": [],
+      "softRules": ["High protein", "Practical office meals"],
+      "updatedAt": "2026-07-03T00:00:00+02:00"
+    },
+    {
+      "schemaVersion": "1.0",
+      "personId": "sena",
+      "displayName": "Sena",
+      "goals": {
+        "primaryGoal": "weight_loss",
+        "dailyCaloriesTarget": 1700,
+        "proteinFocus": false,
+        "notes": "Wants weight loss support without separate dinners."
+      },
+      "preferences": {
+        "favoriteMeals": [],
+        "likedIngredients": [],
+        "dislikedIngredients": [],
+        "likedCuisines": [],
+        "dislikedCuisines": [],
+        "notes": "Open to varied meals."
+      },
+      "mealGuidance": {
+        "breakfast": "Can be simple; home days are flexible.",
+        "lunch": "Homeoffice lunch can be fresh or prepared.",
+        "dinner": "Shared main meal with Buğra.",
+        "officeDay": "Prefer transportable meals when in office.",
+        "homeOfficeDay": "More flexible.",
+        "mealPrep": "Welcome for office days."
+      },
+      "hardRules": [],
+      "softRules": ["Calorie-conscious", "Practical office meals"],
+      "updatedAt": "2026-07-03T00:00:00+02:00"
+    }
+  ],
+  "planningRules": {
+    "mealsPerDay": ["breakfast", "lunch", "dinner"],
+    "budget": {
+      "monthlyBudgetEur": 500,
+      "weeklyTargetEur": 115,
+      "notes": "Budget should not be exhausted if cheaper planning is possible."
+    },
+    "shoppingMode": "weekly",
+    "stores": ["Netto", "Lidl"],
+    "globalNotes": "Dinner should normally be shared. Ingredients should be consolidated into a practical shopping list."
+  }
+}
