@@ -15,12 +15,12 @@ export default function HomePage() {
         </div>
 
         <nav className="nav-list" aria-label="Hauptnavigation">
-          <Link className="nav-link nav-link-active" href="/profile">
+          <Link className="nav-link" href="/profile">
             Profile
           </Link>
-          <a className="nav-link" href="#woche">
+          <Link className="nav-link" href="/week">
             Woche
-          </a>
+          </Link>
           <a className="nav-link" href="#plan">
             Wochenplan
           </a>
@@ -88,11 +88,11 @@ export default function HomePage() {
 
           <div className="week-grid" aria-label="Wochenkontext">
             {overview.week.map((day) => (
-              <article className="day-tile" key={day.weekday}>
+              <Link className="day-tile day-tile-link" href="/week" key={day.weekday}>
                 <strong>{day.weekday}</strong>
                 <span>Buğra: {day.bugraContext}</span>
                 <span>Sena: {day.senaContext}</span>
-              </article>
+              </Link>
             ))}
           </div>
         </section>
