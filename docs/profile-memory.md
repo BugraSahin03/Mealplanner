@@ -135,6 +135,8 @@ Es gibt bewusst mehrere JSON-Strukturen:
 2. `planner-request.schema.json`
    - beschreibt den Auftrag an OpenClaw,
    - konkrete Woche,
+   - Kalenderjahr und Kalenderwoche,
+   - flexible Homeoffice-Zielanzahl pro Person,
    - Office/Homeoffice-Kontext,
    - Profile,
    - Planungsregeln.

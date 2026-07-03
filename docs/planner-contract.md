@@ -135,6 +135,38 @@ Ein Tag enthaelt:
 
 `date` ist optional, weil wir am Anfang auch abstrakt Montag bis Sonntag planen koennen. Sobald die App echte Wochen startet, kann sie konkrete ISO-Daten verwenden.
 
+## Kalenderwochen- und Homeoffice-Struktur im Request
+
+Der Planner-Request soll den Wochenrahmen explizit mitschicken, sobald die UI echte Kalenderwochen abbildet:
+
+- `calendarYear`, z. B. `2026`,
+- `calendarWeek`, z. B. `28`,
+- `weekStartDate`,
+- `homeOfficeTargets` pro Person.
+
+`homeOfficeTargets` beschreibt die gewuenschte Anzahl an Homeoffice-Werktagen fuer diese Kalenderwoche. Standard ist typischerweise zwei Tage pro Person, aber die Zahl muss pro Woche flexibel sein.
+
+Beispiel:
+
+```json
+{
+  "calendarYear": 2026,
+  "calendarWeek": 28,
+  "homeOfficeTargets": [
+    {
+      "personId": "bugra",
+      "targetWeekdayCount": 2
+    },
+    {
+      "personId": "sena",
+      "targetWeekdayCount": 3
+    }
+  ]
+}
+```
+
+Die konkrete Tagesauswahl bleibt weiterhin in `week.days[].personContexts`. Die UI kann diese Auswahl perspektivisch per Drag-and-Drop erzeugen. OpenClaw bekommt dadurch sowohl die Zielanzahl als auch die tatsaechliche Tagesverteilung.
+
 ## Mahlzeitenstruktur
 
 Eine Mahlzeit enthaelt:

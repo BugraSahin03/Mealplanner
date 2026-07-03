@@ -45,6 +45,15 @@ Vor der Planung wird fuer jeden Tag der kommenden Woche eingetragen:
 
 Diese Angaben beeinflussen Fruehstueck und Mittagessen.
 
+Der Wochenkontext soll als Kalenderwochen-Setup gedacht werden:
+
+- Das Jahr ist in Kalenderwochen gegliedert.
+- Pro Kalenderwoche wird festgelegt, welche Tage Homeoffice- bzw. Office-Tage sind.
+- Standardannahme sind zwei Homeoffice-Tage pro Person und Woche.
+- Die Anzahl soll pro Woche flexibel per Plus/Minus erhoeht oder reduziert werden koennen.
+- Zielbild ist eine Drag-and-Drop-artige UI, in der Homeoffice-Tage auf konkrete Tage gelegt und verschoben werden koennen.
+- Diese Auswahl wird als Input an die KI gegeben und beeinflusst besonders Fruehstueck und Mittagessen.
+
 ### 3. Wochenplan
 
 Die App plant sieben Tage mit:
@@ -136,7 +145,7 @@ Die lebende Profil-Memory ist in `docs/profile-memory.md` beschrieben.
 Die ersten Screens sollen in dieser Reihenfolge entstehen:
 
 1. Profile
-2. Wochen-Setup
+2. Kalenderwochen-/Wochen-Setup
 3. Wochenplan
 4. Einkaufsliste
 

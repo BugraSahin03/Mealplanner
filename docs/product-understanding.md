@@ -128,6 +128,19 @@ Ein wichtiger Teil davon sind variable Wochenprofile. Vor der Wochenplanung soll
 
 Die App sollte daher nicht nur Personenprofile, sondern auch Zeit- bzw. Tagesprofile kennen.
 
+Die Wochenprofile sollen nicht nur als einfache Liste gedacht werden, sondern als kalenderartige Jahres- und Kalenderwochen-Planung. Das Jahr wird in Kalenderwochen gegliedert. Fuer jede Kalenderwoche soll sichtbar und bearbeitbar sein, an welchen Tagen Buğra und Sena im Homeoffice bzw. im Office sind.
+
+Gewuenschte UI-Idee:
+
+- Jahres-/Kalenderwochen-Sicht als Grundlage.
+- Pro Kalenderwoche koennen Homeoffice-Tage flexibel gesetzt werden.
+- Standardannahme: typischerweise zwei Homeoffice-Tage pro Person und Woche.
+- Die Anzahl soll aber pro Woche erhoeht oder reduziert werden koennen, z. B. ueber Plus/Minus.
+- Die Tage sollen idealerweise per Drag-and-Drop in die Woche bzw. auf konkrete Tage gelegt oder verschoben werden koennen.
+- Die UI soll das Bearbeiten dieser Woche schnell und visuell angenehm machen, weil diese Information ein Kerninput fuer die Mahlzeitenplanung ist.
+
+Die AI-Planung soll diese festgelegten Homeoffice-/Office-Tage direkt beruecksichtigen. Homeoffice-Tage erlauben andere Fruehstuecks- und Mittagsoptionen als Office-Tage. Office-Tage erfordern eher transportierbare, einfache oder Meal-Prep-taugliche Mahlzeiten.
+
 Der KI-Teil kann spaeter technisch unterschiedlich umgesetzt werden, z. B. ueber einen Agenten, ein LLM mit strukturierten Prompts oder eine andere Orchestrierung. Fachlich wichtig ist: Die KI muss nicht nur Gerichte vorschlagen, sondern strukturierte Ergebnisse liefern:
 
 - Wochenplan,
@@ -166,7 +179,10 @@ Ein sinnvoller erster MVP koennte bestehen aus:
    - grobe Ernaehrungsrichtung.
 
 2. Wochenkontext
+   - Kalenderwochen-basierte Wochenplanung,
    - pro Person einstellbar: Office oder Homeoffice je Tag,
+   - pro Woche flexibel einstellbare Anzahl an Homeoffice-Tagen,
+   - Drag-and-Drop-UI fuer Homeoffice-/Office-Tage als Zielbild,
    - daraus abgeleitete Mahlzeiten-Kontexte,
    - spontane Ausfaelle moeglich, wenn doch Kantine oder auswaerts gegessen wird.
 
@@ -204,6 +220,9 @@ Ein sinnvoller erster MVP koennte bestehen aus:
 
 - Snacks sind noch offen.
 - Es gibt typischerweise zwei Homeoffice-Tage pro Woche, aber die Tage sind variabel.
+- Die Anzahl der Homeoffice-Tage soll pro Kalenderwoche flexibel sein, z. B. ein, zwei oder drei Tage.
+- Das Jahr soll fuer diese Planung in Kalenderwochen gegliedert sein.
+- Homeoffice-Tage sollen in der UI idealerweise per Drag-and-Drop auf Tage gelegt oder verschoben werden koennen.
 - Es gibt keine festen Auswaerts-Essen-Tage.
 - Fuer den Start soll eine ganze Woche geplant werden.
 - Vor der Wochenplanung soll eingetragen werden, wer an welchen Tagen im Office ist.

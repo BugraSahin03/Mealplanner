@@ -1,7 +1,21 @@
 {
   "schemaVersion": "1.0",
   "week": {
+    "calendarYear": 2026,
+    "calendarWeek": 28,
     "weekStartDate": "2026-07-06",
+    "homeOfficeTargets": [
+      {
+        "personId": "bugra",
+        "targetWeekdayCount": 2,
+        "notes": "Default assumption for this planning week."
+      },
+      {
+        "personId": "sena",
+        "targetWeekdayCount": 2,
+        "notes": "Default assumption for this planning week."
+      }
+    ],
     "days": [
       {
         "dayId": "2026-07-06",

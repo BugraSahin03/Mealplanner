@@ -41,6 +41,31 @@ Vor jeder Wochenplanung soll eingetragen werden:
 
 Die Tage sind nicht fest, sondern variabel. Deshalb darf die App nicht von festen Homeoffice-Tagen ausgehen.
 
+## Kalenderwochen-Planung
+
+Der Wochenkontext soll kalenderwochenbasiert gedacht werden.
+
+Das Jahr wird in Kalenderwochen gegliedert. Fuer jede Kalenderwoche kann geplant werden, an welchen Werktagen Buğra und Sena im Homeoffice oder im Office sind. Wochenenden gelten nicht als Homeoffice-Tage im Sinne des Arbeitsrhythmus, auch wenn zuhause gegessen wird.
+
+Fuer den Alltag ist folgende Logik wichtig:
+
+- Standardwert: zwei Homeoffice-Tage pro Person und Kalenderwoche.
+- Die Anzahl ist pro Kalenderwoche flexibel anpassbar.
+- Beispiele: eine Woche mit nur einem Homeoffice-Tag, eine Woche mit drei Homeoffice-Tagen.
+- Die konkrete Tagesauswahl wird pro Person gesetzt.
+- Die Tagesauswahl beeinflusst Fruehstueck und Mittagessen unmittelbar.
+- Abendessen bleibt meistens die gemeinsame Hauptmahlzeit.
+
+Zielbild fuer die UI:
+
+- Jahres- oder Monatsuebersicht mit Kalenderwochen.
+- Eine Kalenderwoche kann geoeffnet und bearbeitet werden.
+- Homeoffice-Tage koennen per Drag-and-Drop auf konkrete Tage gelegt oder zwischen Tagen verschoben werden.
+- Plus/Minus-Steuerung erhoeht oder reduziert die Anzahl erlaubter Homeoffice-Tage fuer die Woche.
+- Die UI soll klar zeigen, ob die aktuelle Woche die gewuenschte Anzahl an Homeoffice-Tagen pro Person erfuellt.
+
+Diese Logik ist ein Kerninput fuer die AI-Planung. Die App sollte OpenClaw nicht nur die fertigen Tageskontexte schicken, sondern auch den Wochenrahmen, z. B. Kalenderjahr, Kalenderwoche und Homeoffice-Zielanzahl pro Person. So kann OpenClaw die Mahlzeitenvorschlaege begruenden und bei Unstimmigkeiten Hinweise geben.
+
 ## Mahlzeitentypen
 
 ### Fruehstueck
@@ -103,6 +128,8 @@ Eine Mahlzeit sollte spaeter Tags oder Eigenschaften haben wie:
 
 Die KI bzw. Planungslogik sollte beim Erstellen einer Woche:
 
+- Kalenderjahr und Kalenderwoche als Planungsrahmen kennen,
+- die Homeoffice-Zielanzahl pro Person und Woche beachten,
 - Office- und Homeoffice-Tage pro Person beachten,
 - Fruehstueck und Mittag ggf. pro Person unterschiedlich planen,
 - Abendessen eher gemeinsam planen,

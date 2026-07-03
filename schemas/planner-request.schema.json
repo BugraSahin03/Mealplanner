@@ -15,9 +15,25 @@
       "additionalProperties": false,
       "required": ["days"],
       "properties": {
+        "calendarYear": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 2100
+        },
+        "calendarWeek": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 53
+        },
         "weekStartDate": {
           "type": "string",
           "format": "date"
+        },
+        "homeOfficeTargets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/homeOfficeTarget"
+          }
         },
         "days": {
           "type": "array",
@@ -82,6 +98,25 @@
     }
   },
   "$defs": {
+    "homeOfficeTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["personId", "targetWeekdayCount"],
+      "properties": {
+        "personId": {
+          "type": "string",
+          "enum": ["bugra", "sena"]
+        },
+        "targetWeekdayCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
     "requestDay": {
       "type": "object",
       "additionalProperties": false,

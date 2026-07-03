@@ -1,7 +1,21 @@
 {
   "schemaVersion": "1.0",
   "week": {
+    "calendarYear": 2026,
+    "calendarWeek": 28,
     "weekStartDate": "2026-07-06",
+    "homeOfficeTargets": [
+      {
+        "personId": "bugra",
+        "targetWeekdayCount": 2,
+        "notes": "Tuesday and Thursday are selected as homeoffice weekdays."
+      },
+      {
+        "personId": "sena",
+        "targetWeekdayCount": 3,
+        "notes": "This week has one extra homeoffice weekday."
+      }
+    ],
     "days": [
       {
         "dayId": "2026-07-06",
