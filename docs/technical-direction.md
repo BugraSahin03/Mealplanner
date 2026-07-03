@@ -97,9 +97,38 @@ Aktuelle Integrationsidee:
 - Der Agent liefert JSON nach einem festen Schema.
 - Die App validiert und speichert Wochenplan und Einkaufsliste.
 
+## Planner-Jobs statt blockierender Button-Antwort
+
+Die Wochenplanung soll im MVP als laenger laufender Job modelliert werden.
+
+Begruendung:
+
+- OpenClaw-Läufe dauern in den Tests deutlich laenger als eine normale UI-Sofortaktion.
+- Eine komplette 7-Tage-Woche kann mehrere Minuten brauchen.
+- Normale Web-Requests koennen bei langen LLM-Läufen abbrechen oder fuer den Nutzer wie eingefroren wirken.
+- Die App soll robust bleiben, auch wenn OpenClaw langsam ist oder eine Antwort neu versucht werden muss.
+
+Gewuenschter Ablauf:
+
+1. Nutzer klickt `Wochenplan erstellen`.
+2. Die App legt einen Planungsauftrag mit Status `running` an.
+3. Der Server startet den OpenClaw-Aufruf im Hintergrund.
+4. Die UI zeigt einen Fortschritts-/Wartestatus.
+5. Nach Abschluss wird `payloads[0].text` extrahiert.
+6. Die Antwort wird gegen `schemas/planner-response.schema.json` validiert.
+7. Nur valide Plaene werden gespeichert und angezeigt.
+8. Fehlerhafte oder abgebrochene Laeufe enden in `failed` mit sichtbarer Fehlermeldung.
+
+Minimal benoetigte Job-Status fuer den MVP:
+
+- `idle`
+- `running`
+- `success`
+- `failed`
+
+Diese Entscheidung bedeutet nicht, dass eine grosse Queue-Infrastruktur noetig ist. Fuer den Start reicht ein einfacher serverseitiger Job-Mechanismus, solange die UI nicht auf eine einzelne blockierende HTTP-Antwort angewiesen ist.
+
 ## Noch offen
 
-- konkreter Tech-Stack,
-- Datenbank,
-- konkrete lokale LLM-/Agent-Loesung,
-- ob bestehende BudgetBuddy-Infrastruktur oder Muster wiederverwendet werden koennen.
+- konkrete Umsetzung des Job-Mechanismus im Next.js-Grundgeruest,
+- spaetere Entscheidung, ob OpenClaw dauerhaft per CLI-Adapter oder Gateway angebunden wird.

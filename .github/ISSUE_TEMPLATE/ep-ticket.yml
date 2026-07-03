@@ -1,0 +1,106 @@
+name: EP Ticket
+description: Arbeitsticket fuer Essenplanner mit EP-Referenz, Ziel und Akzeptanzkriterien
+title: "[EP-XXX] "
+labels:
+  - status:todo
+  - type:feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bitte EP-Referenz im Titel belassen (z. B. `[EP-001] Projektgrundgeruest erstellen`).
+  - type: input
+    id: ep_ref
+    attributes:
+      label: EP-Referenz
+      description: Interne EP-ID, z. B. EP-001
+      placeholder: EP-XXX
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioritaet
+      options:
+        - P0
+        - P1
+        - P2
+    validations:
+      required: true
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: MVP-Phase
+      options:
+        - MVP 0: Fundament
+        - MVP 1: Profile und Wochen-Setup
+        - MVP 2: Planner-Job und OpenClaw
+        - MVP 3: Wochenplan und Einkaufsliste
+        - MVP 4: Betrieb und Deployment
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Ziel
+      description: Welches Ergebnis soll dieses Ticket liefern?
+      placeholder: Beschreibe das Ziel in 1-3 Saetzen.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Akzeptanzkriterien
+      description: Checkbare Kriterien als Liste
+      placeholder: |
+        - [ ] Kriterium 1
+        - [ ] Kriterium 2
+    validations:
+      required: true
+  - type: textarea
+    id: write_scope
+    attributes:
+      label: Write-Scope
+      description: Welche Dateien/Ordner duerfen geaendert werden?
+      placeholder: |
+        - app/**
+        - src/**
+        - tests/**
+    validations:
+      required: true
+  - type: textarea
+    id: read_scope
+    attributes:
+      label: Read-Scope
+      description: Welche Dateien/Ordner duerfen fuer Kontext gelesen werden?
+      placeholder: |
+        - docs/**
+        - schemas/**
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Nicht-Ziele
+      description: Was ist explizit nicht Teil dieses Tickets?
+      placeholder: |
+        - Kein Refactor ausserhalb des Tickets
+        - Keine Deployment-Aenderung
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Abhaengigkeiten
+      description: Welche Issues, Entscheidungen oder Freigaben muessen vorher erledigt sein?
+      placeholder: |
+        - Keine
+        - Blockiert durch #123
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notizen
+      description: Optionaler Kontext, Links oder Risiken
+      placeholder: Optional

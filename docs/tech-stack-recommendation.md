@@ -9,7 +9,8 @@ Fuer den ersten produktiv nutzbaren Stand wird dieser Stack empfohlen:
 - SQLite als erste Datenbank,
 - Drizzle ORM fuer Schema und Datenzugriff,
 - KI-Integration mit strukturierten JSON-Ausgaben, aber ohne externe LLM-API im MVP,
-- Docker fuer Deployment auf Hetzner,
+- systemd-Deployment auf Hetzner fuer den MVP,
+- Docker optional spaeter,
 - Zugriff privat ueber Tailscale.
 
 ## Warum dieser Stack passt
@@ -42,6 +43,18 @@ Falls spaeter mehr Nutzer, komplexere Historie oder mehrere Clients dazukommen, 
 
 Drizzle passt gut zu TypeScript und haelt das Datenmodell nah am Code. Es ist weniger schwergewichtig als viele klassische ORM-Setups und gut geeignet fuer ein kleines, klares Produkt.
 
+### systemd auf Hetzner
+
+Fuer den ersten privaten Produktivbetrieb orientieren wir uns an BudgetBuddy:
+
+- eigener App-Pfad, z. B. `/opt/essenplanner`,
+- eigene SQLite-Datei, z. B. `/var/lib/essenplanner/essenplanner.db`,
+- eigener systemd-Dienst,
+- Bindung nur an `127.0.0.1`,
+- Zugriff ueber Tailscale.
+
+Das ist fuer den bestehenden Server pragmatischer als ein Docker-Zwang. Docker bleibt eine spaetere Option, falls mehrere Dienste, reproduzierbare Container-Builds oder ein anderer Hosting-Zielort wichtiger werden.
+
 ### KI-Integration
 
 Die KI soll nicht nur Text erzeugen, sondern strukturierte Daten:
@@ -73,6 +86,10 @@ Rails oder Laravel waeren stark fuer klassische CRUD-Apps. Fuer eine moderne int
 ### Postgres statt SQLite
 
 Postgres ist robuster fuer groessere Anwendungen, aber fuer diesen privaten MVP zuerst mehr Betriebsaufwand als Nutzen. SQLite ist die bessere Startwahl.
+
+### Docker statt systemd
+
+Docker waere technisch moeglich, ist fuer den MVP aber nicht notwendig. BudgetBuddy laeuft bereits als systemd-Dienst auf dem bestehenden Hetzner-VPS. Essenplanner soll dieses Muster zuerst uebernehmen und sauber getrennt als eigener Dienst laufen.
 
 ## Bewusste Nicht-Ziele fuer den Start
 
