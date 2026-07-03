@@ -99,3 +99,29 @@ export function buildProfileInputFromFormData(formData: FormData): ProfileInput 
     profileNotesMarkdown: null,
   };
 }
+
+export function mergeProfileFormInput(
+  existing: Profile | null,
+  input: ProfileInput,
+): ProfileInput {
+  if (!existing) {
+    return input;
+  }
+
+  return {
+    ...input,
+    preferences: {
+      ...input.preferences,
+      likedCuisines: existing.preferences.likedCuisines,
+      dislikedCuisines: existing.preferences.dislikedCuisines,
+    },
+    mealGuidance: {
+      ...input.mealGuidance,
+      officeDay: existing.mealGuidance.officeDay,
+      homeOfficeDay: existing.mealGuidance.homeOfficeDay,
+      mealPrep: existing.mealGuidance.mealPrep,
+    },
+    hardRules: existing.hardRules,
+    profileNotesMarkdown: existing.profileNotesMarkdown,
+  };
+}
