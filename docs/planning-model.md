@@ -123,3 +123,21 @@ Das ist eine bewusste Vereinfachung:
 - Es entsteht kein zusaetzlicher Pflegeaufwand.
 
 Perspektivisch kann Ausfall- oder Restetracking spaeter dazukommen, falls es fuer weniger Verschwendung wirklich hilft.
+
+## Persistenzmodell fuer den MVP
+
+Die erste Persistenzschicht bildet die Planungsobjekte in SQLite ab. Sie ist bewusst klein gehalten und soll vor allem die spaetere OpenClaw-Antwort sauber speichern koennen.
+
+Kernobjekte:
+
+- `profiles`: genau die zwei MVP-Profile `bugra` und `sena` mit Ziel, groben Kalorien, strukturierten Praeferenzen und optionalem Markdown-Snapshot aus der Profil-Memory.
+- `week_contexts`: eine konkrete Planungswoche mit optionalem Startdatum und Notizen.
+- `week_context_person_days`: Office/Home/Away/Flex-Kontext pro Tag und Person.
+- `planner_jobs`: laenger laufende Planungsauftraege mit Status `idle`, `running`, `success` oder `failed`.
+- `week_plans`: gespeicherte Planner-Antworten mit Plan-Payload und konsolidierter Einkaufsliste als JSON.
+- `planned_meals`: kleine, abfragbare Mahlzeitenprojektion je Plan, Tag, Typ, Kontext und Personen/Zutaten-JSON.
+- `shopping_items`: kleine, abfragbare Einkaufslistenprojektion je Plan mit Menge, Einheit, Kategorie und Quellen.
+
+Die App speichert die vollstaendige Planner-Antwort weiterhin als JSON nach `schemas/planner-response.schema.json`. Die zusaetzlichen Tabellen fuer Mahlzeiten und Einkaufsposten sind eine pragmatische Projektion fuer UI, Tests und spaetere Abfragen, nicht die neue fachliche Quelle der Wahrheit.
+
+Fuer EP-002 wird die SQLite-Anbindung ohne neue npm-Abhaengigkeit ueber `node:sqlite` umgesetzt, weil das Ticket keinen Write-Scope fuer `package.json` enthaelt. Diese Node-Schnittstelle ist in der lokalen Node-Version verfuegbar, aber noch experimentell. Falls sich das im Betrieb als zu riskant erweist, sollte ein Folgeticket den Wechsel auf die BudgetBuddy-nahe `better-sqlite3`-Abhaengigkeit inklusive `package.json`-Scope vorsehen.
