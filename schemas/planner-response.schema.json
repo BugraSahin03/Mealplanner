@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://essenplanner.local/schemas/planner-response.schema.json",
+  "title": "Essenplanner Planner Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "plan", "shoppingList"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["days"],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "days": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 7,
+          "items": {
+            "$ref": "#/$defs/dayPlan"
+          }
+        }
+      }
+    },
+    "shoppingList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/shoppingItem"
+      }
+    },
+    "plannerNotes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "dayPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dayId", "weekday", "meals"],
+      "properties": {
+        "dayId": {
+          "type": "string",
+          "description": "Stable day key, e.g. monday or 2026-07-06."
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "weekday": {
+          "type": "string",
+          "enum": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ]
+        },
+        "meals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/meal"
+          }
+        }
+      }
+    },
+    "meal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mealId",
+        "mealType",
+        "title",
+        "people",
+        "context",
+        "ingredients"
+      ],
+      "properties": {
+        "mealId": {
+          "type": "string",
+          "description": "Stable id within the response, e.g. monday-breakfast-bugra."
+        },
+        "mealType": {
+          "type": "string",
+          "enum": ["breakfast", "lunch", "dinner", "snack"]
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "people": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/mealPerson"
+          }
+        },
+        "context": {
+          "type": "string",
+          "enum": ["office", "home", "shared", "meal_prep", "flex"]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mealPrep": {
+          "$ref": "#/$defs/mealPrep"
+        },
+        "estimatedNutrition": {
+          "$ref": "#/$defs/nutrition"
+        },
+        "ingredients": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ingredient"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "mealPerson": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["personId"],
+      "properties": {
+        "personId": {
+          "type": "string",
+          "enum": ["bugra", "sena"]
+        },
+        "portion": {
+          "type": "string",
+          "enum": ["small", "normal", "large"]
+        },
+        "estimatedKcal": {
+          "type": "number",
+          "minimum": 0
+        },
+        "estimatedProteinG": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "mealPrep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transportable", "makeAhead"],
+      "properties": {
+        "transportable": {
+          "type": "boolean"
+        },
+        "makeAhead": {
+          "type": "boolean"
+        },
+        "reheating": {
+          "type": "string",
+          "enum": ["none", "microwave", "pan", "oven", "cold_ok"]
+        },
+        "prepNotes": {
+          "type": "string"
+        }
+      }
+    },
+    "nutrition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kcal": {
+          "type": "number",
+          "minimum": 0
+        },
+        "proteinG": {
+          "type": "number",
+          "minimum": 0
+        },
+        "carbsG": {
+          "type": "number",
+          "minimum": 0
+        },
+        "fatG": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "ingredient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "amount", "unit"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "category": {
+          "$ref": "#/$defs/shoppingCategory"
+        },
+        "pantryItem": {
+          "type": "boolean",
+          "description": "True for likely-stock items such as salt, oil, spices or flour."
+        },
+        "optional": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "shoppingItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "amount", "unit"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "category": {
+          "$ref": "#/$defs/shoppingCategory"
+        },
+        "sourceMealIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pantryItem": {
+          "type": "boolean"
+        },
+        "optional": {
+          "type": "boolean"
+        },
+        "buyingHint": {
+          "type": "string",
+          "description": "Practical pack-size hint, e.g. buy 500 g pack."
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "g",
+        "kg",
+        "ml",
+        "l",
+        "piece",
+        "tbsp",
+        "tsp",
+        "pack",
+        "can",
+        "jar",
+        "bottle"
+      ]
+    },
+    "shoppingCategory": {
+      "type": "string",
+      "enum": [
+        "produce",
+        "meat_fish",
+        "dairy_eggs",
+        "bakery",
+        "dry_goods",
+        "frozen",
+        "canned",
+        "condiments_spices",
+        "drinks",
+        "other"
+      ]
+    }
+  }
+}

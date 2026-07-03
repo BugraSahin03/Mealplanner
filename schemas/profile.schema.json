@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://essenplanner.local/schemas/profile.schema.json",
+  "title": "Essenplanner Person Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "personId", "displayName", "goals"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "personId": {
+      "type": "string",
+      "enum": ["bugra", "sena"]
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "goals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primaryGoal"],
+      "properties": {
+        "primaryGoal": {
+          "type": "string",
+          "enum": [
+            "muscle_gain",
+            "weight_gain",
+            "fat_loss",
+            "weight_loss",
+            "maintenance"
+          ]
+        },
+        "dailyCaloriesTarget": {
+          "type": "number",
+          "minimum": 0
+        },
+        "proteinFocus": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "favoriteMeals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "likedIngredients": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dislikedIngredients": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "likedCuisines": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dislikedCuisines": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "mealGuidance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "breakfast": {
+          "type": "string"
+        },
+        "lunch": {
+          "type": "string"
+        },
+        "dinner": {
+          "type": "string"
+        },
+        "officeDay": {
+          "type": "string"
+        },
+        "homeOfficeDay": {
+          "type": "string"
+        },
+        "mealPrep": {
+          "type": "string"
+        }
+      }
+    },
+    "hardRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "softRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "profileNotesMarkdown": {
+      "type": "string",
+      "description": "Optional Markdown snapshot or reference text used by OpenClaw."
+    }
+  }
+}
