@@ -128,7 +128,18 @@ Minimal benoetigte Job-Status fuer den MVP:
 
 Diese Entscheidung bedeutet nicht, dass eine grosse Queue-Infrastruktur noetig ist. Fuer den Start reicht ein einfacher serverseitiger Job-Mechanismus, solange die UI nicht auf eine einzelne blockierende HTTP-Antwort angewiesen ist.
 
+Erste MVP-Umsetzung:
+
+- Planner-Jobs werden in `planner_jobs` gespeichert.
+- Jeder Job speichert Request, Status, optionalen validierten Response sowie Fehlertext und Fehlercode.
+- Die erlaubten Statuswechsel sind bewusst klein:
+  - `idle -> running`,
+  - `running -> success`,
+  - `running -> failed`,
+  - `failed -> running` fuer einen erneuten Versuch.
+- Ein erfolgreicher Job darf nur mit einem strukturell validierten Planner-Response abgeschlossen werden.
+- Die erste UI zeigt den aktuellen Job-Status und simuliert Start, Erfolg und Fehler, bis der echte OpenClaw-Adapter folgt.
+
 ## Noch offen
 
-- konkrete Umsetzung des Job-Mechanismus im Next.js-Grundgeruest,
 - spaetere Entscheidung, ob OpenClaw dauerhaft per CLI-Adapter oder Gateway angebunden wird.

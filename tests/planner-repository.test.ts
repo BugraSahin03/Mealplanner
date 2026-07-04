@@ -4,13 +4,17 @@ import { createDatabase } from "../src/db/client";
 import type { SqliteDatabase } from "../src/db/sqlite";
 import {
   createPlannerJob,
+  completePlannerJob,
+  failPlannerJob,
   getPlannerJob,
   getWeekContext,
   getWeekPlan,
   saveWeekContext,
   saveWeekPlan,
+  startPlannerJob,
   updatePlannerJobStatus,
 } from "../src/planner/repository";
+import { buildDemoPlannerResponse, type PlannerResponse } from "../src/planner/response";
 
 let db: SqliteDatabase;
 
@@ -88,18 +92,97 @@ describe("planner repository", () => {
 
     expect(job.status).toBe("idle");
 
-    const running = updatePlannerJobStatus(db, "job-1", "running");
+    const running = startPlannerJob(db, "job-1");
     expect(running.status).toBe("running");
     expect(running.completedAt).toBeNull();
+    expect(running.errorCode).toBeNull();
 
-    const success = updatePlannerJobStatus(db, "job-1", "success", {
-      response: { schemaVersion: "1.0", plan: { days: [] }, shoppingList: [] },
-    });
+    const success = completePlannerJob(db, "job-1", buildDemoPlannerResponse());
 
     expect(success.status).toBe("success");
     expect(success.response).toMatchObject({ schemaVersion: "1.0" });
     expect(success.completedAt).toEqual(expect.any(String));
     expect(getPlannerJob(db, "job-1")?.weekId).toBe("2026-W28");
+  });
+
+  it("stores failed planner job details and allows retry from failed to running", () => {
+    const job = createPlannerJob(db, {
+      jobId: "job-failed",
+      request: { schemaVersion: "1.0" },
+    });
+
+    expect(job.status).toBe("idle");
+
+    startPlannerJob(db, "job-failed");
+    const failed = failPlannerJob(db, "job-failed", {
+      errorCode: "openclaw_timeout",
+      errorMessage: "OpenClaw hat zu lange gebraucht.",
+    });
+
+    expect(failed.status).toBe("failed");
+    expect(failed.errorCode).toBe("openclaw_timeout");
+    expect(failed.errorMessage).toBe("OpenClaw hat zu lange gebraucht.");
+    expect(failed.completedAt).toEqual(expect.any(String));
+
+    const retrying = startPlannerJob(db, "job-failed");
+    expect(retrying.status).toBe("running");
+    expect(retrying.errorCode).toBeNull();
+    expect(retrying.errorMessage).toBeNull();
+    expect(retrying.completedAt).toBeNull();
+  });
+
+  it("rejects invalid job transitions and invalid success responses", () => {
+    createPlannerJob(db, {
+      jobId: "job-invalid",
+      request: { schemaVersion: "1.0" },
+    });
+
+    expect(() => {
+      updatePlannerJobStatus(db, "job-invalid", "success", {
+        response: buildDemoPlannerResponse(),
+      });
+    }).toThrow("Invalid planner job transition");
+
+    startPlannerJob(db, "job-invalid");
+
+    expect(() => {
+      completePlannerJob(db, "job-invalid", {
+        schemaVersion: "1.0",
+        plan: { days: [] },
+        shoppingList: [],
+      });
+    }).toThrow("Invalid planner response");
+  });
+
+  it("rejects planner responses that violate schema-like enum and shape rules", () => {
+    createPlannerJob(db, {
+      jobId: "job-invalid-response",
+      request: { schemaVersion: "1.0" },
+    });
+    startPlannerJob(db, "job-invalid-response");
+
+    const response = buildDemoPlannerResponse() as PlannerResponse & {
+      unexpected?: boolean;
+    };
+    response.unexpected = true;
+    response.plan.days[0]!.meals[0]!.ingredients[0]!.unit = "handful" as "g";
+    response.plan.days[0]!.meals[0]!.ingredients[0]!.category = "snacks" as "produce";
+    response.plan.days[0]!.meals[0]!.people[0]!.portion = "huge" as "normal";
+
+    expect(() => {
+      completePlannerJob(db, "job-invalid-response", response);
+    }).toThrow("Invalid planner response");
+  });
+
+  it("always creates planner jobs in idle state", () => {
+    const job = createPlannerJob(db, {
+      jobId: "job-idle-only",
+      request: { schemaVersion: "1.0" },
+    });
+
+    expect(job.status).toBe("idle");
+    expect(job.response).toBeNull();
+    expect(job.completedAt).toBeNull();
   });
 
   it("stores week plan payload, meals and shopping list", () => {
@@ -111,9 +194,10 @@ describe("planner repository", () => {
     createPlannerJob(db, {
       jobId: "job-1",
       weekId: "2026-W28",
-      status: "success",
       request: { schemaVersion: "1.0" },
     });
+    startPlannerJob(db, "job-1");
+    completePlannerJob(db, "job-1", buildDemoPlannerResponse());
 
     saveWeekPlan(db, {
       planId: "plan-1",
