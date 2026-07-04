@@ -63,7 +63,7 @@ if (Array.isArray(outerOrResponse.payloads)) {
   if (typeof text !== "string") {
     throw new Error("OpenClaw output does not contain payloads[0].text.");
   }
-  response = JSON.parse(text);
+  response = parseFirstJsonObject(text);
 }
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });

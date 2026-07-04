@@ -140,6 +140,13 @@ Erste MVP-Umsetzung:
 - Ein erfolgreicher Job darf nur mit einem strukturell validierten Planner-Response abgeschlossen werden.
 - Die erste UI zeigt den aktuellen Job-Status und simuliert Start, Erfolg und Fehler, bis der echte OpenClaw-Adapter folgt.
 
+OpenClaw-Adapter:
+
+- Die Planerzeugung laeuft ueber ein `PlannerAdapter`-Interface.
+- Lokal kann ein Fixture-Adapter genutzt werden.
+- Auf dem Server kann `ESSENPLANNER_PLANNER_ADAPTER=openclaw-cli` den OpenClaw-CLI-Adapter aktivieren.
+- Der CLI-Adapter baut den Prompt aus Planner-Request und `schemas/planner-response.schema.json`, fordert deutschsprachige sichtbare Inhalte an und validiert die extrahierte Antwort vor dem Speichern.
+
 ## Noch offen
 
 - spaetere Entscheidung, ob OpenClaw dauerhaft per CLI-Adapter oder Gateway angebunden wird.

@@ -2,6 +2,7 @@ import type { SqliteDatabase } from "../db/sqlite";
 import { listProfiles } from "../profiles/repository";
 import { getOrCreateCurrentWeekContext } from "../week-context/repository";
 import { buildPlannerRequestFromWeekContext } from "./request";
+import { createPlannerAdapterFromEnv, runPlannerJob } from "./adapter";
 import {
   completePlannerJob,
   createPlannerJob,
@@ -55,4 +56,9 @@ export function failLatestPlannerJobWithDemoError(db: SqliteDatabase): PlannerJo
     errorCode: "demo_openclaw_timeout",
     errorMessage: "Demo-Fehler: Planner-Aufruf hat zu lange gedauert.",
   });
+}
+
+export async function runLatestPlannerJobWithConfiguredAdapter(db: SqliteDatabase): Promise<PlannerJob> {
+  const job = getLatestPlannerJob(db) ?? createCurrentWeekPlannerJob(db);
+  return runPlannerJob(db, job.jobId, createPlannerAdapterFromEnv());
 }
