@@ -14,7 +14,7 @@ import {
   startPlannerJob,
   updatePlannerJobStatus,
 } from "../src/planner/repository";
-import { buildDemoPlannerResponse } from "../src/planner/response";
+import { buildDemoPlannerResponse, type PlannerResponse } from "../src/planner/response";
 
 let db: SqliteDatabase;
 
@@ -154,6 +154,37 @@ describe("planner repository", () => {
     }).toThrow("Invalid planner response");
   });
 
+  it("rejects planner responses that violate schema-like enum and shape rules", () => {
+    createPlannerJob(db, {
+      jobId: "job-invalid-response",
+      request: { schemaVersion: "1.0" },
+    });
+    startPlannerJob(db, "job-invalid-response");
+
+    const response = buildDemoPlannerResponse() as PlannerResponse & {
+      unexpected?: boolean;
+    };
+    response.unexpected = true;
+    response.plan.days[0]!.meals[0]!.ingredients[0]!.unit = "handful" as "g";
+    response.plan.days[0]!.meals[0]!.ingredients[0]!.category = "snacks" as "produce";
+    response.plan.days[0]!.meals[0]!.people[0]!.portion = "huge" as "normal";
+
+    expect(() => {
+      completePlannerJob(db, "job-invalid-response", response);
+    }).toThrow("Invalid planner response");
+  });
+
+  it("always creates planner jobs in idle state", () => {
+    const job = createPlannerJob(db, {
+      jobId: "job-idle-only",
+      request: { schemaVersion: "1.0" },
+    });
+
+    expect(job.status).toBe("idle");
+    expect(job.response).toBeNull();
+    expect(job.completedAt).toBeNull();
+  });
+
   it("stores week plan payload, meals and shopping list", () => {
     saveWeekContext(db, {
       weekId: "2026-W28",
@@ -163,9 +194,10 @@ describe("planner repository", () => {
     createPlannerJob(db, {
       jobId: "job-1",
       weekId: "2026-W28",
-      status: "success",
       request: { schemaVersion: "1.0" },
     });
+    startPlannerJob(db, "job-1");
+    completePlannerJob(db, "job-1", buildDemoPlannerResponse());
 
     saveWeekPlan(db, {
       planId: "plan-1",

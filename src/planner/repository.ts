@@ -231,7 +231,6 @@ export function createPlannerJob(
   input: {
     jobId?: string;
     weekId?: string | null;
-    status?: PlannerJobStatus;
     request: unknown;
   },
 ): PlannerJob {
@@ -242,7 +241,7 @@ export function createPlannerJob(
       INSERT INTO planner_jobs (job_id, week_id, status, request_json, updated_at)
       VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
     `,
-  ).run(jobId, input.weekId ?? null, input.status ?? "idle", stringifyJson(input.request));
+  ).run(jobId, input.weekId ?? null, "idle", stringifyJson(input.request));
 
   const job = getPlannerJob(db, jobId);
   if (!job) {
