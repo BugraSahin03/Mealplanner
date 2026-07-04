@@ -38,9 +38,17 @@ describe("database schema", () => {
         "shopping_items",
       ]),
     );
-    expect(getSchemaVersion(db)).toBe("0001_ep_002");
+    expect(getSchemaVersion(db)).toBe("0002_ep_005");
     expect(listProfiles(db).map((profile) => profile.personId)).toEqual(["bugra", "sena"]);
     expect(getProfile(db, "bugra")?.primaryGoal).toBe("muscle_gain");
+  });
+
+  it("stores planner job error codes for failed long-running jobs", () => {
+    const columns = db
+      .prepare("PRAGMA table_info(planner_jobs)")
+      .all() as Array<{ name: string }>;
+
+    expect(columns.map((column) => column.name)).toContain("error_code");
   });
 
   it("enforces planner job statuses", () => {

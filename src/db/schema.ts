@@ -138,11 +138,20 @@ VALUES
 ON CONFLICT(person_id) DO NOTHING;
 `;
 
+const ep005PlannerJobStatusSql = `
+ALTER TABLE planner_jobs ADD COLUMN error_code TEXT;
+`;
+
 export const migrations: Migration[] = [
   {
     id: "0001_ep_002",
     name: "core planner persistence",
     sql: ep002PersistenceSql,
+  },
+  {
+    id: "0002_ep_005",
+    name: "planner job status details",
+    sql: ep005PlannerJobStatusSql,
   },
 ];
 

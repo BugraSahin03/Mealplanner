@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { parseJson, stringifyJson } from "../db/json";
 import type { SqliteDatabase } from "../db/sqlite";
 import type { PersonId } from "../profiles/repository";
+import { assertPlannerResponse } from "./response";
 
 export type Weekday =
   | "monday"
@@ -41,6 +42,9 @@ export type PlannerJob = {
   request: unknown;
   response: unknown | null;
   errorMessage: string | null;
+  errorCode: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
   completedAt: string | null;
 };
 
@@ -107,6 +111,9 @@ type PlannerJobRow = {
   request_json: string;
   response_json: string | null;
   error_message: string | null;
+  error_code: string | null;
+  created_at: string | null;
+  updated_at: string | null;
   completed_at: string | null;
 };
 
@@ -245,6 +252,22 @@ export function createPlannerJob(
   return job;
 }
 
+function assertPlannerJobTransition(
+  currentStatus: PlannerJobStatus,
+  nextStatus: PlannerJobStatus,
+): void {
+  const allowed: Record<PlannerJobStatus, PlannerJobStatus[]> = {
+    idle: ["running", "failed"],
+    running: ["success", "failed"],
+    success: [],
+    failed: ["running"],
+  };
+
+  if (!allowed[currentStatus].includes(nextStatus)) {
+    throw new Error(`Invalid planner job transition: ${currentStatus} -> ${nextStatus}.`);
+  }
+}
+
 export function updatePlannerJobStatus(
   db: SqliteDatabase,
   jobId: string,
@@ -252,16 +275,28 @@ export function updatePlannerJobStatus(
   details: {
     response?: unknown;
     errorMessage?: string | null;
+    errorCode?: string | null;
   } = {},
 ): PlannerJob {
+  const current = getPlannerJob(db, jobId);
+  if (!current) {
+    throw new Error(`Planner job ${jobId} does not exist.`);
+  }
+  assertPlannerJobTransition(current.status, status);
+
+  if (status === "success") {
+    assertPlannerResponse(details.response);
+  }
+
   const completedAtSql = status === "success" || status === "failed" ? "CURRENT_TIMESTAMP" : "NULL";
 
   db.prepare(
     `
       UPDATE planner_jobs
       SET status = ?,
-          response_json = COALESCE(?, response_json),
+          response_json = ?,
           error_message = ?,
+          error_code = ?,
           completed_at = ${completedAtSql},
           updated_at = CURRENT_TIMESTAMP
       WHERE job_id = ?
@@ -269,7 +304,8 @@ export function updatePlannerJobStatus(
   ).run(
     status,
     details.response === undefined ? null : stringifyJson(details.response),
-    details.errorMessage ?? null,
+    status === "failed" ? details.errorMessage ?? "Planner job failed." : null,
+    status === "failed" ? details.errorCode ?? "planner_failed" : null,
     jobId,
   );
 
@@ -281,11 +317,32 @@ export function updatePlannerJobStatus(
   return job;
 }
 
+export function startPlannerJob(db: SqliteDatabase, jobId: string): PlannerJob {
+  return updatePlannerJobStatus(db, jobId, "running");
+}
+
+export function completePlannerJob(
+  db: SqliteDatabase,
+  jobId: string,
+  response: unknown,
+): PlannerJob {
+  return updatePlannerJobStatus(db, jobId, "success", { response });
+}
+
+export function failPlannerJob(
+  db: SqliteDatabase,
+  jobId: string,
+  details: { errorMessage: string; errorCode?: string | null },
+): PlannerJob {
+  return updatePlannerJobStatus(db, jobId, "failed", details);
+}
+
 export function getPlannerJob(db: SqliteDatabase, jobId: string): PlannerJob | null {
   const row = db
     .prepare(
       `
         SELECT job_id, week_id, status, request_json, response_json, error_message, completed_at
+             , error_code, created_at, updated_at
         FROM planner_jobs
         WHERE job_id = ?
       `,
@@ -303,8 +360,42 @@ export function getPlannerJob(db: SqliteDatabase, jobId: string): PlannerJob | n
     request: parseJson(row.request_json, null),
     response: row.response_json ? parseJson(row.response_json, null) : null,
     errorMessage: row.error_message,
+    errorCode: row.error_code,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
     completedAt: row.completed_at,
   };
+}
+
+export function listPlannerJobs(db: SqliteDatabase, limit = 10): PlannerJob[] {
+  const rows = db
+    .prepare(
+      `
+        SELECT job_id, week_id, status, request_json, response_json, error_message,
+               error_code, created_at, updated_at, completed_at
+        FROM planner_jobs
+        ORDER BY created_at DESC, job_id DESC
+        LIMIT ?
+      `,
+    )
+    .all(limit) as PlannerJobRow[];
+
+  return rows.map((row) => ({
+    jobId: row.job_id,
+    weekId: row.week_id,
+    status: row.status,
+    request: parseJson(row.request_json, null),
+    response: row.response_json ? parseJson(row.response_json, null) : null,
+    errorMessage: row.error_message,
+    errorCode: row.error_code,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    completedAt: row.completed_at,
+  }));
+}
+
+export function getLatestPlannerJob(db: SqliteDatabase): PlannerJob | null {
+  return listPlannerJobs(db, 1)[0] ?? null;
 }
 
 export function saveWeekPlan(db: SqliteDatabase, input: WeekPlanInput): WeekPlan {
