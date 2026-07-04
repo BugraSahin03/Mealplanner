@@ -24,9 +24,9 @@ export default function HomePage() {
           <Link className="nav-link" href="/planner">
             Wochenplan
           </Link>
-          <a className="nav-link" href="#einkauf">
+          <Link className="nav-link" href="/planner#einkauf">
             Einkaufsliste
-          </a>
+          </Link>
         </nav>
       </aside>
 

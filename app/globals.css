@@ -619,9 +619,229 @@ textarea:focus {
   background: #fbfcfa;
 }
 
+.job-row div {
+  display: grid;
+  gap: 0.25rem;
+}
+
 .job-row p {
   color: var(--ink-soft);
   margin-bottom: 0;
+}
+
+.plan-board-section,
+.shopping-list-section {
+  gap: 1.1rem;
+}
+
+.week-plan-board {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.week-plan-day {
+  background: #fbfcfa;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.85rem;
+}
+
+.week-plan-day header {
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 0.45rem;
+  padding-bottom: 0.65rem;
+}
+
+.week-plan-day h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.15rem;
+}
+
+.week-plan-day header span,
+.week-plan-day header small {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.week-meal-stack {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.week-meal {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.75rem;
+}
+
+.week-meal-shared {
+  border-left: 0.3rem solid var(--accent);
+}
+
+.week-meal-header {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.week-meal-header span,
+.plan-notes-grid span {
+  color: var(--accent-strong);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.week-meal-header strong {
+  line-height: 1.2;
+}
+
+.week-meal-meta,
+.shopping-item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.week-meal-meta em,
+.shopping-item-tags em {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 800;
+  padding: 0.2rem 0.45rem;
+}
+
+.week-meal p,
+.week-meal small,
+.shopping-list-item small,
+.plan-notes-grid p {
+  color: var(--ink-soft);
+  line-height: 1.4;
+  margin-bottom: 0;
+}
+
+.plan-notes-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.plan-notes-grid div {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.85rem;
+}
+
+.shopping-list-board {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.shopping-list-group {
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.85rem;
+}
+
+.shopping-list-group h3 {
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.shopping-list-items {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.shopping-list-item {
+  align-items: start;
+  background: #fbfcfa;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  cursor: pointer;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 0.7rem;
+}
+
+.shopping-list-item input {
+  appearance: none;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.shopping-checkmark {
+  align-items: center;
+  border: 2px solid var(--accent);
+  border-radius: 0.3rem;
+  display: inline-flex;
+  height: 1.25rem;
+  justify-content: center;
+  margin-top: 0.1rem;
+  width: 1.25rem;
+}
+
+.shopping-list-item input:checked + .shopping-checkmark {
+  background: var(--accent);
+}
+
+.shopping-list-item input:checked + .shopping-checkmark::after {
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  content: "";
+  height: 0.55rem;
+  transform: rotate(45deg) translate(-0.05rem, -0.05rem);
+  width: 0.3rem;
+}
+
+.shopping-list-item:has(input:checked) .shopping-item-body {
+  opacity: 0.58;
+  text-decoration: line-through;
+}
+
+.shopping-item-body {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.shopping-item-main {
+  align-items: baseline;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.shopping-item-main span {
+  color: var(--accent-strong);
+  font-weight: 850;
+}
+
+.plan-empty-state {
+  border-style: dashed;
 }
 
 @media (min-width: 720px) {
@@ -693,6 +913,37 @@ textarea:focus {
   }
 
   .shopping-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .week-plan-board {
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  }
+
+  .week-plan-day {
+    align-content: start;
+    min-height: 30rem;
+  }
+
+  .week-plan-day header {
+    min-height: 4.4rem;
+  }
+
+  .plan-notes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shopping-list-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shopping-item-main {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+@media (min-width: 1120px) {
+  .shopping-list-board {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
