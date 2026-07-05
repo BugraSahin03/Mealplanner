@@ -176,8 +176,8 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
         </div>
 
         <div className="calendar-command-tools">
-          <div className="lunch-batch-stepper" aria-label="Lunch-Batch-Gerichte">
-            <span>Lunch-Batches</span>
+          <div className="lunch-batch-stepper" aria-label="Anzahl verschiedener Mittagsgerichte Montag bis Freitag">
+            <span>Mittagsgerichte</span>
             <div>
               <button
                 aria-label="Weniger Lunch-Batch-Gerichte"
@@ -195,7 +195,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                 +
               </button>
             </div>
-            <small>Mo-Fr</small>
+            <small>verschiedene Gerichte Mo-Fr</small>
           </div>
 
           <div className="profile-token-tray" aria-label="Homeoffice Profile">
@@ -373,18 +373,12 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                                 meal.isSharedDinner
                                   ? "calendar-meal calendar-meal-shared"
                                   : meal.isPersonalMeal
-                                    ? "calendar-meal calendar-meal-personal"
+                                    ? `calendar-meal calendar-meal-personal calendar-meal-${meal.people[0]?.personId}`
                                     : "calendar-meal"
                               }
                               key={meal.mealId}
                             >
                               <strong>{meal.title}</strong>
-                              <div>
-                                <em>{meal.contextLabel}</em>
-                                <em>{meal.peopleSummary}</em>
-                              </div>
-                              <p>{meal.ingredientSummary}</p>
-                              {meal.portionSummary ? <small>{meal.portionSummary}</small> : null}
                             </article>
                           ))
                         ) : (
