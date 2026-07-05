@@ -107,6 +107,51 @@ describe("week context", () => {
     ).toBe("home");
   });
 
+  it("keeps home office targets independent from the actual selected days", () => {
+    const formData = new FormData();
+    formData.set("weekStartDate", "2026-07-06");
+    formData.set("homeOfficeTarget.bugra", "3");
+    formData.set("homeOfficeTarget.sena", "2");
+
+    const datesByWeekday = {
+      monday: "2026-07-06",
+      tuesday: "2026-07-07",
+      wednesday: "2026-07-08",
+      thursday: "2026-07-09",
+      friday: "2026-07-10",
+      saturday: "2026-07-11",
+      sunday: "2026-07-12",
+    };
+
+    for (const weekday of [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ] as const) {
+      formData.set(`date.${weekday}`, datesByWeekday[weekday]);
+      formData.set(
+        `context.${weekday}.bugra`,
+        weekday === "wednesday" || weekday === "friday" ? "home" : "office",
+      );
+      formData.set(
+        `context.${weekday}.sena`,
+        weekday === "wednesday" || weekday === "friday" ? "home" : "office",
+      );
+    }
+
+    const context = buildWeekContextFromFormData(formData);
+
+    expect(context.homeOfficeTargets).toEqual({ bugra: 3, sena: 2 });
+    expect(buildHomeOfficeTargetSummary(context)).toEqual([
+      { personId: "bugra", displayName: "Buğra", target: 3, actual: 2, isMet: false },
+      { personId: "sena", displayName: "Sena", target: 2, actual: 2, isMet: true },
+    ]);
+  });
+
   it("maps saved week context and profiles into a planner request", () => {
     const context = buildDefaultWeekContext(new Date("2026-07-03T12:00:00+02:00"));
     const saved = saveCurrentWeekContext(db, context);

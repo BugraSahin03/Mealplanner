@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import type { WeekPlanView } from "@/src/planner/week-plan-view";
 import type { DayContext, WeekContext, Weekday } from "@/src/planner/repository";
 import type { PersonId } from "@/src/profiles/repository";
+import { normalizeHomeOfficeTargets } from "@/src/week-context/model";
 import { savePlannerWeekContextAction } from "./actions";
 
 type PersonConfig = {
@@ -81,6 +82,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
   const [draggedRemoval, setDraggedRemoval] = useState<{ weekday: Weekday; personId: PersonId } | null>(null);
   const [hoveredDropZone, setHoveredDropZone] = useState<string | null>(null);
   const [isTrashHovered, setIsTrashHovered] = useState(false);
+  const homeOfficeTargets = normalizeHomeOfficeTargets(context.homeOfficeTargets);
   const targetCounts = useMemo(
     () =>
       people.reduce<Record<PersonId, number>>(
@@ -130,7 +132,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
           key={person.personId}
           type="hidden"
           name={`homeOfficeTarget.${person.personId}`}
-          value={targetCounts[person.personId] ?? 0}
+          value={homeOfficeTargets[person.personId]}
         />
       ))}
       {days.map((day) => {
