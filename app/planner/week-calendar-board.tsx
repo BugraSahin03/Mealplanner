@@ -70,7 +70,9 @@ function getMealForSlot(day: WeekPlanView["days"][number] | undefined, slot: (ty
 export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
   const [homeState, setHomeState] = useState(() => buildInitialHomeState(context, days, people));
   const [draggedPerson, setDraggedPerson] = useState<PersonId | null>(null);
+  const [draggedRemoval, setDraggedRemoval] = useState<{ weekday: Weekday; personId: PersonId } | null>(null);
   const [hoveredDropZone, setHoveredDropZone] = useState<string | null>(null);
+  const [isTrashHovered, setIsTrashHovered] = useState(false);
   const targetCounts = useMemo(
     () =>
       people.reduce<Record<PersonId, number>>(
@@ -91,6 +93,20 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
         [personId]: isHome,
       },
     }));
+  }
+
+  function resetDragState(): void {
+    setDraggedPerson(null);
+    setDraggedRemoval(null);
+    setHoveredDropZone(null);
+    setIsTrashHovered(false);
+  }
+
+  function removeHomeOfficeFromPayload(payload: string): void {
+    const [, weekday, personId] = payload.split(":") as [string, Weekday, PersonId];
+    if (weekday && personId) {
+      setPersonHome(weekday, personId, false);
+    }
   }
 
   return (
@@ -143,10 +159,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
               className={`profile-token profile-token-${person.personId}`}
               draggable
               key={person.personId}
-              onDragEnd={() => {
-                setDraggedPerson(null);
-                setHoveredDropZone(null);
-              }}
+              onDragEnd={resetDragState}
               onDragStart={(event) => {
                 event.dataTransfer.effectAllowed = "copy";
                 event.dataTransfer.setData("text/plain", person.personId);
@@ -159,6 +172,34 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
               <small>ziehen</small>
             </button>
           ))}
+          <div
+            aria-label="Homeoffice entfernen"
+            className={isTrashHovered ? "home-trash-zone home-trash-zone-hover" : "home-trash-zone"}
+            onDragEnter={(event) => {
+              if (draggedRemoval) {
+                event.preventDefault();
+                setIsTrashHovered(true);
+              }
+            }}
+            onDragLeave={() => setIsTrashHovered(false)}
+            onDragOver={(event) => {
+              if (draggedRemoval) {
+                event.preventDefault();
+              }
+            }}
+            onDrop={(event) => {
+              event.preventDefault();
+              const payload = event.dataTransfer.getData("text/plain");
+              if (payload.startsWith("remove:")) {
+                removeHomeOfficeFromPayload(payload);
+              }
+              resetDragState();
+            }}
+            role="button"
+            tabIndex={0}
+          >
+            <span className="trash-icon" aria-hidden="true" />
+          </div>
         </div>
       </section>
 
@@ -184,14 +225,14 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                   const isDropHovered = hoveredDropZone === dropZoneId;
 
                   return (
-                    <button
+                    <div
                       className={
                         isHome
                           ? `home-drop-zone home-drop-zone-active home-drop-zone-${person.personId}${isDropReady ? " home-drop-zone-ready" : ""}${isDropHovered ? " home-drop-zone-hover" : ""}`
                           : `home-drop-zone${isDropReady ? " home-drop-zone-ready" : ""}${isDropHovered ? " home-drop-zone-hover" : ""}`
                       }
+                      draggable={isHome}
                       key={person.personId}
-                      onClick={() => setPersonHome(day.weekday, person.personId, !isHome)}
                       onDragEnter={(event) => {
                         event.preventDefault();
                         if (isDropReady) {
@@ -208,21 +249,44 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                           event.preventDefault();
                         }
                       }}
+                      onDragEnd={resetDragState}
+                      onDragStart={(event) => {
+                        if (!isHome) {
+                          return;
+                        }
+                        event.dataTransfer.effectAllowed = "move";
+                        event.dataTransfer.setData("text/plain", `remove:${day.weekday}:${person.personId}`);
+                        setDraggedRemoval({ weekday: day.weekday, personId: person.personId });
+                      }}
                       onDrop={(event) => {
                         event.preventDefault();
                         const droppedPerson = event.dataTransfer.getData("text/plain") as PersonId;
                         if (droppedPerson === person.personId) {
                           setPersonHome(day.weekday, person.personId, true);
                         }
-                        setDraggedPerson(null);
-                        setHoveredDropZone(null);
+                        resetDragState();
                       }}
-                      type="button"
                     >
-                      <span>{person.displayName}</span>
-                      <strong>{isHome ? "Homeoffice" : "Büro"}</strong>
-                      <small>{isHome ? "gesetzt" : "hier ablegen"}</small>
-                    </button>
+                      <button
+                        className="home-drop-zone-control"
+                        onClick={() => setPersonHome(day.weekday, person.personId, !isHome)}
+                        type="button"
+                      >
+                        <span>{person.displayName}</span>
+                        <strong>{isHome ? "Homeoffice" : "Büro"}</strong>
+                        <small>{isHome ? "gesetzt" : "hier ablegen"}</small>
+                      </button>
+                      {isHome ? (
+                        <button
+                          aria-label={`${person.displayName} Homeoffice entfernen`}
+                          className="home-remove-button"
+                          onClick={() => setPersonHome(day.weekday, person.personId, false)}
+                          type="button"
+                        >
+                          <span className="trash-icon" aria-hidden="true" />
+                        </button>
+                      ) : null}
+                    </div>
                   );
                 })}
               </div>
