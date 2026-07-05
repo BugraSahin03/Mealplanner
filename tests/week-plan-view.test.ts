@@ -142,6 +142,8 @@ describe("week plan view", () => {
       "Buğra",
       "Sena",
     ]);
+    expect(monday?.meals[0]?.title).toBe("Protein-Skyr");
+    expect(monday?.meals[0]?.ingredientSummary).toBe("Skyr, Haferflocken, Beeren");
     expect(monday?.meals.find((meal) => meal.mealType === "dinner")).toMatchObject({
       isSharedDinner: true,
       peopleSummary: "Gemeinsam",
@@ -160,9 +162,9 @@ describe("week plan view", () => {
       calorieFacts: [
         {
           label: null,
-          kcal: "620",
+          kcal: "ca. 620",
           grams: "480",
-          kcalPer100G: "129",
+          kcalPer100G: "ca. 129",
         },
       ],
       mealPrepSummary: null,
@@ -171,8 +173,9 @@ describe("week plan view", () => {
     expect(breakfast?.people[0]).toMatchObject({
       label: "Buğra",
       portion: "groß",
-      portionGrams: 480,
+      gramsPerPortion: 480,
       estimatedKcal: 620,
+      estimatedKcalPer100g: 129,
     });
     expect(breakfast?.ingredients).toEqual([
       { name: "Skyr", amount: "300 g", notes: null, pantryItem: false, optional: false },
@@ -199,14 +202,25 @@ describe("week plan view", () => {
 
     expect(meal?.calorieSummary).toBe("ca. 150 kcal pro 100 g");
     expect(meal?.calorieFacts).toEqual([
-      {
-        label: null,
-        kcal: null,
-        grams: null,
-        kcalPer100G: "150",
-      },
+      { label: null, kcal: null, grams: null, kcalPer100G: "ca. 150" },
     ]);
     expect(meal?.personTheme).toBe("shared");
     expect(meal?.people.map((person) => person.portion)).toEqual(["groß", "normal"]);
+  });
+
+  it("summarizes lunch batch prep dishes with days, portions, grams and calories", () => {
+    const view = buildWeekPlanView(buildDemoPlannerResponse());
+    const mondayLunch = view.days[0]?.meals.find((meal) => meal.mealId === "monday-lunch-bugra");
+
+    expect(view.lunchBatchDishes).toHaveLength(2);
+    expect(view.lunchBatchDishes[0]).toMatchObject({
+      batchId: "batch-lunch-chicken-rice",
+      title: "Chicken-Reis-Bowl",
+      daysSummary: "Mo, Mi, Fr",
+      peopleSummary: "Buğra, Sena",
+    });
+    expect(view.lunchBatchDishes[0]?.portionSummary).toContain("Buğra: 3 Portion(en), 450 g, ca. 720 kcal");
+    expect(view.lunchBatchDishes[0]?.portionSummary).toContain("Sena: 3 Portion(en), 320 g, ca. 510 kcal");
+    expect(mondayLunch?.portionSummary).toBe("Buğra: 450 g, ca. 720 kcal");
   });
 });

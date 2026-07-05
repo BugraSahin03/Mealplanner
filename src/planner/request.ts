@@ -1,6 +1,6 @@
 import type { WeekContext, Weekday } from "./repository";
 import type { Profile } from "../profiles/repository";
-import { normalizeHomeOfficeTargets, weekdays } from "../week-context/model";
+import { normalizeHomeOfficeTargets, normalizeLunchBatchDishCount, weekdays } from "../week-context/model";
 
 export type PlannerRequestDayContext = {
   personId: Profile["personId"];
@@ -49,6 +49,12 @@ export type PlannerRequest = {
       weeklyTargetEur: number;
       notes: string;
     };
+    lunchBatchPrep: {
+      enabled: boolean;
+      weekdayDishCount: number;
+      weekdays: Array<Extract<Weekday, "monday" | "tuesday" | "wednesday" | "thursday" | "friday">>;
+      notes: string;
+    };
     shoppingMode: "weekly";
     stores: string[];
     globalNotes: string;
@@ -81,6 +87,7 @@ export function buildPlannerRequestFromWeekContext(
   profiles: Profile[],
 ): PlannerRequest {
   const homeOfficeTargets = normalizeHomeOfficeTargets(weekContext.homeOfficeTargets);
+  const lunchBatchDishCount = normalizeLunchBatchDishCount(weekContext.lunchBatchDishCount);
 
   const days = weekdays.map<PlannerRequestDay>((weekday) => {
     const entries = weekContext.days.filter((day) => day.weekday === weekday.weekday);
@@ -117,6 +124,13 @@ export function buildPlannerRequestFromWeekContext(
         weeklyTargetEur: 115,
         notes:
           "Budget soll nicht ausgeschoepft werden, wenn guenstigere Planung moeglich ist.",
+      },
+      lunchBatchPrep: {
+        enabled: true,
+        weekdayDishCount: lunchBatchDishCount,
+        weekdays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+        notes:
+          "Plane Mittagessen fuer Montag bis Freitag als Batch-Prep: begrenze die Anzahl verschiedener Lunch-Gerichte und verteile sie mit personenspezifischen Portionen.",
       },
       shoppingMode: "weekly",
       stores: ["Netto", "Lidl"],

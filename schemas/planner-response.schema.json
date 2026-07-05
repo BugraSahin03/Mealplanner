@@ -131,6 +131,9 @@
         "mealPrep": {
           "$ref": "#/$defs/mealPrep"
         },
+        "batchPrep": {
+          "$ref": "#/$defs/batchPrep"
+        },
         "estimatedNutrition": {
           "$ref": "#/$defs/nutrition"
         },
@@ -167,7 +170,89 @@
           "type": "number",
           "minimum": 0
         },
+        "gramsPerPortion": {
+          "type": "number",
+          "minimum": 0
+        },
+        "estimatedKcalPer100g": {
+          "type": "number",
+          "minimum": 0
+        },
         "estimatedProteinG": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "batchPrep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["batchId", "plannedDayIds", "plannedWeekdays", "portionCount", "perPersonPortions"],
+      "properties": {
+        "batchId": {
+          "type": "string"
+        },
+        "plannedDayIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "plannedWeekdays": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "monday",
+              "tuesday",
+              "wednesday",
+              "thursday",
+              "friday",
+              "saturday",
+              "sunday"
+            ]
+          }
+        },
+        "portionCount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "perPersonPortions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/batchPersonPortion"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "batchPersonPortion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["personId", "portionCount"],
+      "properties": {
+        "personId": {
+          "type": "string",
+          "enum": ["bugra", "sena"]
+        },
+        "portionCount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "gramsPerPortion": {
+          "type": "number",
+          "minimum": 0
+        },
+        "estimatedKcalPerPortion": {
+          "type": "number",
+          "minimum": 0
+        },
+        "estimatedKcalPer100g": {
           "type": "number",
           "minimum": 0
         }

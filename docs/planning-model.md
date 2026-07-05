@@ -73,6 +73,14 @@ Homeoffice-Tage:
 - kann frisch gemacht oder vorbereitet sein,
 - kann Reste vom Abendessen nutzen.
 
+Lunch-Batch-Prep:
+
+- fuer Montag bis Freitag kann eine Zielanzahl unterschiedlicher Lunch-Gerichte gesetzt werden,
+- Standard sind zwei verschiedene Lunch-Gerichte pro Arbeitswoche,
+- die Gerichte werden ueber die Werktage verteilt,
+- Buğra und Sena koennen dasselbe Batch-Gericht bekommen, aber mit unterschiedlichen Gramm- und Kalorien-Schaetzungen,
+- der Koch- oder Prep-Tag wird nicht im Wochenplan festgelegt.
+
 ### Abendessen
 
 Abendessen ist die Hauptmahlzeit.
@@ -105,6 +113,7 @@ Die KI bzw. Planungslogik sollte beim Erstellen einer Woche:
 
 - Office- und Homeoffice-Tage pro Person beachten,
 - Fruehstueck und Mittag ggf. pro Person unterschiedlich planen,
+- die dynamische Lunch-Batch-Anzahl fuer Montag bis Freitag beachten,
 - Abendessen eher gemeinsam planen,
 - Meal Prep fuer Office-Tage bevorzugen,
 - Zutaten mehrfach sinnvoll verwenden,

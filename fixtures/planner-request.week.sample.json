@@ -199,6 +199,12 @@
       "weeklyTargetEur": 115,
       "notes": "Budget should not be exhausted if cheaper planning is possible. Reuse ingredients across meals when practical."
     },
+    "lunchBatchPrep": {
+      "enabled": true,
+      "weekdayDishCount": 2,
+      "weekdays": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      "notes": "Plan Monday to Friday lunch as batch prep with two distinct dishes and person-specific portions."
+    },
     "shoppingMode": "weekly",
     "stores": ["Netto", "Lidl"],
     "globalNotes": "Dinner should normally be shared. Avoid planning too many expensive fish meals. Use leftovers and repeated ingredients intelligently without making the week boring."

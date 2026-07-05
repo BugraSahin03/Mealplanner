@@ -5,6 +5,7 @@ import {
   buildWeekIdFromStartDate,
   ensureCompleteWeekContext,
   normalizeHomeOfficeTargets,
+  normalizeLunchBatchDishCount,
   weekdays,
   weekContextPeople,
   type WeekContextChoice,
@@ -30,6 +31,11 @@ function readTargetDelta(formData: FormData, personId: PersonId): number {
   return Number.isFinite(value) ? value : 0;
 }
 
+function readLunchBatchDishCount(formData: FormData): number {
+  const value = Number(readRequiredString(formData, "lunchBatchDishCount"));
+  return normalizeLunchBatchDishCount(Number.isFinite(value) ? value : undefined);
+}
+
 export function buildWeekContextFromFormData(formData: FormData): WeekContext {
   const weekStartDate = readRequiredString(formData, "weekStartDate");
   const fallback = buildDefaultWeekContext();
@@ -47,6 +53,7 @@ export function buildWeekContextFromFormData(formData: FormData): WeekContext {
     weekId: buildWeekIdFromStartDate(effectiveWeekStartDate ?? fallback.weekStartDate ?? ""),
     weekStartDate: effectiveWeekStartDate,
     homeOfficeTargets,
+    lunchBatchDishCount: readLunchBatchDishCount(formData),
     notes: readRequiredString(formData, "notes") || null,
     days: weekdays.flatMap((day) => {
       const fallbackDay = fallback.days.find((entry) => entry.weekday === day.weekday);

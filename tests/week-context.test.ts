@@ -33,6 +33,7 @@ describe("week context", () => {
     expect(context.calendarYear).toBe(2026);
     expect(context.calendarWeek).toBe(28);
     expect(context.homeOfficeTargets).toEqual({ bugra: 2, sena: 2 });
+    expect(context.lunchBatchDishCount).toBe(2);
     expect(context.days).toHaveLength(14);
     expect(validateWeekContext(context)).toEqual([]);
     expect(
@@ -63,6 +64,7 @@ describe("week context", () => {
     formData.set("homeOfficeTarget.bugra", "2");
     formData.set("homeOfficeTarget.sena", "2");
     formData.set("targetDelta.bugra", "1");
+    formData.set("lunchBatchDishCount", "3");
 
     const datesByWeekday = {
       monday: "2026-07-06",
@@ -96,6 +98,7 @@ describe("week context", () => {
     expect(saved?.calendarYear).toBe(2026);
     expect(saved?.calendarWeek).toBe(28);
     expect(saved?.homeOfficeTargets).toEqual({ bugra: 3, sena: 2 });
+    expect(saved?.lunchBatchDishCount).toBe(3);
     expect(saved?.days).toHaveLength(14);
     expect(
       saved?.days.find((day) => day.weekday === "monday" && day.personId === "bugra")
@@ -167,6 +170,11 @@ describe("week context", () => {
       },
       planningRules: {
         mealsPerDay: ["breakfast", "lunch", "dinner"],
+        lunchBatchPrep: {
+          enabled: true,
+          weekdayDishCount: 2,
+          weekdays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+        },
         shoppingMode: "weekly",
       },
     });

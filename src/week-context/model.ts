@@ -32,6 +32,7 @@ const defaultHomeOfficeTargets: HomeOfficeTargets = {
   bugra: 2,
   sena: 2,
 };
+const defaultLunchBatchDishCount = 2;
 
 function padDatePart(value: number): string {
   return String(value).padStart(2, "0");
@@ -97,6 +98,12 @@ export function normalizeHomeOfficeTargets(
   };
 }
 
+export function normalizeLunchBatchDishCount(value: number | null | undefined): number {
+  const count = Number.isFinite(value) ? Math.trunc(value ?? defaultLunchBatchDishCount) : defaultLunchBatchDishCount;
+
+  return Math.max(1, Math.min(5, count));
+}
+
 export function buildDefaultWeekContext(referenceDate = new Date()): WeekContext {
   const weekStart = getNextMonday(referenceDate);
   const weekStartDate = toIsoDate(weekStart);
@@ -108,6 +115,7 @@ export function buildDefaultWeekContext(referenceDate = new Date()): WeekContext
     calendarYear,
     calendarWeek,
     homeOfficeTargets: defaultHomeOfficeTargets,
+    lunchBatchDishCount: defaultLunchBatchDishCount,
     notes: null,
     days: weekdays.flatMap((day, index) => {
       const date = toIsoDate(addDays(weekStart, index));
@@ -187,6 +195,7 @@ export function ensureCompleteWeekContext(context: WeekContext): WeekContext {
     calendarYear: context.calendarYear ?? calendar.calendarYear,
     calendarWeek: context.calendarWeek ?? calendar.calendarWeek,
     homeOfficeTargets: normalizeHomeOfficeTargets(context.homeOfficeTargets),
+    lunchBatchDishCount: normalizeLunchBatchDishCount(context.lunchBatchDishCount),
   };
   const errors = validateWeekContext(completeContext);
   if (errors.length > 0) {

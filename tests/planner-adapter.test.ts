@@ -20,6 +20,9 @@ const plannerRequest: PlannerRequest = {
   schemaVersion: "1.0",
   week: {
     weekStartDate: "2026-07-06",
+    calendarYear: 2026,
+    calendarWeek: 28,
+    homeOfficeTargets: { bugra: 2, sena: 2 },
     days: [
       {
         dayId: "monday",
@@ -87,6 +90,12 @@ const plannerRequest: PlannerRequest = {
       weeklyTargetEur: 115,
       notes: "Budget beachten.",
     },
+    lunchBatchPrep: {
+      enabled: true,
+      weekdayDishCount: 2,
+      weekdays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      notes: "Zwei Lunch-Batches fuer die Arbeitswoche.",
+    },
     shoppingMode: "weekly",
     stores: ["Netto", "Lidl"],
     globalNotes: "Abendessen gemeinsam planen.",
@@ -100,6 +109,9 @@ describe("planner adapter", () => {
     expect(prompt).toContain("Your response MUST validate against the following JSON Schema");
     expect(prompt).toContain("\"$id\": \"https://essenplanner.local/schemas/planner-response.schema.json\"");
     expect(prompt).toContain("\"weekStartDate\": \"2026-07-06\"");
+    expect(prompt).toContain("\"weekdayDishCount\": 2");
+    expect(prompt).toContain("no more than planningRules.lunchBatchPrep.weekdayDishCount distinct lunch dishes");
+    expect(prompt).toContain("gramsPerPortion");
     expect(prompt).toContain("Write all user-facing titles");
     expect(prompt).toContain("in German");
   });
