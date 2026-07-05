@@ -13,11 +13,37 @@
     "week": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["days"],
+      "required": ["calendarYear", "calendarWeek", "homeOfficeTargets", "days"],
       "properties": {
         "weekStartDate": {
           "type": "string",
           "format": "date"
+        },
+        "calendarYear": {
+          "type": "integer",
+          "minimum": 2000
+        },
+        "calendarWeek": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 53
+        },
+        "homeOfficeTargets": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["bugra", "sena"],
+          "properties": {
+            "bugra": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "sena": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            }
+          }
         },
         "days": {
           "type": "array",

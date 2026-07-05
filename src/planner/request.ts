@@ -1,6 +1,6 @@
 import type { WeekContext, Weekday } from "./repository";
 import type { Profile } from "../profiles/repository";
-import { weekdays } from "../week-context/model";
+import { normalizeHomeOfficeTargets, weekdays } from "../week-context/model";
 
 export type PlannerRequestDayContext = {
   personId: Profile["personId"];
@@ -36,6 +36,9 @@ export type PlannerRequest = {
   schemaVersion: "1.0";
   week: {
     weekStartDate?: string;
+    calendarYear: number;
+    calendarWeek: number;
+    homeOfficeTargets: Record<Profile["personId"], number>;
     days: PlannerRequestDay[];
   };
   people: PlannerRequestPerson[];
@@ -77,6 +80,8 @@ export function buildPlannerRequestFromWeekContext(
   weekContext: WeekContext,
   profiles: Profile[],
 ): PlannerRequest {
+  const homeOfficeTargets = normalizeHomeOfficeTargets(weekContext.homeOfficeTargets);
+
   const days = weekdays.map<PlannerRequestDay>((weekday) => {
     const entries = weekContext.days.filter((day) => day.weekday === weekday.weekday);
     const first = entries[0];
@@ -99,6 +104,9 @@ export function buildPlannerRequestFromWeekContext(
     schemaVersion: "1.0",
     week: {
       ...(weekContext.weekStartDate ? { weekStartDate: weekContext.weekStartDate } : {}),
+      calendarYear: weekContext.calendarYear ?? new Date().getFullYear(),
+      calendarWeek: weekContext.calendarWeek ?? 1,
+      homeOfficeTargets,
       days,
     },
     people: profiles.map(mapProfile),

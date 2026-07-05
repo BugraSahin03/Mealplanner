@@ -283,6 +283,69 @@ h2 {
   padding: clamp(1rem, 2vw, 1.4rem);
 }
 
+.week-calendar-summary {
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  display: grid;
+  gap: 1rem;
+  padding: 0.9rem;
+}
+
+.home-target-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.home-target-card {
+  background: #fbfcfa;
+  border: 1px solid var(--line);
+  border-left: 0.3rem solid var(--accent-warm);
+  border-radius: 0.45rem;
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem;
+}
+
+.home-target-ok {
+  border-left-color: var(--accent);
+}
+
+.home-target-card div:first-of-type {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.home-target-card span {
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.home-target-card strong {
+  font-size: 1.35rem;
+}
+
+.home-target-card p {
+  color: var(--ink-soft);
+  margin-bottom: 0;
+}
+
+.target-stepper {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.target-stepper button {
+  min-height: 2.4rem;
+  padding: 0.55rem;
+  width: 100%;
+}
+
 .profile-form-header {
   align-items: start;
   display: grid;
@@ -889,6 +952,15 @@ textarea:focus {
   }
 
   .person-context-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .week-calendar-summary {
+    align-items: center;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  .home-target-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

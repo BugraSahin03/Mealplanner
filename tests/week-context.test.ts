@@ -5,7 +5,12 @@ import type { SqliteDatabase } from "../src/db/sqlite";
 import { buildPlannerRequestFromWeekContext } from "../src/planner/request";
 import { getWeekContext } from "../src/planner/repository";
 import { buildWeekContextFromFormData } from "../src/week-context/form";
-import { buildDefaultWeekContext, validateWeekContext } from "../src/week-context/model";
+import {
+  buildDefaultWeekContext,
+  buildHomeOfficeTargetSummary,
+  getIsoCalendarWeek,
+  validateWeekContext,
+} from "../src/week-context/model";
 import { saveCurrentWeekContext } from "../src/week-context/repository";
 import { listProfiles } from "../src/profiles/repository";
 
@@ -23,7 +28,11 @@ describe("week context", () => {
   it("builds a neutral seven day default week for both people", () => {
     const context = buildDefaultWeekContext(new Date("2026-07-03T12:00:00+02:00"));
 
+    expect(context.weekId).toBe("2026-W28");
     expect(context.weekStartDate).toBe("2026-07-06");
+    expect(context.calendarYear).toBe(2026);
+    expect(context.calendarWeek).toBe(28);
+    expect(context.homeOfficeTargets).toEqual({ bugra: 2, sena: 2 });
     expect(context.days).toHaveLength(14);
     expect(validateWeekContext(context)).toEqual([]);
     expect(
@@ -31,12 +40,29 @@ describe("week context", () => {
         .filter((day) => day.weekday === "saturday" || day.weekday === "sunday")
         .map((day) => day.dayContext),
     ).toEqual(["home", "home", "home", "home"]);
-    expect(context.days.filter((day) => day.dayContext === "office")).toHaveLength(10);
+    expect(buildHomeOfficeTargetSummary(context)).toEqual([
+      { personId: "bugra", displayName: "Buğra", target: 2, actual: 2, isMet: true },
+      { personId: "sena", displayName: "Sena", target: 2, actual: 2, isMet: true },
+    ]);
+  });
+
+  it("calculates ISO calendar week across year boundaries", () => {
+    expect(getIsoCalendarWeek(new Date("2026-12-31T12:00:00+01:00"))).toEqual({
+      calendarYear: 2026,
+      calendarWeek: 53,
+    });
+    expect(getIsoCalendarWeek(new Date("2027-01-04T12:00:00+01:00"))).toEqual({
+      calendarYear: 2027,
+      calendarWeek: 1,
+    });
   });
 
   it("parses form data and saves the weekly office/home choices", () => {
     const formData = new FormData();
     formData.set("weekStartDate", "2026-07-06");
+    formData.set("homeOfficeTarget.bugra", "2");
+    formData.set("homeOfficeTarget.sena", "2");
+    formData.set("targetDelta.bugra", "1");
 
     const datesByWeekday = {
       monday: "2026-07-06",
@@ -65,8 +91,11 @@ describe("week context", () => {
     const context = buildWeekContextFromFormData(formData);
     saveCurrentWeekContext(db, context);
 
-    const saved = getWeekContext(db, "week-2026-07-06");
+    const saved = getWeekContext(db, "2026-W28");
 
+    expect(saved?.calendarYear).toBe(2026);
+    expect(saved?.calendarWeek).toBe(28);
+    expect(saved?.homeOfficeTargets).toEqual({ bugra: 3, sena: 2 });
     expect(saved?.days).toHaveLength(14);
     expect(
       saved?.days.find((day) => day.weekday === "monday" && day.personId === "bugra")
@@ -87,6 +116,9 @@ describe("week context", () => {
       schemaVersion: "1.0",
       week: {
         weekStartDate: "2026-07-06",
+        calendarYear: 2026,
+        calendarWeek: 28,
+        homeOfficeTargets: { bugra: 2, sena: 2 },
       },
       planningRules: {
         mealsPerDay: ["breakfast", "lunch", "dinner"],
