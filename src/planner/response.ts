@@ -62,6 +62,16 @@ export type PlannerResponseMeal = {
     }>;
     notes?: string;
   };
+  dinnerLeftovers?: {
+    leftoverGroupId: string;
+    role: "fresh_cook" | "leftover" | "repeat_serving";
+    plannedDayIds: string[];
+    plannedWeekdays: Weekday[];
+    spanDays: number;
+    servingNumber: number;
+    totalServings: number;
+    notes?: string;
+  };
   estimatedNutrition?: {
     kcal?: number;
     kcalPer100G?: number;
@@ -165,6 +175,113 @@ export function buildDemoPlannerResponse(): PlannerResponse {
     ],
     notes: "Kalt essbarer Batch fuer Dienstag und Donnerstag.",
   };
+  const dinnerPlans = [
+    {
+      title: "Bolognese mit Pasta",
+      group: {
+        leftoverGroupId: "dinner-leftover-bolognese",
+        plannedDayIds: ["monday", "tuesday"],
+        plannedWeekdays: ["monday", "tuesday"] as Weekday[],
+        spanDays: 2,
+        totalServings: 2,
+        notes: "Montag frisch kochen, Dienstag als zweite Portion aufwaermen.",
+      },
+      ingredients: [
+        { name: "Pasta", amount: 300, unit: "g" as const, category: "dry_goods" as const },
+        { name: "Rinderhack", amount: 350, unit: "g" as const, category: "meat_fish" as const },
+        { name: "Tomaten", amount: 500, unit: "g" as const, category: "produce" as const },
+      ],
+    },
+    {
+      title: "Bolognese mit Pasta",
+      group: {
+        leftoverGroupId: "dinner-leftover-bolognese",
+        plannedDayIds: ["monday", "tuesday"],
+        plannedWeekdays: ["monday", "tuesday"] as Weekday[],
+        spanDays: 2,
+        totalServings: 2,
+        notes: "Restetag aus dem Montagstopf.",
+      },
+      ingredients: [
+        { name: "Pasta", amount: 300, unit: "g" as const, category: "dry_goods" as const },
+        { name: "Rinderhack", amount: 350, unit: "g" as const, category: "meat_fish" as const },
+        { name: "Tomaten", amount: 500, unit: "g" as const, category: "produce" as const },
+      ],
+    },
+    {
+      title: "Puten-Chili",
+      group: {
+        leftoverGroupId: "dinner-leftover-turkey-chili",
+        plannedDayIds: ["wednesday", "thursday"],
+        plannedWeekdays: ["wednesday", "thursday"] as Weekday[],
+        spanDays: 2,
+        totalServings: 2,
+        notes: "Mittwoch frisch kochen, Donnerstag als Chili-Rest einplanen.",
+      },
+      ingredients: [
+        { name: "Putenhack", amount: 320, unit: "g" as const, category: "meat_fish" as const },
+        { name: "Kidneybohnen", amount: 1, unit: "can" as const, category: "canned" as const },
+        { name: "Tomaten", amount: 400, unit: "g" as const, category: "produce" as const },
+      ],
+    },
+    {
+      title: "Puten-Chili",
+      group: {
+        leftoverGroupId: "dinner-leftover-turkey-chili",
+        plannedDayIds: ["wednesday", "thursday"],
+        plannedWeekdays: ["wednesday", "thursday"] as Weekday[],
+        spanDays: 2,
+        totalServings: 2,
+        notes: "Restetag mit gleicher Basis, optional frisch garnieren.",
+      },
+      ingredients: [
+        { name: "Putenhack", amount: 320, unit: "g" as const, category: "meat_fish" as const },
+        { name: "Kidneybohnen", amount: 1, unit: "can" as const, category: "canned" as const },
+        { name: "Tomaten", amount: 400, unit: "g" as const, category: "produce" as const },
+      ],
+    },
+    {
+      title: "Ofengemuese mit Dip",
+      group: {
+        leftoverGroupId: "dinner-leftover-roasted-veg",
+        plannedDayIds: ["friday", "saturday"],
+        plannedWeekdays: ["friday", "saturday"] as Weekday[],
+        spanDays: 2,
+        totalServings: 2,
+        notes: "Freitag groesseres Blech vorbereiten, Samstag als Reste-Bowl nutzen.",
+      },
+      ingredients: [
+        { name: "Kartoffeln", amount: 500, unit: "g" as const, category: "dry_goods" as const },
+        { name: "Paprika", amount: 3, unit: "piece" as const, category: "produce" as const },
+        { name: "Joghurt", amount: 200, unit: "g" as const, category: "dairy_eggs" as const },
+      ],
+    },
+    {
+      title: "Ofengemuese mit Dip",
+      group: {
+        leftoverGroupId: "dinner-leftover-roasted-veg",
+        plannedDayIds: ["friday", "saturday"],
+        plannedWeekdays: ["friday", "saturday"] as Weekday[],
+        spanDays: 2,
+        totalServings: 2,
+        notes: "Restetag mit frischem Dip.",
+      },
+      ingredients: [
+        { name: "Kartoffeln", amount: 500, unit: "g" as const, category: "dry_goods" as const },
+        { name: "Paprika", amount: 3, unit: "piece" as const, category: "produce" as const },
+        { name: "Joghurt", amount: 200, unit: "g" as const, category: "dairy_eggs" as const },
+      ],
+    },
+    {
+      title: "Tomaten-Pasta mit Salat",
+      group: null,
+      ingredients: [
+        { name: "Pasta", amount: 260, unit: "g" as const, category: "dry_goods" as const },
+        { name: "Tomaten", amount: 400, unit: "g" as const, category: "produce" as const },
+        { name: "Salat", amount: 1, unit: "piece" as const, category: "produce" as const },
+      ],
+    },
+  ];
 
   const days: PlannerResponseDay[] = [
     ["monday", "Montag"],
@@ -174,10 +291,20 @@ export function buildDemoPlannerResponse(): PlannerResponse {
     ["friday", "Freitag"],
     ["saturday", "Samstag"],
     ["sunday", "Sonntag"],
-  ].map(([weekday, label], index) => ({
-    dayId: weekday,
-    weekday: weekday as PlannerResponseDay["weekday"],
-    meals: [
+  ].map(([weekday, label], index) => {
+    const dinnerPlan = dinnerPlans[index];
+    const dinnerLeftovers = dinnerPlan.group
+      ? {
+          ...dinnerPlan.group,
+          role: index % 2 === 0 ? "fresh_cook" as const : "leftover" as const,
+          servingNumber: index % 2 === 0 ? 1 : 2,
+        }
+      : undefined;
+
+    return {
+      dayId: weekday,
+      weekday: weekday as PlannerResponseDay["weekday"],
+      meals: [
       {
         mealId: `${weekday}-breakfast-bugra`,
         mealType: "breakfast",
@@ -277,7 +404,7 @@ export function buildDemoPlannerResponse(): PlannerResponse {
       {
         mealId: `${weekday}-dinner`,
         mealType: "dinner",
-        title: index % 3 === 0 ? "Tomaten-Pasta mit Salat" : index % 3 === 1 ? "Ofengemuese mit Dip" : "Puten-Chili",
+        title: dinnerPlan.title,
         people: [
           {
             personId: "bugra",
@@ -296,14 +423,12 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         ],
         context: "shared",
         estimatedNutrition: { kcalPer100G: 150, proteinG: 34 },
-        ingredients: [
-          { name: index % 3 === 0 ? "Pasta" : index % 3 === 1 ? "Kartoffeln" : "Putenhack", amount: 300, unit: "g", category: index % 3 === 2 ? "meat_fish" : "dry_goods" },
-          { name: "Tomaten", amount: 400, unit: "g", category: "produce" },
-          { name: "Salat", amount: 1, unit: "piece", category: "produce" },
-        ],
+        ...(dinnerLeftovers ? { dinnerLeftovers } : {}),
+        ingredients: dinnerPlan.ingredients,
       },
-    ],
-  }));
+      ],
+    };
+  });
 
   return {
     schemaVersion: "1.0",
@@ -323,10 +448,15 @@ export function buildDemoPlannerResponse(): PlannerResponse {
       },
       {
         name: "Joghurt",
-        amount: 1540,
+        amount: 1940,
         unit: "g",
         category: "dairy_eggs",
-        sourceMealIds: days.map((day) => `${day.weekday}-breakfast-sena`),
+        sourceMealIds: [
+          ...days.map((day) => `${day.weekday}-breakfast-sena`),
+          "friday-dinner",
+          "saturday-dinner",
+        ],
+        buyingHint: "Fruehstueck plus Dip fuer das Ofengemuese einplanen.",
       },
       {
         name: "Haferflocken",
@@ -386,6 +516,63 @@ export function buildDemoPlannerResponse(): PlannerResponse {
           .filter((day) => !["saturday", "sunday"].includes(day.weekday))
           .flatMap((day) => [`${day.weekday}-lunch-bugra`, `${day.weekday}-lunch-sena`]),
         buyingHint: "Menge ist ueber die zwei Lunch-Batches konsolidiert.",
+      },
+      {
+        name: "Pasta",
+        amount: 860,
+        unit: "g",
+        category: "dry_goods",
+        sourceMealIds: ["monday-dinner", "tuesday-dinner", "sunday-dinner"],
+        buyingHint: "Bolognese ist fuer zwei Abendessen zusammengefasst.",
+      },
+      {
+        name: "Rinderhack",
+        amount: 700,
+        unit: "g",
+        category: "meat_fish",
+        sourceMealIds: ["monday-dinner", "tuesday-dinner"],
+      },
+      {
+        name: "Putenhack",
+        amount: 640,
+        unit: "g",
+        category: "meat_fish",
+        sourceMealIds: ["wednesday-dinner", "thursday-dinner"],
+      },
+      {
+        name: "Kidneybohnen",
+        amount: 2,
+        unit: "can",
+        category: "canned",
+        sourceMealIds: ["wednesday-dinner", "thursday-dinner"],
+      },
+      {
+        name: "Tomaten",
+        amount: 2200,
+        unit: "g",
+        category: "produce",
+        sourceMealIds: [
+          "monday-dinner",
+          "tuesday-dinner",
+          "wednesday-dinner",
+          "thursday-dinner",
+          "sunday-dinner",
+        ],
+        buyingHint: "Dinner-Mengen fuer Bolognese, Chili und Sonntags-Pasta konsolidiert.",
+      },
+      {
+        name: "Kartoffeln",
+        amount: 1000,
+        unit: "g",
+        category: "dry_goods",
+        sourceMealIds: ["friday-dinner", "saturday-dinner"],
+      },
+      {
+        name: "Paprika",
+        amount: 6,
+        unit: "piece",
+        category: "produce",
+        sourceMealIds: ["friday-dinner", "saturday-dinner"],
       },
       {
         name: "Olivenoel",

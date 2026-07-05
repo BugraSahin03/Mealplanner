@@ -96,6 +96,11 @@ const plannerRequest: PlannerRequest = {
       weekdays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
       notes: "Zwei Lunch-Batches fuer die Arbeitswoche.",
     },
+    dinnerLeftoverPlanning: {
+      enabled: true,
+      defaultDinnerSpanDays: 2,
+      notes: "Abendessen als zwei aufeinanderfolgende Portionstage planen.",
+    },
     shoppingMode: "weekly",
     stores: ["Netto", "Lidl"],
     globalNotes: "Abendessen gemeinsam planen.",
@@ -111,6 +116,9 @@ describe("planner adapter", () => {
     expect(prompt).toContain("\"weekStartDate\": \"2026-07-06\"");
     expect(prompt).toContain("\"weekdayDishCount\": 2");
     expect(prompt).toContain("no more than planningRules.lunchBatchPrep.weekdayDishCount distinct lunch dishes");
+    expect(prompt).toContain("\"defaultDinnerSpanDays\": 2");
+    expect(prompt).toContain("planningRules.dinnerLeftoverPlanning.defaultDinnerSpanDays");
+    expect(prompt).toContain("dinnerLeftovers.leftoverGroupId");
     expect(prompt).toContain("gramsPerPortion");
     expect(prompt).toContain("Write all user-facing titles");
     expect(prompt).toContain("in German");

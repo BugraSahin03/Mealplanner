@@ -205,6 +205,11 @@
       "weekdays": ["monday", "tuesday", "wednesday", "thursday", "friday"],
       "notes": "Plan Monday to Friday lunch as batch prep with two distinct dishes and person-specific portions."
     },
+    "dinnerLeftoverPlanning": {
+      "enabled": true,
+      "defaultDinnerSpanDays": 2,
+      "notes": "Plan shared dinners so one cooking session usually covers two consecutive dinner servings."
+    },
     "shoppingMode": "weekly",
     "stores": ["Netto", "Lidl"],
     "globalNotes": "Dinner should normally be shared. Avoid planning too many expensive fish meals. Use leftovers and repeated ingredients intelligently without making the week boring."

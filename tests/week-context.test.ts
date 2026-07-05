@@ -175,6 +175,10 @@ describe("week context", () => {
           weekdayDishCount: 2,
           weekdays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
         },
+        dinnerLeftoverPlanning: {
+          enabled: true,
+          defaultDinnerSpanDays: 2,
+        },
         shoppingMode: "weekly",
       },
     });

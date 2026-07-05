@@ -134,6 +134,9 @@
         "batchPrep": {
           "$ref": "#/$defs/batchPrep"
         },
+        "dinnerLeftovers": {
+          "$ref": "#/$defs/dinnerLeftovers"
+        },
         "estimatedNutrition": {
           "$ref": "#/$defs/nutrition"
         },
@@ -255,6 +258,67 @@
         "estimatedKcalPer100g": {
           "type": "number",
           "minimum": 0
+        }
+      }
+    },
+    "dinnerLeftovers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leftoverGroupId",
+        "role",
+        "plannedDayIds",
+        "plannedWeekdays",
+        "spanDays",
+        "servingNumber",
+        "totalServings"
+      ],
+      "properties": {
+        "leftoverGroupId": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["fresh_cook", "leftover", "repeat_serving"]
+        },
+        "plannedDayIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "plannedWeekdays": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "monday",
+              "tuesday",
+              "wednesday",
+              "thursday",
+              "friday",
+              "saturday",
+              "sunday"
+            ]
+          }
+        },
+        "spanDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "servingNumber": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "totalServings": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "notes": {
+          "type": "string"
         }
       }
     },

@@ -92,6 +92,14 @@ Eigenschaften:
 - groesserer Einfluss auf Einkaufsliste,
 - potenziell gute Quelle fuer Reste oder Meal Prep am naechsten Tag.
 
+Dinner-Resteplanung:
+
+- gemeinsame Abendessen sollen bei aktiver Regel bewusst fuer aufeinanderfolgende Tage geplant werden,
+- Standard ist ein Kochlauf fuer zwei Abendessen, z. B. Montag frisch und Dienstag Restetag,
+- zusammengehoerende Dinner erhalten eine stabile Gruppe,
+- die UI kann frisch gekocht und Restetag sichtbar machen,
+- echte Restebestaende oder ein nachtraegliches Tracking sind nicht Teil des MVP.
+
 ## Mahlzeiten-Kontexte
 
 Eine Mahlzeit sollte spaeter Tags oder Eigenschaften haben wie:
@@ -114,6 +122,7 @@ Die KI bzw. Planungslogik sollte beim Erstellen einer Woche:
 - Office- und Homeoffice-Tage pro Person beachten,
 - Fruehstueck und Mittag ggf. pro Person unterschiedlich planen,
 - die dynamische Lunch-Batch-Anzahl fuer Montag bis Freitag beachten,
+- gemeinsame Abendessen als Fresh/Rest-Paare fuer aufeinanderfolgende Tage planen,
 - Abendessen eher gemeinsam planen,
 - Meal Prep fuer Office-Tage bevorzugen,
 - Zutaten mehrfach sinnvoll verwenden,
