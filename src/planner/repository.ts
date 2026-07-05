@@ -31,6 +31,9 @@ export type WeekContextDay = {
 export type WeekContext = {
   weekId: string;
   weekStartDate?: string | null;
+  calendarYear?: number | null;
+  calendarWeek?: number | null;
+  homeOfficeTargets?: Partial<Record<PersonId, number>> | null;
   notes?: string | null;
   days: WeekContextDay[];
 };
@@ -92,6 +95,9 @@ export type WeekPlan = WeekPlanInput & {
 type WeekContextRow = {
   week_id: string;
   week_start_date: string | null;
+  calendar_year: number | null;
+  calendar_week: number | null;
+  home_office_targets_json: string | null;
   notes: string | null;
 };
 
@@ -143,14 +149,27 @@ export function saveWeekContext(db: SqliteDatabase, context: WeekContext): WeekC
   try {
     db.prepare(
       `
-        INSERT INTO week_contexts (week_id, week_start_date, notes, updated_at)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO week_contexts (
+          week_id, week_start_date, calendar_year, calendar_week,
+          home_office_targets_json, notes, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(week_id) DO UPDATE SET
           week_start_date = excluded.week_start_date,
+          calendar_year = excluded.calendar_year,
+          calendar_week = excluded.calendar_week,
+          home_office_targets_json = excluded.home_office_targets_json,
           notes = excluded.notes,
           updated_at = CURRENT_TIMESTAMP
       `,
-    ).run(context.weekId, context.weekStartDate ?? null, context.notes ?? null);
+    ).run(
+      context.weekId,
+      context.weekStartDate ?? null,
+      context.calendarYear ?? null,
+      context.calendarWeek ?? null,
+      stringifyJson(context.homeOfficeTargets ?? {}),
+      context.notes ?? null,
+    );
 
     db.prepare("DELETE FROM week_context_person_days WHERE week_id = ?").run(
       context.weekId,
@@ -193,7 +212,14 @@ export function saveWeekContext(db: SqliteDatabase, context: WeekContext): WeekC
 
 export function getWeekContext(db: SqliteDatabase, weekId: string): WeekContext | null {
   const row = db
-    .prepare("SELECT week_id, week_start_date, notes FROM week_contexts WHERE week_id = ?")
+    .prepare(
+      `
+        SELECT week_id, week_start_date, calendar_year, calendar_week,
+               home_office_targets_json, notes
+        FROM week_contexts
+        WHERE week_id = ?
+      `,
+    )
     .get(weekId) as WeekContextRow | undefined;
 
   if (!row) {
@@ -214,6 +240,9 @@ export function getWeekContext(db: SqliteDatabase, weekId: string): WeekContext 
   return {
     weekId: row.week_id,
     weekStartDate: row.week_start_date,
+    calendarYear: row.calendar_year,
+    calendarWeek: row.calendar_week,
+    homeOfficeTargets: parseJson(row.home_office_targets_json ?? "{}", {}),
     notes: row.notes,
     days: days.map((day) => ({
       dayId: day.day_id,

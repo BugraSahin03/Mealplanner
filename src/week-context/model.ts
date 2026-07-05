@@ -2,6 +2,7 @@ import type { DayContext, WeekContext, WeekContextDay, Weekday } from "../planne
 import type { PersonId } from "../profiles/repository";
 
 export type WeekContextChoice = Extract<DayContext, "office" | "home">;
+export type HomeOfficeTargets = Record<PersonId, number>;
 
 export type WeekdayDefinition = {
   weekday: Weekday;
@@ -27,6 +28,10 @@ export const weekContextPeople: Array<{ personId: PersonId; displayName: string 
 const personIds = new Set<PersonId>(weekContextPeople.map((person) => person.personId));
 const weekdaysById = new Map(weekdays.map((day) => [day.weekday, day]));
 const allowedChoices = new Set<WeekContextChoice>(["office", "home"]);
+const defaultHomeOfficeTargets: HomeOfficeTargets = {
+  bugra: 2,
+  sena: 2,
+};
 
 function padDatePart(value: number): string {
   return String(value).padStart(2, "0");
@@ -53,21 +58,56 @@ export function getNextMonday(referenceDate = new Date()): Date {
   return addDays(date, daysUntilMonday);
 }
 
-export function buildWeekId(weekStartDate: string): string {
-  return `week-${weekStartDate}`;
+export function getIsoCalendarWeek(date: Date): { calendarYear: number; calendarWeek: number } {
+  const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNumber = utcDate.getUTCDay() || 7;
+  utcDate.setUTCDate(utcDate.getUTCDate() + 4 - dayNumber);
+  const calendarYear = utcDate.getUTCFullYear();
+  const yearStart = new Date(Date.UTC(calendarYear, 0, 1));
+  const calendarWeek = Math.ceil((((utcDate.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+
+  return { calendarYear, calendarWeek };
+}
+
+export function buildWeekId(calendarYear: number, calendarWeek: number): string {
+  return `${calendarYear}-W${String(calendarWeek).padStart(2, "0")}`;
+}
+
+export function buildWeekIdFromStartDate(weekStartDate: string): string {
+  return buildWeekIdFromDate(new Date(`${weekStartDate}T00:00:00`));
+}
+
+export function buildWeekIdFromDate(date: Date): string {
+  const { calendarYear, calendarWeek } = getIsoCalendarWeek(date);
+  return buildWeekId(calendarYear, calendarWeek);
 }
 
 function defaultChoiceForWeekday(weekday: Weekday): WeekContextChoice {
-  return weekday === "saturday" || weekday === "sunday" ? "home" : "office";
+  return weekday === "wednesday" || weekday === "friday" || weekday === "saturday" || weekday === "sunday"
+    ? "home"
+    : "office";
+}
+
+export function normalizeHomeOfficeTargets(
+  targets: Partial<Record<PersonId, number>> | null | undefined,
+): HomeOfficeTargets {
+  return {
+    bugra: Math.max(0, Math.min(5, Math.trunc(targets?.bugra ?? defaultHomeOfficeTargets.bugra))),
+    sena: Math.max(0, Math.min(5, Math.trunc(targets?.sena ?? defaultHomeOfficeTargets.sena))),
+  };
 }
 
 export function buildDefaultWeekContext(referenceDate = new Date()): WeekContext {
   const weekStart = getNextMonday(referenceDate);
   const weekStartDate = toIsoDate(weekStart);
+  const { calendarYear, calendarWeek } = getIsoCalendarWeek(weekStart);
 
   return {
-    weekId: buildWeekId(weekStartDate),
+    weekId: buildWeekId(calendarYear, calendarWeek),
     weekStartDate,
+    calendarYear,
+    calendarWeek,
+    homeOfficeTargets: defaultHomeOfficeTargets,
     notes: null,
     days: weekdays.flatMap((day, index) => {
       const date = toIsoDate(addDays(weekStart, index));
@@ -89,6 +129,14 @@ export function validateWeekContext(context: WeekContext): string[] {
 
   if (!context.weekId.trim()) {
     errors.push("weekId darf nicht leer sein.");
+  }
+
+  if (!context.calendarYear || context.calendarYear < 2000) {
+    errors.push("Kalenderjahr fehlt.");
+  }
+
+  if (!context.calendarWeek || context.calendarWeek < 1 || context.calendarWeek > 53) {
+    errors.push("Kalenderwoche fehlt.");
   }
 
   if (context.days.length !== weekdays.length * weekContextPeople.length) {
@@ -128,12 +176,24 @@ export function validateWeekContext(context: WeekContext): string[] {
 }
 
 export function ensureCompleteWeekContext(context: WeekContext): WeekContext {
-  const errors = validateWeekContext(context);
+  const weekStartDate = context.weekStartDate ?? buildDefaultWeekContext().weekStartDate;
+  const calendar = weekStartDate
+    ? getIsoCalendarWeek(new Date(`${weekStartDate}T00:00:00`))
+    : { calendarYear: context.calendarYear ?? new Date().getFullYear(), calendarWeek: context.calendarWeek ?? 1 };
+  const completeContext: WeekContext = {
+    ...context,
+    weekId: context.weekId || buildWeekId(calendar.calendarYear, calendar.calendarWeek),
+    weekStartDate,
+    calendarYear: context.calendarYear ?? calendar.calendarYear,
+    calendarWeek: context.calendarWeek ?? calendar.calendarWeek,
+    homeOfficeTargets: normalizeHomeOfficeTargets(context.homeOfficeTargets),
+  };
+  const errors = validateWeekContext(completeContext);
   if (errors.length > 0) {
     throw new Error(`Invalid week context: ${errors.join(" ")}`);
   }
 
-  return context;
+  return completeContext;
 }
 
 export function getContextForDay(
@@ -150,4 +210,40 @@ export function getContextForDay(
   }
 
   return defaultChoiceForWeekday(weekday);
+}
+
+export function countHomeOfficeWeekdays(
+  context: WeekContext,
+  personId: PersonId,
+): number {
+  return context.days.filter(
+    (day) =>
+      day.personId === personId
+      && day.dayContext === "home"
+      && day.weekday !== "saturday"
+      && day.weekday !== "sunday",
+  ).length;
+}
+
+export function buildHomeOfficeTargetSummary(context: WeekContext): Array<{
+  personId: PersonId;
+  displayName: string;
+  target: number;
+  actual: number;
+  isMet: boolean;
+}> {
+  const targets = normalizeHomeOfficeTargets(context.homeOfficeTargets);
+
+  return weekContextPeople.map((person) => {
+    const actual = countHomeOfficeWeekdays(context, person.personId);
+    const target = targets[person.personId];
+
+    return {
+      personId: person.personId,
+      displayName: person.displayName,
+      target,
+      actual,
+      isMet: actual === target,
+    };
+  });
 }

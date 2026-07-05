@@ -142,6 +142,12 @@ const ep005PlannerJobStatusSql = `
 ALTER TABLE planner_jobs ADD COLUMN error_code TEXT;
 `;
 
+const ep009CalendarWeekSql = `
+ALTER TABLE week_contexts ADD COLUMN calendar_year INTEGER;
+ALTER TABLE week_contexts ADD COLUMN calendar_week INTEGER;
+ALTER TABLE week_contexts ADD COLUMN home_office_targets_json TEXT;
+`;
+
 export const migrations: Migration[] = [
   {
     id: "0001_ep_002",
@@ -152,6 +158,11 @@ export const migrations: Migration[] = [
     id: "0002_ep_005",
     name: "planner job status details",
     sql: ep005PlannerJobStatusSql,
+  },
+  {
+    id: "0003_ep_009",
+    name: "calendar week home office setup",
+    sql: ep009CalendarWeekSql,
   },
 ];
 

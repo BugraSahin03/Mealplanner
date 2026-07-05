@@ -38,7 +38,7 @@ describe("database schema", () => {
         "shopping_items",
       ]),
     );
-    expect(getSchemaVersion(db)).toBe("0002_ep_005");
+    expect(getSchemaVersion(db)).toBe("0003_ep_009");
     expect(listProfiles(db).map((profile) => profile.personId)).toEqual(["bugra", "sena"]);
     expect(getProfile(db, "bugra")?.primaryGoal).toBe("muscle_gain");
   });
@@ -49,6 +49,20 @@ describe("database schema", () => {
       .all() as Array<{ name: string }>;
 
     expect(columns.map((column) => column.name)).toContain("error_code");
+  });
+
+  it("stores calendar week and home office target metadata", () => {
+    const columns = db
+      .prepare("PRAGMA table_info(week_contexts)")
+      .all() as Array<{ name: string }>;
+
+    expect(columns.map((column) => column.name)).toEqual(
+      expect.arrayContaining([
+        "calendar_year",
+        "calendar_week",
+        "home_office_targets_json",
+      ]),
+    );
   });
 
   it("enforces planner job statuses", () => {

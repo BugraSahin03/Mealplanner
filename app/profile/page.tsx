@@ -115,13 +115,10 @@ export default function ProfilePage() {
           <Link className="nav-link nav-link-active" href="/profile">
             Profile
           </Link>
-          <Link className="nav-link" href="/week">
-            Woche
-          </Link>
-          <Link className="nav-link" href="/#plan">
+          <Link className="nav-link" href="/planner">
             Wochenplan
           </Link>
-          <Link className="nav-link" href="/#einkauf">
+          <Link className="nav-link" href="/planner#einkauf">
             Einkaufsliste
           </Link>
         </nav>

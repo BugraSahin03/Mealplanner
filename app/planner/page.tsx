@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getDb } from "@/src/db/client";
 import { getLatestPlannerJob, listPlannerJobs, type PlannerJob } from "@/src/planner/repository";
 import { buildWeekPlanView } from "@/src/planner/week-plan-view";
+import { weekdays, weekContextPeople } from "@/src/week-context/model";
+import { getOrCreateCurrentWeekContext } from "@/src/week-context/repository";
 import {
   completePlannerJobAction,
   createPlannerJobAction,
@@ -10,6 +12,7 @@ import {
   startPlannerJobAction,
 } from "./actions";
 import { ShoppingList } from "./shopping-list";
+import { WeekCalendarBoard } from "./week-calendar-board";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +57,7 @@ function readResponseTitle(job: PlannerJob | null): string {
 
 export default function PlannerPage() {
   const db = getDb();
+  const weekContext = getOrCreateCurrentWeekContext(db);
   const latestJob = getLatestPlannerJob(db);
   const jobs = listPlannerJobs(db, 5);
   const latestStatus = latestJob?.status ?? "idle";
@@ -72,9 +76,6 @@ export default function PlannerPage() {
         <nav className="nav-list" aria-label="Hauptnavigation">
           <Link className="nav-link" href="/profile">
             Profile
-          </Link>
-          <Link className="nav-link" href="/week">
-            Woche
           </Link>
           <Link className="nav-link nav-link-active" href="/planner">
             Wochenplan
@@ -165,75 +166,20 @@ export default function PlannerPage() {
           </div>
         </section>
 
+        <section className="section-block plan-board-section" id="plan">
+          <WeekCalendarBoard
+            context={weekContext}
+            days={weekdays.map((day) => ({
+              ...day,
+              date: weekContext.days.find((entry) => entry.weekday === day.weekday)?.date ?? null,
+            }))}
+            people={weekContextPeople}
+            weekPlan={weekPlan}
+          />
+        </section>
+
         {weekPlan ? (
           <>
-            <section className="section-block plan-board-section" id="plan">
-              <div className="section-heading">
-                <p className="eyebrow">Wochenplan</p>
-                <h2>{weekPlan.title}</h2>
-                {weekPlan.summary ? <p className="section-copy">{weekPlan.summary}</p> : null}
-              </div>
-
-              <div className="week-plan-board" aria-label="Wochenplan">
-                {weekPlan.days.map((day) => (
-                  <article className="week-plan-day" key={day.weekday}>
-                    <header>
-                      <div>
-                        <h3>{day.label}</h3>
-                        {day.date ? <span>{day.date}</span> : null}
-                      </div>
-                      <small>{day.meals.length} Mahlzeiten</small>
-                    </header>
-
-                    <div className="week-meal-stack">
-                      {day.meals.length === 0 ? (
-                        <p className="muted">Noch keine Mahlzeiten fuer diesen Tag.</p>
-                      ) : (
-                        day.meals.map((meal) => (
-                          <section
-                            className={meal.isSharedDinner ? "week-meal week-meal-shared" : "week-meal"}
-                            key={meal.mealId}
-                          >
-                            <div className="week-meal-header">
-                              <span>{meal.slotLabel}</span>
-                              <strong>{meal.title}</strong>
-                            </div>
-                            <div className="week-meal-meta">
-                              <em>{meal.contextLabel}</em>
-                              <em>{meal.peopleSummary}</em>
-                            </div>
-                            <p>{meal.ingredientSummary}</p>
-                            {meal.notes ? <small>{meal.notes}</small> : null}
-                          </section>
-                        ))
-                      )}
-                    </div>
-                  </article>
-                ))}
-              </div>
-
-              {weekPlan.plannerNotes.length > 0 || weekPlan.warnings.length > 0 ? (
-                <div className="plan-notes-grid">
-                  {weekPlan.plannerNotes.length > 0 ? (
-                    <div>
-                      <span>Planer-Notizen</span>
-                      {weekPlan.plannerNotes.map((note) => (
-                        <p key={note}>{note}</p>
-                      ))}
-                    </div>
-                  ) : null}
-                  {weekPlan.warnings.length > 0 ? (
-                    <div>
-                      <span>Hinweise</span>
-                      {weekPlan.warnings.map((warning) => (
-                        <p key={warning}>{warning}</p>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-            </section>
-
             <section className="section-block shopping-list-section" id="einkauf">
               <div className="section-heading">
                 <p className="eyebrow">Einkaufsliste</p>
@@ -244,13 +190,13 @@ export default function PlannerPage() {
             </section>
           </>
         ) : (
-          <section className="section-block plan-empty-state" id="plan">
+          <section className="section-block plan-empty-state" id="einkauf">
             <div className="section-heading">
-              <p className="eyebrow">Wochenplan</p>
-              <h2>Noch kein fertiger Plan gespeichert.</h2>
+              <p className="eyebrow">Einkaufsliste</p>
+              <h2>Noch keine Einkaufsliste gespeichert.</h2>
             </div>
             <p className="section-copy">
-              Lege einen Job an, starte ihn und simuliere den Erfolg, um die Wochenplan- und Einkaufslistenansicht zu pruefen.
+              Sobald ein Planner-Lauf erfolgreich ist, wird die Einkaufsliste hier automatisch aus dem Wochenplan gebildet.
             </p>
           </section>
         )}

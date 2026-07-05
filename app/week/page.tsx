@@ -3,7 +3,13 @@ import Link from "next/link";
 import { getDb } from "@/src/db/client";
 import { buildPlannerRequestFromWeekContext } from "@/src/planner/request";
 import { listProfiles } from "@/src/profiles/repository";
-import { getContextForDay, weekdays, weekContextPeople } from "@/src/week-context/model";
+import {
+  buildHomeOfficeTargetSummary,
+  getContextForDay,
+  normalizeHomeOfficeTargets,
+  weekdays,
+  weekContextPeople,
+} from "@/src/week-context/model";
 import { getOrCreateCurrentWeekContext } from "@/src/week-context/repository";
 import { saveWeekContextAction } from "./actions";
 
@@ -30,7 +36,9 @@ export default function WeekPage() {
   const context = getOrCreateCurrentWeekContext(db);
   const profiles = listProfiles(db);
   const plannerRequest = buildPlannerRequestFromWeekContext(context, profiles);
-  const officeSlots = context.days.filter((day) => day.dayContext === "office").length;
+  const targetSummary = buildHomeOfficeTargetSummary(context);
+  const metTargets = targetSummary.filter((target) => target.isMet).length;
+  const homeOfficeTargets = normalizeHomeOfficeTargets(context.homeOfficeTargets);
 
   return (
     <main className="app-shell">
@@ -50,7 +58,7 @@ export default function WeekPage() {
           <Link className="nav-link" href="/planner">
             Wochenplan
           </Link>
-          <Link className="nav-link" href="/#einkauf">
+          <Link className="nav-link" href="/planner#einkauf">
             Einkaufsliste
           </Link>
         </nav>
@@ -59,17 +67,63 @@ export default function WeekPage() {
       <div className="content">
         <header className="page-header">
           <div>
-            <p className="eyebrow">Wochen-Setup</p>
-            <h1>Office und Home fuer die naechste Planung.</h1>
+            <p className="eyebrow">Kalenderwoche {context.calendarWeek}</p>
+            <h1>Homeoffice fuer KW {context.calendarWeek} planen.</h1>
           </div>
           <div className="status-pill">
-            <span>{officeSlots}</span>
-            <small>Office-Slots</small>
+            <span>{metTargets}/{targetSummary.length}</span>
+            <small>Ziele erfuellt</small>
           </div>
         </header>
 
         <form className="week-form" action={saveWeekContextAction}>
           <input type="hidden" name="weekStartDate" value={context.weekStartDate ?? ""} />
+
+          <section className="week-calendar-summary">
+            <div>
+              <p className="eyebrow">Kalender</p>
+              <h2>{context.calendarYear} / KW {context.calendarWeek}</h2>
+              <p className="muted">Woche ab {formatIsoDate(context.weekStartDate)}</p>
+            </div>
+            <div className="home-target-grid">
+              {targetSummary.map((target) => (
+                <section
+                  className={target.isMet ? "home-target-card home-target-ok" : "home-target-card"}
+                  key={target.personId}
+                >
+                  <input
+                    type="hidden"
+                    name={`homeOfficeTarget.${target.personId}`}
+                    value={homeOfficeTargets[target.personId]}
+                  />
+                  <div>
+                    <span>{target.displayName}</span>
+                    <strong>{target.actual}/{target.target}</strong>
+                  </div>
+                  <p>{target.isMet ? "Ziel erreicht" : "Tage anpassen"}</p>
+                  <div className="target-stepper" aria-label={`Homeoffice-Ziel ${target.displayName}`}>
+                    <button
+                      className="secondary-button"
+                      name={`targetDelta.${target.personId}`}
+                      type="submit"
+                      value="-1"
+                    >
+                      -
+                    </button>
+                    <button
+                      className="secondary-button"
+                      name={`targetDelta.${target.personId}`}
+                      type="submit"
+                      value="1"
+                    >
+                      +
+                    </button>
+                  </div>
+                </section>
+              ))}
+            </div>
+          </section>
+
           {weekdays.map((day) => {
             const firstEntry = context.days.find((entry) => entry.weekday === day.weekday);
 
@@ -120,8 +174,8 @@ export default function WeekPage() {
             <div>
               <p className="eyebrow">Planner-Request</p>
               <p className="muted">
-                {plannerRequest.week.days.length} Tage und {plannerRequest.people.length} Profile
-                bereit.
+                KW {plannerRequest.week.calendarWeek} mit Zielwerten fuer {plannerRequest.people.length}
+                Profile bereit.
               </p>
             </div>
             <button className="primary-button" type="submit">

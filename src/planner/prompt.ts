@@ -21,7 +21,8 @@ Important rules:
 - Use schemaVersion "1.0".
 - Plan only the provided request days.
 - Include breakfast, lunch, and dinner.
-- Breakfast and lunch may differ per person depending on office/home context.
+- Prefer separate breakfast and lunch meal objects per person when their goals, preferences, portions, or office/home context differ.
+- Breakfast and lunch may be shared only when the same meal genuinely fits both people.
 - Dinner should be shared when practical.
 - Include ingredients for every meal.
 - Consolidate ingredients into shoppingList.
