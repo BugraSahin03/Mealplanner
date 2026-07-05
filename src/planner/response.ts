@@ -101,45 +101,105 @@ export function assertPlannerResponse(value: unknown): PlannerResponse {
 }
 
 export function buildDemoPlannerResponse(): PlannerResponse {
+  const days: PlannerResponseDay[] = [
+    ["monday", "Montag"],
+    ["tuesday", "Dienstag"],
+    ["wednesday", "Mittwoch"],
+    ["thursday", "Donnerstag"],
+    ["friday", "Freitag"],
+    ["saturday", "Samstag"],
+    ["sunday", "Sonntag"],
+  ].map(([weekday, label], index) => ({
+    dayId: weekday,
+    weekday: weekday as PlannerResponseDay["weekday"],
+    meals: [
+      {
+        mealId: `${weekday}-breakfast`,
+        mealType: "breakfast",
+        title: `${label}: Skyr mit Haferflocken`,
+        people: [
+          { personId: "bugra", portion: "large" },
+          { personId: "sena", portion: "normal" },
+        ],
+        context: index < 5 ? "meal_prep" : "home",
+        ingredients: [
+          { name: "Skyr", amount: 500, unit: "g", category: "dairy_eggs" },
+          { name: "Haferflocken", amount: 120, unit: "g", category: "dry_goods" },
+          { name: "Beeren", amount: 150, unit: "g", category: "frozen" },
+        ],
+      },
+      {
+        mealId: `${weekday}-lunch`,
+        mealType: "lunch",
+        title: index % 2 === 0 ? "Chicken-Reis-Bowl" : "Linsen-Feta-Salat",
+        people: [{ personId: "bugra" }, { personId: "sena" }],
+        context: index < 5 ? "office" : "home",
+        mealPrep: {
+          transportable: index < 5,
+          makeAhead: true,
+          reheating: index % 2 === 0 ? "microwave" : "cold_ok",
+          prepNotes: index < 5 ? "Transportbox am Vorabend packen." : "Frisch anrichten.",
+        },
+        ingredients: [
+          { name: index % 2 === 0 ? "Haehnchenbrust" : "Linsen", amount: 250, unit: "g", category: index % 2 === 0 ? "meat_fish" : "canned" },
+          { name: index % 2 === 0 ? "Reis" : "Feta", amount: 160, unit: "g", category: index % 2 === 0 ? "dry_goods" : "dairy_eggs" },
+          { name: "Gemuese-Mix", amount: 250, unit: "g", category: "produce" },
+        ],
+      },
+      {
+        mealId: `${weekday}-dinner`,
+        mealType: "dinner",
+        title: index % 3 === 0 ? "Tomaten-Pasta mit Salat" : index % 3 === 1 ? "Ofengemuese mit Dip" : "Puten-Chili",
+        people: [{ personId: "bugra" }, { personId: "sena" }],
+        context: "shared",
+        ingredients: [
+          { name: index % 3 === 0 ? "Pasta" : index % 3 === 1 ? "Kartoffeln" : "Putenhack", amount: 300, unit: "g", category: index % 3 === 2 ? "meat_fish" : "dry_goods" },
+          { name: "Tomaten", amount: 400, unit: "g", category: "produce" },
+          { name: "Salat", amount: 1, unit: "piece", category: "produce" },
+        ],
+      },
+    ],
+  }));
+
   return {
     schemaVersion: "1.0",
     plan: {
       title: "Demo-Wochenplan",
-      summary: "Validierter Beispielplan ohne OpenClaw-Aufruf.",
-      days: [
-        {
-          dayId: "demo-monday",
-          weekday: "monday",
-          meals: [
-            {
-              mealId: "demo-monday-breakfast",
-              mealType: "breakfast",
-              title: "Skyr mit Haferflocken",
-              people: [{ personId: "bugra" }, { personId: "sena" }],
-              context: "home",
-              ingredients: [
-                { name: "Skyr", amount: 500, unit: "g", category: "dairy_eggs" },
-                { name: "Haferflocken", amount: 120, unit: "g", category: "dry_goods" },
-              ],
-            },
-          ],
-        },
-      ],
+      summary: "Validierter Beispielplan fuer eine komplette Woche ohne OpenClaw-Aufruf.",
+      days,
     },
     shoppingList: [
       {
         name: "Skyr",
-        amount: 500,
+        amount: 3500,
         unit: "g",
         category: "dairy_eggs",
-        sourceMealIds: ["demo-monday-breakfast"],
+        sourceMealIds: days.map((day) => `${day.weekday}-breakfast`),
+        buyingHint: "Mehrere grosse Becher kaufen.",
       },
       {
         name: "Haferflocken",
-        amount: 120,
+        amount: 840,
         unit: "g",
         category: "dry_goods",
-        sourceMealIds: ["demo-monday-breakfast"],
+        sourceMealIds: days.map((day) => `${day.weekday}-breakfast`),
+      },
+      {
+        name: "Gemuese-Mix",
+        amount: 1750,
+        unit: "g",
+        category: "produce",
+        sourceMealIds: days.map((day) => `${day.weekday}-lunch`),
+        buyingHint: "Frisches und TK-Gemuese kombinieren.",
+      },
+      {
+        name: "Olivenoel",
+        amount: 1,
+        unit: "bottle",
+        category: "condiments_spices",
+        pantryItem: true,
+        optional: true,
+        buyingHint: "Nur kaufen, wenn der Vorrat leer ist.",
       },
     ],
     plannerNotes: ["Demo-Erfolg fuer den Job-Statusfluss."],
