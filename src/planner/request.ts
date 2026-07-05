@@ -146,7 +146,7 @@ export function buildPlannerRequestFromWeekContext(
       shoppingMode: "weekly",
       stores: ["Netto", "Lidl"],
       globalNotes:
-        "Abendessen normalerweise gemeinsam planen. Office-Tage brauchen transportierbares Fruehstueck und Mittagessen.",
+        "Abendessen normalerweise gemeinsam planen. Office-Tage brauchen transportierbares Frühstück und Mittagessen.",
     },
   };
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import type { WeekPlanView } from "@/src/planner/week-plan-view";
+import type { MealView, WeekPlanView } from "@/src/planner/week-plan-view";
 import type { DayContext, WeekContext, Weekday } from "@/src/planner/repository";
 import type { PersonId } from "@/src/profiles/repository";
 import { normalizeHomeOfficeTargets, normalizeLunchBatchDishCount } from "@/src/week-context/model";
@@ -32,7 +32,7 @@ type Props = {
 const mealSlots: Array<"breakfast" | "lunch" | "dinner"> = ["breakfast", "lunch", "dinner"];
 
 const mealSlotLabels: Record<(typeof mealSlots)[number], string> = {
-  breakfast: "Fruehstueck",
+  breakfast: "Frühstück",
   lunch: "Mittagessen",
   dinner: "Abendessen",
 };
@@ -78,6 +78,7 @@ function getMealForSlot(day: WeekPlanView["days"][number] | undefined, slot: (ty
 
 export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
   const [homeState, setHomeState] = useState(() => buildInitialHomeState(context, days, people));
+  const [selectedMeal, setSelectedMeal] = useState<{ day: WeekPlanView["days"][number]; meal: MealView } | null>(null);
   const [draggedPerson, setDraggedPerson] = useState<PersonId | null>(null);
   const [draggedRemoval, setDraggedRemoval] = useState<{ weekday: Weekday; personId: PersonId } | null>(null);
   const [hoveredDropZone, setHoveredDropZone] = useState<string | null>(null);
@@ -97,6 +98,27 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
       ),
     [homeState, people],
   );
+
+  useEffect(() => {
+    if (!selectedMeal) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function closeOnEscape(event: KeyboardEvent): void {
+      if (event.key === "Escape") {
+        setSelectedMeal(null);
+      }
+    }
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [selectedMeal]);
 
   function setPersonHome(weekday: Weekday, personId: PersonId, isHome: boolean): void {
     if (isWeekend(weekday)) {
@@ -383,7 +405,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                       <div>
                         {meals.length > 0 ? (
                           meals.map((meal) => (
-                            <article
+                            <button
                               className={
                                 meal.isSharedDinner
                                   ? "calendar-meal calendar-meal-shared"
@@ -392,10 +414,16 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                                     : "calendar-meal"
                               }
                               key={meal.mealId}
+                              onClick={() => {
+                                if (planDay) {
+                                  setSelectedMeal({ day: planDay, meal });
+                                }
+                              }}
+                              type="button"
                             >
                               <strong>{meal.title}</strong>
                               <p>{meal.ingredientSummary}</p>
-                            </article>
+                            </button>
                           ))
                         ) : (
                           <article className="calendar-meal calendar-meal-empty">
@@ -445,6 +473,103 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
           Kalender speichern
         </button>
       </div>
+
+      {selectedMeal ? (
+        <div
+          className="meal-dialog-backdrop"
+          onMouseDown={() => setSelectedMeal(null)}
+          role="presentation"
+        >
+          <section
+            aria-labelledby="meal-dialog-title"
+            aria-modal="true"
+            className={`meal-dialog meal-dialog-${selectedMeal.meal.personTheme}`}
+            onMouseDown={(event) => event.stopPropagation()}
+            role="dialog"
+          >
+            <header className="meal-dialog-header">
+              <div>
+                <span>{selectedMeal.day.label}{selectedMeal.day.date ? ` · ${selectedMeal.day.date}` : ""}</span>
+                <h2 id="meal-dialog-title">{selectedMeal.meal.title}</h2>
+              </div>
+              <button
+                aria-label="Gericht-Details schließen"
+                className="meal-dialog-close"
+                onClick={() => setSelectedMeal(null)}
+                type="button"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="meal-dialog-meta" aria-label="Gericht-Metadaten">
+              <span>{selectedMeal.meal.slotLabel}</span>
+              <span>{selectedMeal.meal.contextLabel}</span>
+              <span>{selectedMeal.meal.peopleSummary}</span>
+            </div>
+
+            <section className="meal-dialog-section">
+              <h3>Portionen & Kalorien</h3>
+              {(selectedMeal.meal.calorieFacts?.length ?? 0) > 0 ? (
+                <div className="calorie-fact-grid">
+                  {selectedMeal.meal.calorieFacts.map((fact) => (
+                    <div className="calorie-fact-card" key={`${fact.label ?? "portion"}-${fact.kcal}-${fact.grams}`}>
+                      {fact.label ? <span>{fact.label}</span> : null}
+                      <div>
+                        {fact.kcal ? (
+                          <strong>
+                            {fact.kcal}
+                            <small>kcal</small>
+                          </strong>
+                        ) : null}
+                        {fact.grams ? (
+                          <strong>
+                            {fact.grams}
+                            <small>g</small>
+                          </strong>
+                        ) : null}
+                      </div>
+                      {fact.kcalPer100G ? <p>{fact.kcalPer100G} kcal pro 100 g</p> : null}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="calorie-estimate">Keine Kalorienangabe vorhanden.</p>
+              )}
+              <small className="calorie-estimate-note">AI-Schätzung</small>
+            </section>
+
+            <section className="meal-dialog-section">
+              <h3>Zutaten</h3>
+              <ul className="meal-ingredient-list">
+                {selectedMeal.meal.ingredients.map((ingredient) => (
+                  <li key={`${selectedMeal.meal.mealId}-${ingredient.name}`}>
+                    <div>
+                      <strong>{ingredient.name}</strong>
+                      {ingredient.notes ? <small>{ingredient.notes}</small> : null}
+                    </div>
+                    <span>
+                      {ingredient.amount}
+                      {ingredient.pantryItem ? " · Vorrat" : ""}
+                      {ingredient.optional ? " · optional" : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            {selectedMeal.meal.mealPrepSummary || selectedMeal.meal.notes ? (
+              <section className="meal-dialog-section">
+                <h3>Hinweise</h3>
+                {selectedMeal.meal.mealPrepSummary ? <p>{selectedMeal.meal.mealPrepSummary}</p> : null}
+                {selectedMeal.meal.notes && selectedMeal.meal.notes !== selectedMeal.meal.mealPrepSummary ? (
+                  <p>{selectedMeal.meal.notes}</p>
+                ) : null}
+              </section>
+            ) : null}
+          </section>
+        </div>
+      ) : null}
     </form>
   );
 }

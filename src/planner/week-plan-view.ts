@@ -11,6 +11,21 @@ export type MealPersonView = {
   estimatedKcalPer100g: number | null;
 };
 
+export type MealIngredientView = {
+  name: string;
+  amount: string;
+  notes: string | null;
+  pantryItem: boolean;
+  optional: boolean;
+};
+
+export type MealCalorieFactView = {
+  label: string | null;
+  kcal: string | null;
+  grams: string | null;
+  kcalPer100G: string | null;
+};
+
 export type MealView = {
   mealId: string;
   mealType: MealType;
@@ -19,11 +34,16 @@ export type MealView = {
   contextLabel: string;
   people: MealPersonView[];
   peopleSummary: string;
+  personTheme: "bugra" | "sena" | "shared";
   isPersonalMeal: boolean;
   isSharedDinner: boolean;
   dinnerLeftoverGroupId: string | null;
   dinnerLeftoverRole: "fresh_cook" | "leftover" | "repeat_serving" | null;
   ingredientSummary: string;
+  ingredients: MealIngredientView[];
+  calorieSummary: string | null;
+  calorieFacts: MealCalorieFactView[];
+  mealPrepSummary: string | null;
   portionSummary: string | null;
   notes: string | null;
 };
@@ -95,7 +115,7 @@ const weekdayShortLabels: Record<Weekday, string> = {
 };
 
 const mealTypeLabels: Record<MealType, string> = {
-  breakfast: "Fruehstueck",
+  breakfast: "Frühstück",
   lunch: "Mittagessen",
   dinner: "Abendessen",
   snack: "Snack",
@@ -117,7 +137,21 @@ const personLabels: Record<"bugra" | "sena", string> = {
 const portionLabels: Record<"small" | "normal" | "large", string> = {
   small: "klein",
   normal: "normal",
-  large: "gross",
+  large: "groß",
+};
+
+const unitLabels: Record<PlannerResponse["shoppingList"][number]["unit"], string> = {
+  g: "g",
+  kg: "kg",
+  ml: "ml",
+  l: "l",
+  piece: "Stk.",
+  tbsp: "EL",
+  tsp: "TL",
+  pack: "Packung",
+  can: "Dose",
+  jar: "Glas",
+  bottle: "Flasche",
 };
 
 function formatDate(value: string | undefined): string | null {
@@ -146,6 +180,18 @@ function buildIngredientSummary(meal: PlannerResponse["plan"]["days"][number]["m
     .join(", ");
 }
 
+function formatAmount(amount: number, unit: PlannerResponse["shoppingList"][number]["unit"]): string {
+  const formattedAmount = Number.isInteger(amount)
+    ? String(amount)
+    : new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 }).format(amount);
+
+  return `${formattedAmount} ${unitLabels[unit]}`;
+}
+
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(value);
+}
+
 function stripWeekdayTitlePrefix(title: string): string {
   return title.replace(
     /^(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag):\s*/u,
@@ -168,12 +214,116 @@ function buildPortionSummary(people: MealPersonView[]): string | null {
   return summaries.length > 0 ? summaries.join(" | ") : null;
 }
 
+function buildCalorieSummaryFromPeople(people: MealPersonView[]): string | null {
+  const peopleWithCalories = people.filter((person) => person.estimatedKcal);
+
+  const personLines = peopleWithCalories.map((person) => {
+    const portion = person.gramsPerPortion ? ` pro ${formatNumber(person.gramsPerPortion)} g Portion` : "";
+    const personSuffix = peopleWithCalories.length > 1 ? ` für ${person.label}` : "";
+    return `ca. ${formatNumber(person.estimatedKcal ?? 0)} kcal${portion}${personSuffix}`;
+  });
+
+  return personLines.length > 0 ? personLines.join(" / ") : null;
+}
+
+function buildCalorieSummary(
+  meal: PlannerResponse["plan"]["days"][number]["meals"][number],
+  people: MealPersonView[],
+): string | null {
+  const peopleSummary = buildCalorieSummaryFromPeople(people);
+
+  if (peopleSummary) {
+    return peopleSummary;
+  }
+
+  if (meal.estimatedNutrition?.kcalPer100G) {
+    return `ca. ${formatNumber(meal.estimatedNutrition.kcalPer100G)} kcal pro 100 g`;
+  }
+
+  if (meal.estimatedNutrition?.kcal) {
+    return `ca. ${formatNumber(meal.estimatedNutrition.kcal)} kcal pro Gericht`;
+  }
+
+  return null;
+}
+
+function formatKcalPer100G(kcal: number, grams: number): string | null {
+  if (grams <= 0) {
+    return null;
+  }
+
+  return `ca. ${formatNumber((kcal / grams) * 100)}`;
+}
+
+function buildCalorieFacts(
+  meal: PlannerResponse["plan"]["days"][number]["meals"][number],
+  people: MealPersonView[],
+): MealCalorieFactView[] {
+  const peopleWithFacts = people.filter(
+    (person) => person.estimatedKcal || person.gramsPerPortion || person.estimatedKcalPer100g,
+  );
+
+  if (peopleWithFacts.length > 0) {
+    return peopleWithFacts.map((person) => ({
+      label: peopleWithFacts.length > 1 ? person.label : null,
+      kcal: person.estimatedKcal ? `ca. ${formatNumber(person.estimatedKcal)}` : null,
+      grams: person.gramsPerPortion ? formatNumber(person.gramsPerPortion) : null,
+      kcalPer100G: person.estimatedKcalPer100g
+        ? `ca. ${formatNumber(person.estimatedKcalPer100g)}`
+        : person.estimatedKcal && person.gramsPerPortion
+          ? formatKcalPer100G(person.estimatedKcal, person.gramsPerPortion)
+          : meal.estimatedNutrition?.kcalPer100G
+            ? `ca. ${formatNumber(meal.estimatedNutrition.kcalPer100G)}`
+            : null,
+    }));
+  }
+
+  if (meal.estimatedNutrition?.kcalPer100G || meal.estimatedNutrition?.kcal) {
+    return [
+      {
+        label: null,
+        kcal: meal.estimatedNutrition.kcal ? `ca. ${formatNumber(meal.estimatedNutrition.kcal)}` : null,
+        grams: null,
+        kcalPer100G: meal.estimatedNutrition.kcalPer100G
+          ? `ca. ${formatNumber(meal.estimatedNutrition.kcalPer100G)}`
+          : null,
+      },
+    ];
+  }
+
+  return [];
+}
+
+function getPersonTheme(people: MealPersonView[]): MealView["personTheme"] {
+  if (people.length === 1) {
+    return people[0]?.personId ?? "shared";
+  }
+
+  return "shared";
+}
+
+function buildMealPrepSummary(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): string | null {
+  if (!meal.mealPrep) {
+    return null;
+  }
+
+  const transport = meal.mealPrep.transportable ? "transportierbar" : "nicht transportierbar";
+  const timing = meal.mealPrep.makeAhead ? "vorbereitbar" : "frisch einplanen";
+  const reheating = meal.mealPrep.reheating ? `Aufwärmen: ${meal.mealPrep.reheating}` : null;
+
+  return [transport, timing, reheating, meal.mealPrep.prepNotes ?? null].filter(Boolean).join(" · ");
+}
+
+function readGramsPerPortion(person: PlannerResponse["plan"]["days"][number]["meals"][number]["people"][number]): number | null {
+  return person.gramsPerPortion ?? person.portionGrams ?? null;
+}
+
 function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): MealView {
   const people = meal.people.map<MealPersonView>((person) => ({
     personId: person.personId,
     label: personLabels[person.personId],
     portion: person.portion ? portionLabels[person.portion] : null,
-    gramsPerPortion: person.gramsPerPortion ?? null,
+    gramsPerPortion: readGramsPerPortion(person),
     estimatedKcal: person.estimatedKcal ?? null,
     estimatedKcalPer100g: person.estimatedKcalPer100g ?? null,
   }));
@@ -186,11 +336,22 @@ function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number])
     contextLabel: contextLabels[meal.context],
     people,
     peopleSummary: buildPeopleSummary(people, meal.context),
+    personTheme: getPersonTheme(people),
     isPersonalMeal: people.length === 1 && meal.mealType !== "dinner",
     isSharedDinner: meal.mealType === "dinner" && meal.context === "shared" && people.length > 1,
     dinnerLeftoverGroupId: meal.dinnerLeftovers?.leftoverGroupId ?? null,
     dinnerLeftoverRole: meal.dinnerLeftovers?.role ?? null,
     ingredientSummary: buildIngredientSummary(meal),
+    ingredients: meal.ingredients.map((ingredient) => ({
+      name: ingredient.name,
+      amount: formatAmount(ingredient.amount, ingredient.unit),
+      notes: ingredient.notes ?? null,
+      pantryItem: ingredient.pantryItem ?? false,
+      optional: ingredient.optional ?? false,
+    })),
+    calorieSummary: buildCalorieSummary(meal, people),
+    calorieFacts: buildCalorieFacts(meal, people),
+    mealPrepSummary: buildMealPrepSummary(meal),
     portionSummary: buildPortionSummary(people),
     notes: meal.notes ?? meal.mealPrep?.prepNotes ?? meal.dinnerLeftovers?.notes ?? null,
   };
