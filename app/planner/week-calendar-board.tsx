@@ -425,7 +425,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
           <section
             aria-labelledby="meal-dialog-title"
             aria-modal="true"
-            className="meal-dialog"
+            className={`meal-dialog meal-dialog-${selectedMeal.meal.personTheme}`}
             onMouseDown={(event) => event.stopPropagation()}
             role="dialog"
           >
@@ -457,14 +457,6 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
               ) : (
                 <p className="calorie-estimate">Keine Kalorienangabe vorhanden.</p>
               )}
-              <div className="meal-person-grid">
-                {selectedMeal.meal.people.map((person) => (
-                  <div className={`meal-person-detail meal-person-${person.personId}`} key={person.personId}>
-                    <strong>{person.label}</strong>
-                    <span>{person.detailLine}</span>
-                  </div>
-                ))}
-              </div>
             </section>
 
             <section className="meal-dialog-section">

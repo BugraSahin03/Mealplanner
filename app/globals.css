@@ -1175,8 +1175,12 @@ button.calendar-meal:focus-visible {
 }
 
 .meal-dialog {
+  --meal-theme: var(--accent);
+  --meal-theme-soft: #eef7f4;
+  --meal-theme-ring: rgba(17, 123, 103, 0.18);
   background: var(--surface);
   border: 1px solid rgba(226, 232, 240, 0.95);
+  border-top: 0.35rem solid var(--meal-theme);
   border-radius: 0.7rem;
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
   display: grid;
@@ -1189,6 +1193,24 @@ button.calendar-meal:focus-visible {
   width: min(100%, 56rem);
 }
 
+.meal-dialog-bugra {
+  --meal-theme: #2563eb;
+  --meal-theme-soft: #eff6ff;
+  --meal-theme-ring: rgba(37, 99, 235, 0.18);
+}
+
+.meal-dialog-sena {
+  --meal-theme: #db2777;
+  --meal-theme-soft: #fdf2f8;
+  --meal-theme-ring: rgba(219, 39, 119, 0.18);
+}
+
+.meal-dialog-shared {
+  --meal-theme: var(--accent-warm);
+  --meal-theme-soft: #fff7ed;
+  --meal-theme-ring: rgba(240, 138, 75, 0.2);
+}
+
 .meal-dialog-header {
   align-items: start;
   display: grid;
@@ -1197,7 +1219,7 @@ button.calendar-meal:focus-visible {
 }
 
 .meal-dialog-header span {
-  color: var(--accent-strong);
+  color: var(--meal-theme);
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -1226,9 +1248,9 @@ button.calendar-meal:focus-visible {
 
 .meal-dialog-close:hover,
 .meal-dialog-close:focus-visible {
-  border-color: var(--accent);
-  color: var(--accent-strong);
-  outline: 0.16rem solid rgba(17, 123, 103, 0.16);
+  border-color: var(--meal-theme);
+  color: var(--meal-theme);
+  outline: 0.16rem solid var(--meal-theme-ring);
 }
 
 .meal-dialog-meta {
@@ -1238,9 +1260,9 @@ button.calendar-meal:focus-visible {
 }
 
 .meal-dialog-meta span {
-  background: #eef7f4;
+  background: var(--meal-theme-soft);
   border-radius: 999px;
-  color: var(--accent-strong);
+  color: var(--meal-theme);
   font-size: 0.76rem;
   font-weight: 850;
   padding: 0.28rem 0.55rem;
@@ -1268,37 +1290,12 @@ button.calendar-meal:focus-visible {
 }
 
 .calorie-estimate {
+  background: var(--meal-theme-soft);
+  border: 1px solid var(--meal-theme-ring);
+  border-radius: 0.55rem;
   color: var(--ink) !important;
   font-weight: 850;
-}
-
-.meal-person-grid {
-  display: grid;
-  gap: 0.55rem;
-}
-
-.meal-person-detail {
-  border: 1px solid var(--line);
-  border-left: 0.28rem solid #60a5fa;
-  border-radius: 0.45rem;
-  display: grid;
-  gap: 0.22rem;
-  min-width: 0;
-  padding: 0.75rem;
-}
-
-.meal-person-sena {
-  border-left-color: var(--accent-warm);
-}
-
-.meal-person-detail strong,
-.meal-person-detail span {
-  overflow-wrap: anywhere;
-}
-
-.meal-person-detail span {
-  color: var(--ink-soft);
-  font-size: 0.88rem;
+  padding: 0.75rem 0.85rem;
 }
 
 .meal-ingredient-list {

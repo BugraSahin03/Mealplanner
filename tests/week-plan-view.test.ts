@@ -156,15 +156,15 @@ describe("week plan view", () => {
     expect(breakfast).toMatchObject({
       slotLabel: "Frühstück",
       contextLabel: "Meal Prep",
-      calorieSummary: "ca. 620 kcal pro 480 g Portion für Buğra",
+      calorieSummary: "ca. 620 kcal pro 480 g Portion",
       mealPrepSummary: null,
+      personTheme: "bugra",
     });
     expect(breakfast?.people[0]).toMatchObject({
       label: "Buğra",
       portion: "groß",
       portionGrams: 480,
       estimatedKcal: 620,
-      detailLine: "ca. 620 kcal · pro 480 g Portion · Portion: groß für Buğra",
     });
     expect(breakfast?.ingredients).toEqual([
       { name: "Skyr", amount: "300 g", notes: null, pantryItem: false, optional: false },
@@ -190,9 +190,7 @@ describe("week plan view", () => {
     const meal = view.days[0]?.meals.find((entry) => entry.mealId === "monday-dinner");
 
     expect(meal?.calorieSummary).toBe("ca. 150 kcal pro 100 g");
-    expect(meal?.people.map((person) => person.detailLine)).toEqual([
-      "Portion: groß für Buğra",
-      "Portion: normal für Sena",
-    ]);
+    expect(meal?.personTheme).toBe("shared");
+    expect(meal?.people.map((person) => person.portion)).toEqual(["groß", "normal"]);
   });
 });

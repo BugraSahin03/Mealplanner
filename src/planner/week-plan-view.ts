@@ -8,7 +8,6 @@ export type MealPersonView = {
   portion: string | null;
   portionGrams: number | null;
   estimatedKcal: number | null;
-  detailLine: string;
 };
 
 export type MealIngredientView = {
@@ -27,6 +26,7 @@ export type MealView = {
   contextLabel: string;
   people: MealPersonView[];
   peopleSummary: string;
+  personTheme: "bugra" | "sena" | "shared";
   isPersonalMeal: boolean;
   isSharedDinner: boolean;
   ingredientSummary: string;
@@ -151,24 +151,15 @@ function formatNumber(value: number): string {
   return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(value);
 }
 
-function buildPersonDetailLine(person: MealPersonView): string {
-  const details = [
-    person.estimatedKcal ? `ca. ${formatNumber(person.estimatedKcal)} kcal` : null,
-    person.portionGrams ? `pro ${formatNumber(person.portionGrams)} g Portion` : null,
-    person.portion ? `Portion: ${person.portion}` : null,
-  ].filter(Boolean);
-
-  return details.length > 0 ? `${details.join(" · ")} für ${person.label}` : person.label;
-}
-
 function buildCalorieSummary(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): string | null {
-  const personLines = meal.people
-    .filter((person) => person.estimatedKcal)
-    .map((person) => {
-      const label = personLabels[person.personId];
-      const portion = person.portionGrams ? ` pro ${formatNumber(person.portionGrams)} g Portion` : "";
-      return `ca. ${formatNumber(person.estimatedKcal ?? 0)} kcal${portion} für ${label}`;
-    });
+  const peopleWithCalories = meal.people.filter((person) => person.estimatedKcal);
+
+  const personLines = peopleWithCalories.map((person) => {
+    const label = personLabels[person.personId];
+    const portion = person.portionGrams ? ` pro ${formatNumber(person.portionGrams)} g Portion` : "";
+    const personSuffix = peopleWithCalories.length > 1 ? ` für ${label}` : "";
+    return `ca. ${formatNumber(person.estimatedKcal ?? 0)} kcal${portion}${personSuffix}`;
+  });
 
   if (personLines.length > 0) {
     return personLines.join(" / ");
@@ -185,6 +176,14 @@ function buildCalorieSummary(meal: PlannerResponse["plan"]["days"][number]["meal
   return null;
 }
 
+function getPersonTheme(people: MealPersonView[]): MealView["personTheme"] {
+  if (people.length === 1) {
+    return people[0]?.personId ?? "shared";
+  }
+
+  return "shared";
+}
+
 function buildMealPrepSummary(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): string | null {
   if (!meal.mealPrep) {
     return null;
@@ -192,7 +191,7 @@ function buildMealPrepSummary(meal: PlannerResponse["plan"]["days"][number]["mea
 
   const transport = meal.mealPrep.transportable ? "transportierbar" : "nicht transportierbar";
   const timing = meal.mealPrep.makeAhead ? "vorbereitbar" : "frisch einplanen";
-  const reheating = meal.mealPrep.reheating ? `Aufwaermen: ${meal.mealPrep.reheating}` : null;
+  const reheating = meal.mealPrep.reheating ? `Aufwärmen: ${meal.mealPrep.reheating}` : null;
 
   return [transport, timing, reheating, meal.mealPrep.prepNotes ?? null].filter(Boolean).join(" · ");
 }
@@ -206,12 +205,6 @@ function mapMeal(
     portion: person.portion ? portionLabels[person.portion] : null,
     portionGrams: person.portionGrams ?? null,
     estimatedKcal: person.estimatedKcal ?? null,
-    detailLine: "",
-  }));
-
-  const peopleWithDetails = people.map((person) => ({
-    ...person,
-    detailLine: buildPersonDetailLine(person),
   }));
 
   return {
@@ -220,10 +213,11 @@ function mapMeal(
     slotLabel: mealTypeLabels[meal.mealType],
     title: meal.title,
     contextLabel: contextLabels[meal.context],
-    people: peopleWithDetails,
-    peopleSummary: buildPeopleSummary(peopleWithDetails, meal.context),
-    isPersonalMeal: peopleWithDetails.length === 1 && meal.mealType !== "dinner",
-    isSharedDinner: meal.mealType === "dinner" && meal.context === "shared" && peopleWithDetails.length > 1,
+    people,
+    peopleSummary: buildPeopleSummary(people, meal.context),
+    personTheme: getPersonTheme(people),
+    isPersonalMeal: people.length === 1 && meal.mealType !== "dinner",
+    isSharedDinner: meal.mealType === "dinner" && meal.context === "shared" && people.length > 1,
     ingredientSummary: buildIngredientSummary(meal),
     ingredients: meal.ingredients.map((ingredient) => ({
       name: ingredient.name,
