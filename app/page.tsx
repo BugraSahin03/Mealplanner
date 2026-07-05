@@ -18,9 +18,6 @@ export default function HomePage() {
           <Link className="nav-link" href="/profile">
             Profile
           </Link>
-          <Link className="nav-link" href="/week">
-            Woche
-          </Link>
           <Link className="nav-link" href="/planner">
             Wochenplan
           </Link>
@@ -88,7 +85,7 @@ export default function HomePage() {
 
           <div className="week-grid" aria-label="Wochenkontext">
             {overview.week.map((day) => (
-              <Link className="day-tile day-tile-link" href="/week" key={day.weekday}>
+              <Link className="day-tile day-tile-link" href="/planner#plan" key={day.weekday}>
                 <strong>{day.weekday}</strong>
                 <span>Buğra: {day.bugraContext}</span>
                 <span>Sena: {day.senaContext}</span>

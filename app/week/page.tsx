@@ -58,7 +58,7 @@ export default function WeekPage() {
           <Link className="nav-link" href="/planner">
             Wochenplan
           </Link>
-          <Link className="nav-link" href="/#einkauf">
+          <Link className="nav-link" href="/planner#einkauf">
             Einkaufsliste
           </Link>
         </nav>

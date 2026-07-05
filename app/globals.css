@@ -697,6 +697,247 @@ textarea:focus {
   gap: 1.1rem;
 }
 
+.calendar-planner {
+  display: grid;
+  gap: 1rem;
+}
+
+.calendar-command {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+}
+
+.profile-token-tray {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.profile-token,
+.home-drop-zone {
+  appearance: none;
+  border: 0;
+  cursor: grab;
+}
+
+.profile-token {
+  align-items: center;
+  background: #e9f2ff;
+  border: 1px solid #bdd7ff;
+  border-radius: 999px;
+  color: #17437a;
+  display: inline-flex;
+  font-weight: 850;
+  gap: 0.5rem;
+  min-height: 2.65rem;
+  padding: 0.55rem 0.85rem;
+}
+
+.profile-token span {
+  background: #2f80ed;
+  border-radius: 999px;
+  display: inline-block;
+  height: 0.75rem;
+  width: 0.75rem;
+}
+
+.profile-token-sena {
+  background: #ffeaf4;
+  border-color: #ffc0dc;
+  color: #8d2859;
+}
+
+.profile-token-sena span {
+  background: #e84f93;
+}
+
+.calendar-board {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.calendar-day {
+  background: #fdfefe;
+  border: 1px solid #dbe4e4;
+  border-radius: 0.5rem;
+  display: grid;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: 0.85rem;
+}
+
+.calendar-day * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.calendar-day header {
+  align-items: start;
+  border-bottom: 1px solid #e3e9e6;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  min-height: 4.4rem;
+  padding-bottom: 0.7rem;
+}
+
+.calendar-day header span {
+  color: var(--accent-strong);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.calendar-day h3 {
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.calendar-day header small {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.home-drop-grid {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-drop-zone {
+  background: #f3f6f3;
+  border: 1px dashed #cdd8d2;
+  border-radius: 0.45rem;
+  color: var(--ink-soft);
+  display: grid;
+  gap: 0.15rem;
+  min-height: 3.45rem;
+  padding: 0.55rem;
+  text-align: left;
+}
+
+.home-drop-zone span {
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.home-drop-zone strong {
+  font-size: 0.95rem;
+}
+
+.home-drop-zone-active {
+  border-style: solid;
+  color: #15375d;
+}
+
+.home-drop-zone-bugra {
+  background: #eaf3ff;
+  border-color: #9bc6ff;
+}
+
+.home-drop-zone-sena {
+  background: #fff0f7;
+  border-color: #ffacd2;
+  color: #7c214e;
+}
+
+.calendar-meals {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.calendar-meal {
+  background: #ffffff;
+  border: 1px solid #dde5e2;
+  border-left: 0.22rem solid #b9c8c0;
+  border-radius: 0.45rem;
+  display: grid;
+  gap: 0.35rem;
+  min-height: 7.25rem;
+  min-width: 0;
+  padding: 0.65rem;
+}
+
+.calendar-meal-shared {
+  border-left-color: var(--accent-warm);
+}
+
+.calendar-meal span {
+  color: var(--accent-strong);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.calendar-meal strong {
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.calendar-meal div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.calendar-meal em {
+  background: #eef4ec;
+  border-radius: 999px;
+  color: var(--accent-strong);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 850;
+  padding: 0.18rem 0.4rem;
+}
+
+.calendar-meal p {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  margin-bottom: 0;
+}
+
+.empty-meal {
+  color: #9aa7a0;
+  font-weight: 800;
+}
+
+.calendar-footer {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0.85rem;
+  padding-top: 0.95rem;
+}
+
+.calendar-footer div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.home-count {
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 850;
+  padding: 0.4rem 0.6rem;
+}
+
+.home-count-bugra {
+  background: #eaf3ff;
+  color: #17437a;
+}
+
+.home-count-sena {
+  background: #fff0f7;
+  color: #8d2859;
+}
+
 .week-plan-board {
   display: grid;
   gap: 0.85rem;
@@ -974,6 +1215,26 @@ textarea:focus {
 
   .job-actions {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .calendar-command {
+    align-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .calendar-board {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+  }
+
+  .calendar-day {
+    align-content: start;
+    min-height: 37rem;
+  }
+
+  .calendar-footer {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .week-grid {
