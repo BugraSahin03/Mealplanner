@@ -75,6 +75,15 @@ Erwartung:
 
 Der Zielpfad bleibt `/opt/essenplanner`. Für die Bereitstellung gibt es zwei Varianten.
 
+Vor beiden Varianten wird der Betriebsnutzer auf dem VPS angelegt:
+
+```bash
+getent group essenplanner >/dev/null || groupadd --system essenplanner
+id essenplanner >/dev/null 2>&1 || useradd --system --home /opt/essenplanner --gid essenplanner --shell /usr/sbin/nologin essenplanner
+```
+
+Das Installationsskript führt denselben Schritt ebenfalls aus. Der Vorab-Schritt ist trotzdem bewusst dokumentiert, damit `chown` und Release-Kopie auf einem frischen Server in der gezeigten Reihenfolge funktionieren.
+
 ### Variante A: Git-Checkout mit Deploy-Key
 
 ```bash
@@ -87,9 +96,6 @@ Wenn der VPS noch keinen GitHub-Deploy-Key hat, wird dieser außerhalb des Repos
 ### Variante B: Release-Kopie vom lokalen Rechner
 
 ```bash
-getent group essenplanner >/dev/null || groupadd --system essenplanner
-id essenplanner >/dev/null 2>&1 || useradd --system --home /opt/essenplanner --gid essenplanner --shell /usr/sbin/nologin essenplanner
-
 tar \
   --exclude='.git' \
   --exclude='node_modules' \
