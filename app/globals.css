@@ -704,15 +704,38 @@ textarea:focus {
   gap: 1.1rem;
 }
 
+.plan-board-section {
+  background:
+    linear-gradient(180deg, rgba(8, 18, 30, 0.03), rgba(255, 255, 255, 0.92)),
+    rgba(255, 255, 255, 0.9);
+  border-color: rgba(148, 163, 184, 0.26);
+}
+
 .calendar-planner {
   display: grid;
-  gap: 1.2rem;
+  gap: 1.35rem;
 }
 
 .calendar-command {
-  align-items: start;
+  align-items: center;
+  background:
+    radial-gradient(circle at 85% 0%, rgba(122, 168, 255, 0.28), transparent 14rem),
+    linear-gradient(135deg, #0c1726 0%, #12313a 62%, #0f5a49 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.2rem;
+  box-shadow: 0 24px 60px rgba(8, 18, 30, 0.18);
+  color: #ffffff;
   display: grid;
   gap: 1rem;
+  padding: clamp(1rem, 2.2vw, 1.35rem);
+}
+
+.calendar-command .eyebrow {
+  color: #7ee3c4;
+}
+
+.calendar-command .section-copy {
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .profile-token-tray {
@@ -730,8 +753,8 @@ textarea:focus {
 
 .profile-token {
   align-items: center;
-  background: linear-gradient(180deg, #f2f7ff, #e4efff);
-  border: 1px solid #b7d4ff;
+  background: rgba(239, 246, 255, 0.96);
+  border: 1px solid rgba(191, 219, 254, 0.9);
   border-radius: 999px;
   color: #17437a;
   cursor: grab;
@@ -764,7 +787,7 @@ textarea:focus {
 }
 
 .profile-token-sena {
-  background: linear-gradient(180deg, #fff2f8, #ffe5f1);
+  background: rgba(255, 239, 247, 0.96);
   border-color: #ffc0dc;
   color: #8d2859;
 }
@@ -779,9 +802,10 @@ textarea:focus {
 
 .home-trash-zone {
   align-items: center;
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px dashed #cbd5e1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px dashed rgba(255, 255, 255, 0.32);
   border-radius: 999px;
+  color: rgba(255, 255, 255, 0.68);
   display: inline-flex;
   height: 3rem;
   justify-content: center;
@@ -830,32 +854,33 @@ textarea:focus {
 
 .calendar-board {
   display: grid;
-  gap: 1.05rem;
+  gap: 1.25rem;
 }
 
 .calendar-day {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 252, 0.94)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(248, 251, 253, 0.98)),
     #ffffff;
-  border: 1px solid rgba(203, 213, 225, 0.82);
-  border-radius: 1rem;
-  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 1.25rem;
+  box-shadow: 0 22px 46px rgba(15, 23, 42, 0.08);
   display: grid;
   gap: 1.1rem;
   min-width: 0;
-  padding: 1.05rem;
+  overflow: hidden;
+  padding: 0;
   position: relative;
 }
 
 .calendar-day::before {
-  background: var(--accent);
-  border-radius: 999px;
+  background: linear-gradient(180deg, #17b890, #0b7b66);
+  border-radius: 0;
   content: "";
-  height: 0.85rem;
-  left: -0.42rem;
+  height: 100%;
+  left: 0;
   position: absolute;
-  top: 1.4rem;
-  width: 0.85rem;
+  top: 0;
+  width: 0.34rem;
 }
 
 .calendar-day * {
@@ -865,15 +890,16 @@ textarea:focus {
 
 .calendar-day header {
   align-items: center;
-  border-bottom: 0;
+  background: #f8fafc;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
   display: grid;
   gap: 0.3rem;
   min-height: 0;
-  padding-bottom: 0;
+  padding: 1rem 1rem 1rem 1.25rem;
 }
 
 .calendar-day header span {
-  color: var(--accent-strong);
+  color: #0f766e;
   font-size: 0.74rem;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -881,7 +907,7 @@ textarea:focus {
 }
 
 .calendar-day h3 {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   line-height: 1.05;
   margin-bottom: 0;
 }
@@ -896,10 +922,11 @@ textarea:focus {
 .home-drop-grid {
   display: grid;
   gap: 0.7rem;
+  padding: 1rem 1rem 1rem 1.25rem;
 }
 
 .home-drop-zone {
-  background: rgba(248, 250, 252, 0.9);
+  background: #ffffff;
   border: 1.5px dashed #c2ceda;
   border-radius: 0.9rem;
   color: var(--ink-soft);
@@ -957,7 +984,7 @@ textarea:focus {
 }
 
 .home-drop-zone-bugra {
-  background: linear-gradient(180deg, #eef6ff, #e5f0ff);
+  background: linear-gradient(180deg, #eff6ff, #dbeafe);
   border-color: #6aa9ff;
   box-shadow:
     inset 0 0 0 1px rgba(47, 128, 237, 0.12),
@@ -965,7 +992,7 @@ textarea:focus {
 }
 
 .home-drop-zone-sena {
-  background: linear-gradient(180deg, #fff4f9, #ffe8f3);
+  background: linear-gradient(180deg, #fff1f7, #fce7f3);
   border-color: #f47fb8;
   color: #7c214e;
   box-shadow:
@@ -1016,18 +1043,54 @@ textarea:focus {
   transform: translateY(-1px);
 }
 
+.weekend-rest-panel {
+  background:
+    linear-gradient(135deg, rgba(241, 245, 249, 0.96), rgba(226, 232, 240, 0.86)),
+    #f8fafc;
+  border: 1px solid rgba(203, 213, 225, 0.72);
+  border-radius: 1rem;
+  color: var(--ink-soft);
+  display: grid;
+  gap: 0.22rem;
+  min-height: 7.5rem;
+  padding: 1rem;
+}
+
+.weekend-rest-panel span {
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.weekend-rest-panel strong {
+  color: var(--ink);
+  font-size: 1.18rem;
+}
+
+.weekend-rest-panel small {
+  color: var(--ink-soft);
+  font-weight: 760;
+}
+
 .calendar-meals {
   display: grid;
   gap: 0.75rem;
+  padding: 1rem;
 }
 
 .calendar-meal-slot {
+  background: #f8fafc;
+  border: 1px solid rgba(226, 232, 240, 0.82);
+  border-radius: 1rem;
   display: grid;
   gap: 0.55rem;
+  padding: 0.75rem;
 }
 
 .calendar-meal-slot > span {
-  color: var(--accent-strong);
+  color: #0f766e;
   font-size: 0.68rem;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -1040,10 +1103,11 @@ textarea:focus {
 }
 
 .calendar-meal {
-  background: rgba(255, 255, 255, 0.86);
+  background: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.95);
-  border-top: 0.25rem solid #b8c2cc;
-  border-radius: 0.9rem;
+  border-left: 0.28rem solid #b8c2cc;
+  border-top: 0;
+  border-radius: 0.8rem;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.045);
   display: grid;
   gap: 0.45rem;
@@ -1053,11 +1117,11 @@ textarea:focus {
 }
 
 .calendar-meal-personal {
-  border-top-color: #6aa9ff;
+  border-left-color: #60a5fa;
 }
 
 .calendar-meal-shared {
-  border-top-color: var(--accent-warm);
+  border-left-color: var(--accent-warm);
 }
 
 .calendar-meal strong {
@@ -1404,20 +1468,26 @@ textarea:focus {
   }
 
   .calendar-command {
-    align-items: center;
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .calendar-board {
-    border-left: 2px solid rgba(17, 123, 103, 0.16);
-    margin-left: 0.45rem;
-    padding-left: 1.2rem;
+    border-left: 0;
+    margin-left: 0;
+    padding-left: 0;
   }
 
   .calendar-day {
     align-items: start;
-    grid-template-columns: minmax(7.25rem, 0.4fr) minmax(13rem, 0.78fr) minmax(0, 2.6fr);
+    grid-template-columns: minmax(7.8rem, 0.42fr) minmax(13rem, 0.75fr) minmax(0, 2.8fr);
     min-height: 0;
+  }
+
+  .calendar-day header,
+  .home-drop-grid,
+  .calendar-meals {
+    padding-bottom: 1rem;
+    padding-top: 1rem;
   }
 
   .calendar-meals {

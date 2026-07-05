@@ -59,7 +59,15 @@ function countHomeWeekdays(homeState: HomeState, personId: PersonId): number {
   }).length;
 }
 
+function isWeekend(weekday: Weekday): boolean {
+  return weekday === "saturday" || weekday === "sunday";
+}
+
 function getDayContext(homeState: HomeState, weekday: Weekday, personId: PersonId): DayContext {
+  if (isWeekend(weekday)) {
+    return "home";
+  }
+
   return homeState[weekday]?.[personId] ? "home" : "office";
 }
 
@@ -86,6 +94,10 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
   );
 
   function setPersonHome(weekday: Weekday, personId: PersonId, isHome: boolean): void {
+    if (isWeekend(weekday)) {
+      return;
+    }
+
     setHomeState((current) => ({
       ...current,
       [weekday]: {
@@ -218,7 +230,13 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
               </header>
 
               <div className="home-drop-grid">
-                {people.map((person) => {
+                {isWeekend(day.weekday) ? (
+                  <div className="weekend-rest-panel">
+                    <span>{day.shortLabel}</span>
+                    <strong>Wochenende</strong>
+                    <small>Kein Büro- oder Homeoffice-Setup</small>
+                  </div>
+                ) : people.map((person) => {
                   const isHome = homeState[day.weekday]?.[person.personId] ?? false;
                   const dropZoneId = `${day.weekday}-${person.personId}`;
                   const isDropReady = draggedPerson === person.personId;
