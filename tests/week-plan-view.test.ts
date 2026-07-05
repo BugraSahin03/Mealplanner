@@ -147,4 +147,53 @@ describe("week plan view", () => {
       peopleSummary: "Gemeinsam",
     });
   });
+
+  it("prepares meal detail data with ingredients and person-specific calorie portions", () => {
+    const view = buildWeekPlanView(buildDemoPlannerResponse());
+    const monday = view.days[0];
+    const breakfast = monday?.meals.find((meal) => meal.mealId === "monday-breakfast-bugra");
+
+    expect(breakfast).toMatchObject({
+      slotLabel: "Fruehstueck",
+      contextLabel: "Meal Prep",
+      calorieSummary: "ca. 620 kcal pro 480 g Portion fuer Buğra",
+      nutritionDisclaimer: "Grobe AI-Schaetzung, keine exakten Naehrwertdaten.",
+      mealPrepSummary: null,
+    });
+    expect(breakfast?.people[0]).toMatchObject({
+      label: "Buğra",
+      portion: "gross",
+      portionGrams: 480,
+      estimatedKcal: 620,
+      detailLine: "ca. 620 kcal · pro 480 g Portion · Portion: gross fuer Buğra",
+    });
+    expect(breakfast?.ingredients).toEqual([
+      { name: "Skyr", amount: "300 g", notes: null, pantryItem: false, optional: false },
+      { name: "Haferflocken", amount: "80 g", notes: null, pantryItem: false, optional: false },
+      { name: "Beeren", amount: "100 g", notes: null, pantryItem: false, optional: false },
+    ]);
+  });
+
+  it("falls back to kcal per 100 g when no person-specific calories are present", () => {
+    const response = buildDemoPlannerResponse();
+    const dinner = response.plan.days[0]?.meals.find((meal) => meal.mealId === "monday-dinner");
+
+    if (!dinner) {
+      throw new Error("Expected monday dinner fixture");
+    }
+
+    dinner.people = dinner.people.map((person) => ({
+      personId: person.personId,
+      portion: person.portion,
+    }));
+
+    const view = buildWeekPlanView(response);
+    const meal = view.days[0]?.meals.find((entry) => entry.mealId === "monday-dinner");
+
+    expect(meal?.calorieSummary).toBe("ca. 150 kcal pro 100 g");
+    expect(meal?.people.map((person) => person.detailLine)).toEqual([
+      "Portion: gross fuer Buğra",
+      "Portion: normal fuer Sena",
+    ]);
+  });
 });

@@ -6,6 +6,17 @@ export type MealPersonView = {
   personId: "bugra" | "sena";
   label: string;
   portion: string | null;
+  portionGrams: number | null;
+  estimatedKcal: number | null;
+  detailLine: string;
+};
+
+export type MealIngredientView = {
+  name: string;
+  amount: string;
+  notes: string | null;
+  pantryItem: boolean;
+  optional: boolean;
 };
 
 export type MealView = {
@@ -19,6 +30,10 @@ export type MealView = {
   isPersonalMeal: boolean;
   isSharedDinner: boolean;
   ingredientSummary: string;
+  ingredients: MealIngredientView[];
+  calorieSummary: string | null;
+  nutritionDisclaimer: string;
+  mealPrepSummary: string | null;
   notes: string | null;
 };
 
@@ -85,6 +100,20 @@ const portionLabels: Record<"small" | "normal" | "large", string> = {
   large: "gross",
 };
 
+const unitLabels: Record<PlannerResponse["shoppingList"][number]["unit"], string> = {
+  g: "g",
+  kg: "kg",
+  ml: "ml",
+  l: "l",
+  piece: "Stk.",
+  tbsp: "EL",
+  tsp: "TL",
+  pack: "Packung",
+  can: "Dose",
+  jar: "Glas",
+  bottle: "Flasche",
+};
+
 function formatDate(value: string | undefined): string | null {
   if (!value) {
     return null;
@@ -111,11 +140,79 @@ function buildIngredientSummary(meal: PlannerResponse["plan"]["days"][number]["m
     .join(", ");
 }
 
-function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): MealView {
+function formatAmount(amount: number, unit: PlannerResponse["shoppingList"][number]["unit"]): string {
+  const formattedAmount = Number.isInteger(amount)
+    ? String(amount)
+    : new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 }).format(amount);
+
+  return `${formattedAmount} ${unitLabels[unit]}`;
+}
+
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(value);
+}
+
+function buildPersonDetailLine(person: MealPersonView): string {
+  const details = [
+    person.estimatedKcal ? `ca. ${formatNumber(person.estimatedKcal)} kcal` : null,
+    person.portionGrams ? `pro ${formatNumber(person.portionGrams)} g Portion` : null,
+    person.portion ? `Portion: ${person.portion}` : null,
+  ].filter(Boolean);
+
+  return details.length > 0 ? `${details.join(" · ")} fuer ${person.label}` : person.label;
+}
+
+function buildCalorieSummary(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): string | null {
+  const personLines = meal.people
+    .filter((person) => person.estimatedKcal)
+    .map((person) => {
+      const label = personLabels[person.personId];
+      const portion = person.portionGrams ? ` pro ${formatNumber(person.portionGrams)} g Portion` : "";
+      return `ca. ${formatNumber(person.estimatedKcal ?? 0)} kcal${portion} fuer ${label}`;
+    });
+
+  if (personLines.length > 0) {
+    return personLines.join(" / ");
+  }
+
+  if (meal.estimatedNutrition?.kcalPer100G) {
+    return `ca. ${formatNumber(meal.estimatedNutrition.kcalPer100G)} kcal pro 100 g`;
+  }
+
+  if (meal.estimatedNutrition?.kcal) {
+    return `ca. ${formatNumber(meal.estimatedNutrition.kcal)} kcal pro Gericht`;
+  }
+
+  return null;
+}
+
+function buildMealPrepSummary(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): string | null {
+  if (!meal.mealPrep) {
+    return null;
+  }
+
+  const transport = meal.mealPrep.transportable ? "transportierbar" : "nicht transportierbar";
+  const timing = meal.mealPrep.makeAhead ? "vorbereitbar" : "frisch einplanen";
+  const reheating = meal.mealPrep.reheating ? `Aufwaermen: ${meal.mealPrep.reheating}` : null;
+
+  return [transport, timing, reheating, meal.mealPrep.prepNotes ?? null].filter(Boolean).join(" · ");
+}
+
+function mapMeal(
+  meal: PlannerResponse["plan"]["days"][number]["meals"][number],
+): MealView {
   const people = meal.people.map<MealPersonView>((person) => ({
     personId: person.personId,
     label: personLabels[person.personId],
     portion: person.portion ? portionLabels[person.portion] : null,
+    portionGrams: person.portionGrams ?? null,
+    estimatedKcal: person.estimatedKcal ?? null,
+    detailLine: "",
+  }));
+
+  const peopleWithDetails = people.map((person) => ({
+    ...person,
+    detailLine: buildPersonDetailLine(person),
   }));
 
   return {
@@ -124,11 +221,21 @@ function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number])
     slotLabel: mealTypeLabels[meal.mealType],
     title: meal.title,
     contextLabel: contextLabels[meal.context],
-    people,
-    peopleSummary: buildPeopleSummary(people, meal.context),
-    isPersonalMeal: people.length === 1 && meal.mealType !== "dinner",
-    isSharedDinner: meal.mealType === "dinner" && meal.context === "shared" && people.length > 1,
+    people: peopleWithDetails,
+    peopleSummary: buildPeopleSummary(peopleWithDetails, meal.context),
+    isPersonalMeal: peopleWithDetails.length === 1 && meal.mealType !== "dinner",
+    isSharedDinner: meal.mealType === "dinner" && meal.context === "shared" && peopleWithDetails.length > 1,
     ingredientSummary: buildIngredientSummary(meal),
+    ingredients: meal.ingredients.map((ingredient) => ({
+      name: ingredient.name,
+      amount: formatAmount(ingredient.amount, ingredient.unit),
+      notes: ingredient.notes ?? null,
+      pantryItem: ingredient.pantryItem ?? false,
+      optional: ingredient.optional ?? false,
+    })),
+    calorieSummary: buildCalorieSummary(meal),
+    nutritionDisclaimer: "Grobe AI-Schaetzung, keine exakten Naehrwertdaten.",
+    mealPrepSummary: buildMealPrepSummary(meal),
     notes: meal.notes ?? meal.mealPrep?.prepNotes ?? null,
   };
 }

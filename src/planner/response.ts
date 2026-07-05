@@ -34,6 +34,7 @@ export type PlannerResponseMeal = {
   people: Array<{
     personId: "bugra" | "sena";
     portion?: "small" | "normal" | "large";
+    portionGrams?: number;
     estimatedKcal?: number;
     estimatedProteinG?: number;
   }>;
@@ -47,6 +48,7 @@ export type PlannerResponseMeal = {
   };
   estimatedNutrition?: {
     kcal?: number;
+    kcalPer100G?: number;
     proteinG?: number;
     carbsG?: number;
     fatG?: number;
@@ -117,8 +119,9 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         mealId: `${weekday}-breakfast-bugra`,
         mealType: "breakfast",
         title: `${label}: Protein-Skyr`,
-        people: [{ personId: "bugra", portion: "large" }],
+        people: [{ personId: "bugra", portion: "large", portionGrams: 480, estimatedKcal: 620 }],
         context: index < 5 ? "meal_prep" : "home",
+        estimatedNutrition: { kcal: 620, proteinG: 48 },
         ingredients: [
           { name: "Skyr", amount: 300, unit: "g", category: "dairy_eggs" },
           { name: "Haferflocken", amount: 80, unit: "g", category: "dry_goods" },
@@ -129,8 +132,9 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         mealId: `${weekday}-breakfast-sena`,
         mealType: "breakfast",
         title: `${label}: Joghurt-Bowl`,
-        people: [{ personId: "sena", portion: "normal" }],
+        people: [{ personId: "sena", portion: "normal", portionGrams: 345, estimatedKcal: 420 }],
         context: index < 5 ? "meal_prep" : "home",
+        estimatedNutrition: { kcal: 420, proteinG: 26 },
         ingredients: [
           { name: "Joghurt", amount: 220, unit: "g", category: "dairy_eggs" },
           { name: "Granola", amount: 45, unit: "g", category: "dry_goods" },
@@ -141,7 +145,7 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         mealId: `${weekday}-lunch-bugra`,
         mealType: "lunch",
         title: index % 2 === 0 ? "Chicken-Reis-Bowl" : "Puten-Reis-Box",
-        people: [{ personId: "bugra", portion: "large" }],
+        people: [{ personId: "bugra", portion: "large", portionGrams: 520, estimatedKcal: 760 }],
         context: index < 5 ? "office" : "home",
         mealPrep: {
           transportable: index < 5,
@@ -149,6 +153,7 @@ export function buildDemoPlannerResponse(): PlannerResponse {
           reheating: "microwave",
           prepNotes: index < 5 ? "Transportbox am Vorabend packen." : "Frisch anrichten.",
         },
+        estimatedNutrition: { kcal: 760, proteinG: 54 },
         ingredients: [
           { name: index % 2 === 0 ? "Haehnchenbrust" : "Putenbrust", amount: 220, unit: "g", category: "meat_fish" },
           { name: "Reis", amount: 120, unit: "g", category: "dry_goods" },
@@ -159,7 +164,7 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         mealId: `${weekday}-lunch-sena`,
         mealType: "lunch",
         title: index % 2 === 0 ? "Linsen-Feta-Salat" : "Hummus-Gemuese-Wrap",
-        people: [{ personId: "sena", portion: "normal" }],
+        people: [{ personId: "sena", portion: "normal", portionGrams: 360, estimatedKcal: 480 }],
         context: index < 5 ? "office" : "home",
         mealPrep: {
           transportable: index < 5,
@@ -167,6 +172,7 @@ export function buildDemoPlannerResponse(): PlannerResponse {
           reheating: "cold_ok",
           prepNotes: index < 5 ? "Kalt essbar einpacken." : "Frisch anrichten.",
         },
+        estimatedNutrition: { kcal: 480, proteinG: 24 },
         ingredients: [
           { name: index % 2 === 0 ? "Linsen" : "Wrap", amount: index % 2 === 0 ? 180 : 1, unit: index % 2 === 0 ? "g" : "piece", category: index % 2 === 0 ? "canned" : "bakery" },
           { name: index % 2 === 0 ? "Feta" : "Hummus", amount: index % 2 === 0 ? 80 : 70, unit: "g", category: index % 2 === 0 ? "dairy_eggs" : "other" },
@@ -177,8 +183,12 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         mealId: `${weekday}-dinner`,
         mealType: "dinner",
         title: index % 3 === 0 ? "Tomaten-Pasta mit Salat" : index % 3 === 1 ? "Ofengemuese mit Dip" : "Puten-Chili",
-        people: [{ personId: "bugra" }, { personId: "sena" }],
+        people: [
+          { personId: "bugra", portion: "large", portionGrams: 460, estimatedKcal: 690 },
+          { personId: "sena", portion: "normal", portionGrams: 330, estimatedKcal: 510 },
+        ],
         context: "shared",
+        estimatedNutrition: { kcalPer100G: 150, proteinG: 34 },
         ingredients: [
           { name: index % 3 === 0 ? "Pasta" : index % 3 === 1 ? "Kartoffeln" : "Putenhack", amount: 300, unit: "g", category: index % 3 === 2 ? "meat_fish" : "dry_goods" },
           { name: "Tomaten", amount: 400, unit: "g", category: "produce" },
