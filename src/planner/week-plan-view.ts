@@ -22,7 +22,6 @@ export type MealView = {
   isPersonalMeal: boolean;
   isSharedDinner: boolean;
   dinnerLeftoverGroupId: string | null;
-  dinnerLeftoverLabel: string | null;
   dinnerLeftoverRole: "fresh_cook" | "leftover" | "repeat_serving" | null;
   ingredientSummary: string;
   portionSummary: string | null;
@@ -121,12 +120,6 @@ const portionLabels: Record<"small" | "normal" | "large", string> = {
   large: "gross",
 };
 
-const dinnerLeftoverRoleLabels: Record<"fresh_cook" | "leftover" | "repeat_serving", string> = {
-  fresh_cook: "Frisch gekocht",
-  leftover: "Restetag",
-  repeat_serving: "Wiederholung",
-};
-
 function formatDate(value: string | undefined): string | null {
   if (!value) {
     return null;
@@ -196,9 +189,6 @@ function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number])
     isPersonalMeal: people.length === 1 && meal.mealType !== "dinner",
     isSharedDinner: meal.mealType === "dinner" && meal.context === "shared" && people.length > 1,
     dinnerLeftoverGroupId: meal.dinnerLeftovers?.leftoverGroupId ?? null,
-    dinnerLeftoverLabel: meal.dinnerLeftovers
-      ? dinnerLeftoverRoleLabels[meal.dinnerLeftovers.role]
-      : null,
     dinnerLeftoverRole: meal.dinnerLeftovers?.role ?? null,
     ingredientSummary: buildIngredientSummary(meal),
     portionSummary: buildPortionSummary(people),

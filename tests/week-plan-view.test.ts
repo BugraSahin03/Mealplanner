@@ -148,7 +148,7 @@ describe("week plan view", () => {
       isSharedDinner: true,
       peopleSummary: "Gemeinsam",
       dinnerLeftoverGroupId: "dinner-leftover-bolognese",
-      dinnerLeftoverLabel: "Frisch gekocht",
+      dinnerLeftoverRole: "fresh_cook",
     });
   });
 
@@ -168,7 +168,7 @@ describe("week plan view", () => {
     expect(mondayLunch?.portionSummary).toBe("Buğra: 450 g, ca. 720 kcal");
   });
 
-  it("summarizes dinner leftovers and marks fresh and leftover dinner cards", () => {
+  it("summarizes dinner leftovers and keeps fresh and leftover roles internally", () => {
     const view = buildWeekPlanView(buildDemoPlannerResponse());
     const mondayDinner = view.days[0]?.meals.find((meal) => meal.mealId === "monday-dinner");
     const tuesdayDinner = view.days[1]?.meals.find((meal) => meal.mealId === "tuesday-dinner");
@@ -181,11 +181,9 @@ describe("week plan view", () => {
       spanDays: 2,
     });
     expect(mondayDinner).toMatchObject({
-      dinnerLeftoverLabel: "Frisch gekocht",
       dinnerLeftoverRole: "fresh_cook",
     });
     expect(tuesdayDinner).toMatchObject({
-      dinnerLeftoverLabel: "Restetag",
       dinnerLeftoverRole: "leftover",
     });
   });

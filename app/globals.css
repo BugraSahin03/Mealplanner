@@ -1264,27 +1264,6 @@ textarea:focus {
   border-left-color: var(--accent-warm);
 }
 
-.dinner-leftover-badge {
-  align-self: start;
-  border-radius: 999px;
-  display: inline-flex;
-  font-size: 0.68rem;
-  justify-self: start;
-  padding: 0.18rem 0.46rem;
-  white-space: nowrap;
-}
-
-.dinner-leftover-badge-fresh_cook {
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.dinner-leftover-badge-leftover,
-.dinner-leftover-badge-repeat_serving {
-  background: #fdf4ff;
-  color: #a21caf;
-}
-
 .calendar-meal strong {
   font-size: 1rem;
   line-height: 1.25;

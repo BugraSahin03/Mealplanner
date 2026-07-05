@@ -393,13 +393,6 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                               }
                               key={meal.mealId}
                             >
-                              {meal.dinnerLeftoverLabel ? (
-                                <small
-                                  className={`dinner-leftover-badge dinner-leftover-badge-${meal.dinnerLeftoverRole}`}
-                                >
-                                  {meal.dinnerLeftoverLabel}
-                                </small>
-                              ) : null}
                               <strong>{meal.title}</strong>
                               <p>{meal.ingredientSummary}</p>
                             </article>
