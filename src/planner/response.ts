@@ -34,6 +34,7 @@ export type PlannerResponseMeal = {
   people: Array<{
     personId: "bugra" | "sena";
     portion?: "small" | "normal" | "large";
+    portionGrams?: number;
     estimatedKcal?: number;
     gramsPerPortion?: number;
     estimatedKcalPer100g?: number;
@@ -63,6 +64,7 @@ export type PlannerResponseMeal = {
   };
   estimatedNutrition?: {
     kcal?: number;
+    kcalPer100G?: number;
     proteinG?: number;
     carbsG?: number;
     fatG?: number;
@@ -180,8 +182,17 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         mealId: `${weekday}-breakfast-bugra`,
         mealType: "breakfast",
         title: `${label}: Protein-Skyr`,
-        people: [{ personId: "bugra", portion: "large" }],
+        people: [
+          {
+            personId: "bugra",
+            portion: "large",
+            gramsPerPortion: 480,
+            estimatedKcal: 620,
+            estimatedKcalPer100g: 129,
+          },
+        ],
         context: index < 5 ? "meal_prep" : "home",
+        estimatedNutrition: { kcal: 620, proteinG: 48 },
         ingredients: [
           { name: "Skyr", amount: 300, unit: "g", category: "dairy_eggs" },
           { name: "Haferflocken", amount: 80, unit: "g", category: "dry_goods" },
@@ -192,8 +203,17 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         mealId: `${weekday}-breakfast-sena`,
         mealType: "breakfast",
         title: `${label}: Joghurt-Bowl`,
-        people: [{ personId: "sena", portion: "normal" }],
+        people: [
+          {
+            personId: "sena",
+            portion: "normal",
+            gramsPerPortion: 345,
+            estimatedKcal: 420,
+            estimatedKcalPer100g: 122,
+          },
+        ],
         context: index < 5 ? "meal_prep" : "home",
+        estimatedNutrition: { kcal: 420, proteinG: 26 },
         ingredients: [
           { name: "Joghurt", amount: 220, unit: "g", category: "dairy_eggs" },
           { name: "Granola", amount: 45, unit: "g", category: "dry_goods" },
@@ -258,8 +278,24 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         mealId: `${weekday}-dinner`,
         mealType: "dinner",
         title: index % 3 === 0 ? "Tomaten-Pasta mit Salat" : index % 3 === 1 ? "Ofengemuese mit Dip" : "Puten-Chili",
-        people: [{ personId: "bugra" }, { personId: "sena" }],
+        people: [
+          {
+            personId: "bugra",
+            portion: "large",
+            gramsPerPortion: 460,
+            estimatedKcal: 690,
+            estimatedKcalPer100g: 150,
+          },
+          {
+            personId: "sena",
+            portion: "normal",
+            gramsPerPortion: 330,
+            estimatedKcal: 510,
+            estimatedKcalPer100g: 155,
+          },
+        ],
         context: "shared",
+        estimatedNutrition: { kcalPer100G: 150, proteinG: 34 },
         ingredients: [
           { name: index % 3 === 0 ? "Pasta" : index % 3 === 1 ? "Kartoffeln" : "Putenhack", amount: 300, unit: "g", category: index % 3 === 2 ? "meat_fish" : "dry_goods" },
           { name: "Tomaten", amount: 400, unit: "g", category: "produce" },
@@ -273,7 +309,7 @@ export function buildDemoPlannerResponse(): PlannerResponse {
     schemaVersion: "1.0",
     plan: {
       title: "Demo-Wochenplan",
-      summary: "Validierter Beispielplan fuer eine komplette Woche ohne OpenClaw-Aufruf.",
+      summary: "Validierter Beispielplan für eine komplette Woche ohne OpenClaw-Aufruf.",
       days,
     },
     shoppingList: [
@@ -283,7 +319,7 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         unit: "g",
         category: "dairy_eggs",
         sourceMealIds: days.map((day) => `${day.weekday}-breakfast-bugra`),
-        buyingHint: "Mehrere grosse Becher kaufen.",
+        buyingHint: "Mehrere große Becher kaufen.",
       },
       {
         name: "Joghurt",
@@ -361,6 +397,6 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         buyingHint: "Nur kaufen, wenn der Vorrat leer ist.",
       },
     ],
-    plannerNotes: ["Demo-Erfolg fuer den Job-Statusfluss."],
+    plannerNotes: ["Demo-Erfolg für den Job-Statusfluss."],
   };
 }

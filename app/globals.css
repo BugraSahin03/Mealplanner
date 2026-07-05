@@ -1212,11 +1212,22 @@ textarea:focus {
   border-top: 0;
   border-radius: 0.8rem;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.045);
+  color: inherit;
+  cursor: pointer;
   display: grid;
   gap: 0.45rem;
   min-height: 4.85rem;
   min-width: 0;
   padding: 0.8rem;
+  text-align: left;
+  width: 100%;
+}
+
+button.calendar-meal:hover,
+button.calendar-meal:focus-visible {
+  border-color: rgba(17, 123, 103, 0.42);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+  outline: 0.16rem solid rgba(17, 123, 103, 0.16);
 }
 
 .calendar-meal-personal {
@@ -1267,6 +1278,247 @@ textarea:focus {
   font-size: 0.82rem;
   line-height: 1.35;
   margin-bottom: 0;
+}
+
+.meal-dialog-backdrop {
+  align-items: center;
+  background: rgba(15, 23, 42, 0.46);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  position: fixed;
+  z-index: 20;
+}
+
+.meal-dialog {
+  --meal-theme: var(--accent);
+  --meal-theme-soft: #eef7f4;
+  --meal-theme-ring: rgba(17, 123, 103, 0.18);
+  background: var(--surface);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-top: 0.35rem solid var(--meal-theme);
+  border-radius: 0.7rem;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+  display: grid;
+  gap: 1.15rem;
+  max-height: min(94svh, 54rem);
+  max-width: 56rem;
+  min-width: 0;
+  overflow: auto;
+  padding: clamp(1rem, 3vw, 1.7rem);
+  width: min(100%, 56rem);
+}
+
+.meal-dialog-bugra {
+  --meal-theme: #2563eb;
+  --meal-theme-soft: #eff6ff;
+  --meal-theme-ring: rgba(37, 99, 235, 0.18);
+}
+
+.meal-dialog-sena {
+  --meal-theme: #db2777;
+  --meal-theme-soft: #fdf2f8;
+  --meal-theme-ring: rgba(219, 39, 119, 0.18);
+}
+
+.meal-dialog-shared {
+  --meal-theme: var(--accent-warm);
+  --meal-theme-soft: #fff7ed;
+  --meal-theme-ring: rgba(240, 138, 75, 0.2);
+}
+
+.meal-dialog-header {
+  align-items: start;
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.meal-dialog-header span {
+  color: var(--meal-theme);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.meal-dialog-header h2 {
+  font-size: clamp(1.35rem, 5vw, 2rem);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+.meal-dialog-close {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  height: 2.35rem;
+  justify-content: center;
+  width: 2.35rem;
+}
+
+.meal-dialog-close:hover,
+.meal-dialog-close:focus-visible {
+  border-color: var(--meal-theme);
+  color: var(--meal-theme);
+  outline: 0.16rem solid var(--meal-theme-ring);
+}
+
+.meal-dialog-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.meal-dialog-meta span {
+  background: var(--meal-theme-soft);
+  border-radius: 999px;
+  color: var(--meal-theme);
+  font-size: 0.76rem;
+  font-weight: 850;
+  padding: 0.28rem 0.55rem;
+}
+
+.meal-dialog-section {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
+  padding-top: 0.95rem;
+}
+
+.meal-dialog-section h3 {
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.meal-dialog-section p,
+.meal-dialog-section small {
+  color: var(--ink-soft);
+  line-height: 1.45;
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+
+.calorie-estimate {
+  background: var(--meal-theme-soft);
+  border: 1px solid var(--meal-theme-ring);
+  border-radius: 0.55rem;
+  color: var(--ink) !important;
+  font-weight: 850;
+  padding: 0.75rem 0.85rem;
+}
+
+.calorie-fact-grid {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.calorie-fact-card {
+  background: var(--meal-theme-soft);
+  border: 1px solid var(--meal-theme-ring);
+  border-radius: 0.6rem;
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.85rem;
+}
+
+.calorie-fact-card > span {
+  color: var(--meal-theme);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.calorie-fact-card div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.calorie-fact-card strong {
+  align-items: baseline;
+  color: var(--ink);
+  display: inline-flex;
+  font-size: clamp(1.65rem, 5vw, 2.35rem);
+  font-weight: 950;
+  gap: 0.22rem;
+  line-height: 1;
+}
+
+.calorie-fact-card strong small {
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.calorie-fact-card p {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 780;
+  margin-bottom: 0;
+}
+
+.calorie-estimate-note {
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+  font-weight: 760;
+}
+
+.meal-ingredient-list {
+  display: grid;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.meal-ingredient-list li {
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+  padding: 0.7rem;
+}
+
+.meal-ingredient-list div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.meal-ingredient-list strong,
+.meal-ingredient-list small,
+.meal-ingredient-list span {
+  overflow-wrap: anywhere;
+}
+
+.meal-ingredient-list span {
+  color: var(--accent-strong);
+  font-size: 0.86rem;
+  font-weight: 850;
+  text-align: right;
+}
+
+@media (max-width: 480px) {
+  .meal-ingredient-list li {
+    grid-template-columns: 1fr;
+  }
+
+  .meal-ingredient-list span {
+    text-align: left;
+  }
 }
 
 .calendar-meal small {
@@ -1620,6 +1872,10 @@ textarea:focus {
 
   .calendar-footer {
     grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .calorie-fact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .meal-row {

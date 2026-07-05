@@ -162,6 +162,10 @@
           "type": "string",
           "enum": ["small", "normal", "large"]
         },
+        "portionGrams": {
+          "type": "number",
+          "minimum": 0
+        },
         "estimatedKcal": {
           "type": "number",
           "minimum": 0
@@ -279,6 +283,10 @@
       "additionalProperties": false,
       "properties": {
         "kcal": {
+          "type": "number",
+          "minimum": 0
+        },
+        "kcalPer100G": {
           "type": "number",
           "minimum": 0
         },
