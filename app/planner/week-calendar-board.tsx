@@ -264,6 +264,21 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
         </section>
       ) : null}
 
+      {weekPlan && weekPlan.dinnerLeftoverGroups.length > 0 ? (
+        <section className="dinner-leftover-summary" aria-label="Dinner-Resteplanung">
+          {weekPlan.dinnerLeftoverGroups.map((group) => (
+            <article key={group.leftoverGroupId}>
+              <div>
+                <span>{group.daysSummary}</span>
+                <strong>{group.title}</strong>
+              </div>
+              <p>{group.spanDays} Abendessen aus einem Kochlauf</p>
+              {group.notes ? <small>{group.notes}</small> : null}
+            </article>
+          ))}
+        </section>
+      ) : null}
+
       <div className="calendar-board" aria-label="Wochenkalender">
         {days.map((day) => {
           const planDay = weekPlan?.days.find((entry) => entry.weekday === day.weekday);
@@ -378,6 +393,13 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                               }
                               key={meal.mealId}
                             >
+                              {meal.dinnerLeftoverLabel ? (
+                                <small
+                                  className={`dinner-leftover-badge dinner-leftover-badge-${meal.dinnerLeftoverRole}`}
+                                >
+                                  {meal.dinnerLeftoverLabel}
+                                </small>
+                              ) : null}
                               <strong>{meal.title}</strong>
                               <p>{meal.ingredientSummary}</p>
                             </article>

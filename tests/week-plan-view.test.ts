@@ -147,6 +147,8 @@ describe("week plan view", () => {
     expect(monday?.meals.find((meal) => meal.mealType === "dinner")).toMatchObject({
       isSharedDinner: true,
       peopleSummary: "Gemeinsam",
+      dinnerLeftoverGroupId: "dinner-leftover-bolognese",
+      dinnerLeftoverLabel: "Frisch gekocht",
     });
   });
 
@@ -164,5 +166,27 @@ describe("week plan view", () => {
     expect(view.lunchBatchDishes[0]?.portionSummary).toContain("Buğra: 3 Portion(en), 450 g, ca. 720 kcal");
     expect(view.lunchBatchDishes[0]?.portionSummary).toContain("Sena: 3 Portion(en), 320 g, ca. 510 kcal");
     expect(mondayLunch?.portionSummary).toBe("Buğra: 450 g, ca. 720 kcal");
+  });
+
+  it("summarizes dinner leftovers and marks fresh and leftover dinner cards", () => {
+    const view = buildWeekPlanView(buildDemoPlannerResponse());
+    const mondayDinner = view.days[0]?.meals.find((meal) => meal.mealId === "monday-dinner");
+    const tuesdayDinner = view.days[1]?.meals.find((meal) => meal.mealId === "tuesday-dinner");
+
+    expect(view.dinnerLeftoverGroups).toHaveLength(3);
+    expect(view.dinnerLeftoverGroups[0]).toMatchObject({
+      leftoverGroupId: "dinner-leftover-bolognese",
+      title: "Bolognese mit Pasta",
+      daysSummary: "Mo, Di",
+      spanDays: 2,
+    });
+    expect(mondayDinner).toMatchObject({
+      dinnerLeftoverLabel: "Frisch gekocht",
+      dinnerLeftoverRole: "fresh_cook",
+    });
+    expect(tuesdayDinner).toMatchObject({
+      dinnerLeftoverLabel: "Restetag",
+      dinnerLeftoverRole: "leftover",
+    });
   });
 });

@@ -885,7 +885,8 @@ textarea:focus {
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
 }
 
-.lunch-batch-summary article {
+.lunch-batch-summary article,
+.dinner-leftover-summary article {
   background:
     linear-gradient(135deg, rgba(255, 247, 237, 0.98), rgba(255, 255, 255, 0.96)),
     #ffffff;
@@ -897,12 +898,27 @@ textarea:focus {
   padding: 0.85rem;
 }
 
-.lunch-batch-summary div {
+.dinner-leftover-summary {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.dinner-leftover-summary article {
+  background:
+    linear-gradient(135deg, rgba(253, 244, 255, 0.96), rgba(255, 255, 255, 0.96)),
+    #ffffff;
+  border-color: rgba(217, 70, 239, 0.22);
+}
+
+.lunch-batch-summary div,
+.dinner-leftover-summary div {
   display: grid;
   gap: 0.18rem;
 }
 
-.lunch-batch-summary span {
+.lunch-batch-summary span,
+.dinner-leftover-summary span {
   color: #c2410c;
   font-size: 0.68rem;
   font-weight: 900;
@@ -910,13 +926,20 @@ textarea:focus {
   text-transform: uppercase;
 }
 
-.lunch-batch-summary strong {
+.dinner-leftover-summary span {
+  color: #a21caf;
+}
+
+.lunch-batch-summary strong,
+.dinner-leftover-summary strong {
   color: var(--ink);
   line-height: 1.2;
 }
 
 .lunch-batch-summary p,
-.lunch-batch-summary small {
+.lunch-batch-summary small,
+.dinner-leftover-summary p,
+.dinner-leftover-summary small {
   color: var(--ink-soft);
   font-size: 0.78rem;
   line-height: 1.35;
@@ -1239,6 +1262,27 @@ textarea:focus {
   background: linear-gradient(180deg, #fffdf9, #fff7ed);
   border-color: rgba(251, 146, 60, 0.36);
   border-left-color: var(--accent-warm);
+}
+
+.dinner-leftover-badge {
+  align-self: start;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.68rem;
+  justify-self: start;
+  padding: 0.18rem 0.46rem;
+  white-space: nowrap;
+}
+
+.dinner-leftover-badge-fresh_cook {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.dinner-leftover-badge-leftover,
+.dinner-leftover-badge-repeat_serving {
+  background: #fdf4ff;
+  color: #a21caf;
 }
 
 .calendar-meal strong {

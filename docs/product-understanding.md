@@ -126,7 +126,8 @@ Ein wichtiger Teil davon sind variable Wochenprofile. Vor der Wochenplanung soll
 - Bei gemeinsamen Lunch-Batches duerfen Buğra und Sena unterschiedliche Portionsgroessen, Grammangaben und grobe kcal-Schaetzungen erhalten.
 - Wenn Mitnehmen nicht klappt, kann Kantine oder auswaerts essen als spontane Alternative passieren.
 - Homeoffice-Tage erlauben mehr Flexibilitaet bei Fruehstueck und Mittagessen.
-- Abendessen ist die Hauptmahlzeit und darf staerker variieren.
+- Abendessen ist die Hauptmahlzeit und soll als gemeinsames Essen geplant werden.
+- Gemeinsame Abendessen duerfen bewusst fuer zwei aufeinanderfolgende Tage geplant werden, damit ein Kochlauf direkt einen Restetag abdeckt.
 
 Die App sollte daher nicht nur Personenprofile, sondern auch Zeit- bzw. Tagesprofile kennen.
 
