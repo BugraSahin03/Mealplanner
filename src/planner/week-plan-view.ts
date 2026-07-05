@@ -6,6 +6,9 @@ export type MealPersonView = {
   personId: "bugra" | "sena";
   label: string;
   portion: string | null;
+  gramsPerPortion: number | null;
+  estimatedKcal: number | null;
+  estimatedKcalPer100g: number | null;
 };
 
 export type MealView = {
@@ -19,6 +22,16 @@ export type MealView = {
   isPersonalMeal: boolean;
   isSharedDinner: boolean;
   ingredientSummary: string;
+  portionSummary: string | null;
+  notes: string | null;
+};
+
+export type LunchBatchDishView = {
+  batchId: string;
+  title: string;
+  daysSummary: string;
+  peopleSummary: string;
+  portionSummary: string;
   notes: string | null;
 };
 
@@ -34,6 +47,7 @@ export type WeekPlanView = {
   title: string;
   summary: string | null;
   days: DayPlanView[];
+  lunchBatchDishes: LunchBatchDishView[];
   shoppingGroups: ShoppingListGroupView[];
   plannerNotes: string[];
   warnings: string[];
@@ -57,6 +71,16 @@ const weekdayLabels: Record<Weekday, string> = {
   friday: "Freitag",
   saturday: "Samstag",
   sunday: "Sonntag",
+};
+
+const weekdayShortLabels: Record<Weekday, string> = {
+  monday: "Mo",
+  tuesday: "Di",
+  wednesday: "Mi",
+  thursday: "Do",
+  friday: "Fr",
+  saturday: "Sa",
+  sunday: "So",
 };
 
 const mealTypeLabels: Record<MealType, string> = {
@@ -111,11 +135,29 @@ function buildIngredientSummary(meal: PlannerResponse["plan"]["days"][number]["m
     .join(", ");
 }
 
+function buildPortionSummary(people: MealPersonView[]): string | null {
+  const summaries = people
+    .map((person) => {
+      const details = [
+        person.gramsPerPortion ? `${person.gramsPerPortion} g` : null,
+        person.estimatedKcal ? `ca. ${person.estimatedKcal} kcal` : null,
+      ].filter(Boolean);
+
+      return details.length > 0 ? `${person.label}: ${details.join(", ")}` : null;
+    })
+    .filter(Boolean);
+
+  return summaries.length > 0 ? summaries.join(" | ") : null;
+}
+
 function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): MealView {
   const people = meal.people.map<MealPersonView>((person) => ({
     personId: person.personId,
     label: personLabels[person.personId],
     portion: person.portion ? portionLabels[person.portion] : null,
+    gramsPerPortion: person.gramsPerPortion ?? null,
+    estimatedKcal: person.estimatedKcal ?? null,
+    estimatedKcalPer100g: person.estimatedKcalPer100g ?? null,
   }));
 
   return {
@@ -129,8 +171,46 @@ function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number])
     isPersonalMeal: people.length === 1 && meal.mealType !== "dinner",
     isSharedDinner: meal.mealType === "dinner" && meal.context === "shared" && people.length > 1,
     ingredientSummary: buildIngredientSummary(meal),
+    portionSummary: buildPortionSummary(people),
     notes: meal.notes ?? meal.mealPrep?.prepNotes ?? null,
   };
+}
+
+function buildLunchBatchDishes(plannerResponse: PlannerResponse): LunchBatchDishView[] {
+  const batches = new Map<string, LunchBatchDishView>();
+
+  for (const day of plannerResponse.plan.days) {
+    for (const meal of day.meals) {
+      if (meal.mealType !== "lunch" || !meal.batchPrep || batches.has(meal.batchPrep.batchId)) {
+        continue;
+      }
+
+      const portionSummary = meal.batchPrep.perPersonPortions
+        .map((portion) => {
+          const details = [
+            `${portion.portionCount} Portion(en)`,
+            portion.gramsPerPortion ? `${portion.gramsPerPortion} g` : null,
+            portion.estimatedKcalPerPortion ? `ca. ${portion.estimatedKcalPerPortion} kcal` : null,
+          ].filter(Boolean);
+
+          return `${personLabels[portion.personId]}: ${details.join(", ")}`;
+        })
+        .join(" | ");
+
+      batches.set(meal.batchPrep.batchId, {
+        batchId: meal.batchPrep.batchId,
+        title: meal.title,
+        daysSummary: meal.batchPrep.plannedWeekdays.map((weekday) => weekdayShortLabels[weekday]).join(", "),
+        peopleSummary: meal.batchPrep.perPersonPortions
+          .map((portion) => personLabels[portion.personId])
+          .join(", "),
+        portionSummary,
+        notes: meal.batchPrep.notes ?? null,
+      });
+    }
+  }
+
+  return [...batches.values()];
 }
 
 export function buildWeekPlanView(response: unknown): WeekPlanView {
@@ -151,6 +231,7 @@ export function buildWeekPlanView(response: unknown): WeekPlanView {
         meals: day?.meals.map(mapMeal) ?? [],
       };
     }),
+    lunchBatchDishes: buildLunchBatchDishes(plannerResponse),
     shoppingGroups: groupShoppingListItems(plannerResponse.shoppingList),
     plannerNotes: plannerResponse.plannerNotes ?? [],
     warnings: plannerResponse.warnings ?? [],

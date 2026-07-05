@@ -169,6 +169,27 @@ Fuer den MVP planen wir primaer:
 
 Snacks sind im Schema erlaubt, aber muessen nicht genutzt werden.
 
+## Lunch-Batch-Prep
+
+Der Planner-Request enthaelt unter `planningRules.lunchBatchPrep` die Regel fuer Mittagessen in der Arbeitswoche:
+
+- `enabled`,
+- `weekdayDishCount`, standardmaessig `2`,
+- `weekdays`, typischerweise Montag bis Freitag,
+- optionale Hinweise.
+
+Wenn die Regel aktiv ist, soll OpenClaw fuer die angegebenen Werktage nicht jeden Tag ein neues Mittagessen erfinden, sondern die Anzahl unterschiedlicher Lunch-Gerichte auf `weekdayDishCount` begrenzen und sinnvoll verteilen.
+
+Der Response kann pro Lunch-Mahlzeit `batchPrep` enthalten. Damit kann die App anzeigen:
+
+- welche Tage zum Batch gehoeren,
+- fuer welche Personen das Gericht geplant ist,
+- wie viele Portionen benoetigt werden,
+- welche Grammmenge pro Person geplant ist,
+- welche grobe AI-Kalorien-Schaetzung pro Portion oder pro 100 g angenommen wurde.
+
+Der konkrete Koch- oder Prep-Tag ist bewusst nicht Teil des Wochenplans.
+
 ## Personen
 
 Personen werden mit stabilen IDs referenziert:

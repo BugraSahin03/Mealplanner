@@ -34,6 +34,7 @@ export type WeekContext = {
   calendarYear?: number | null;
   calendarWeek?: number | null;
   homeOfficeTargets?: Partial<Record<PersonId, number>> | null;
+  lunchBatchDishCount?: number | null;
   notes?: string | null;
   days: WeekContextDay[];
 };
@@ -98,6 +99,7 @@ type WeekContextRow = {
   calendar_year: number | null;
   calendar_week: number | null;
   home_office_targets_json: string | null;
+  lunch_batch_dish_count: number | null;
   notes: string | null;
 };
 
@@ -151,14 +153,15 @@ export function saveWeekContext(db: SqliteDatabase, context: WeekContext): WeekC
       `
         INSERT INTO week_contexts (
           week_id, week_start_date, calendar_year, calendar_week,
-          home_office_targets_json, notes, updated_at
+          home_office_targets_json, lunch_batch_dish_count, notes, updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(week_id) DO UPDATE SET
           week_start_date = excluded.week_start_date,
           calendar_year = excluded.calendar_year,
           calendar_week = excluded.calendar_week,
           home_office_targets_json = excluded.home_office_targets_json,
+          lunch_batch_dish_count = excluded.lunch_batch_dish_count,
           notes = excluded.notes,
           updated_at = CURRENT_TIMESTAMP
       `,
@@ -168,6 +171,7 @@ export function saveWeekContext(db: SqliteDatabase, context: WeekContext): WeekC
       context.calendarYear ?? null,
       context.calendarWeek ?? null,
       stringifyJson(context.homeOfficeTargets ?? {}),
+      context.lunchBatchDishCount ?? 2,
       context.notes ?? null,
     );
 
@@ -215,7 +219,7 @@ export function getWeekContext(db: SqliteDatabase, weekId: string): WeekContext 
     .prepare(
       `
         SELECT week_id, week_start_date, calendar_year, calendar_week,
-               home_office_targets_json, notes
+               home_office_targets_json, lunch_batch_dish_count, notes
         FROM week_contexts
         WHERE week_id = ?
       `,
@@ -243,6 +247,7 @@ export function getWeekContext(db: SqliteDatabase, weekId: string): WeekContext 
     calendarYear: row.calendar_year,
     calendarWeek: row.calendar_week,
     homeOfficeTargets: parseJson(row.home_office_targets_json ?? "{}", {}),
+    lunchBatchDishCount: row.lunch_batch_dish_count,
     notes: row.notes,
     days: days.map((day) => ({
       dayId: day.day_id,

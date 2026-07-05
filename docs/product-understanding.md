@@ -122,6 +122,8 @@ Ein wichtiger Teil davon sind variable Wochenprofile. Vor der Wochenplanung soll
 
 - Office-Fruehstueck soll einfach vorzubereiten und gut transportierbar sein.
 - Office-Mittagessen soll idealerweise als Meal Prep mitgenommen werden koennen.
+- Fuer Montag bis Freitag soll eine einstellbare Anzahl unterschiedlicher Lunch-Batch-Gerichte reichen koennen, z. B. zwei Gerichte fuer die Arbeitswoche.
+- Bei gemeinsamen Lunch-Batches duerfen Buğra und Sena unterschiedliche Portionsgroessen, Grammangaben und grobe kcal-Schaetzungen erhalten.
 - Wenn Mitnehmen nicht klappt, kann Kantine oder auswaerts essen als spontane Alternative passieren.
 - Homeoffice-Tage erlauben mehr Flexibilitaet bei Fruehstueck und Mittagessen.
 - Abendessen ist die Hauptmahlzeit und darf staerker variieren.

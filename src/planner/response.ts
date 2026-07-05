@@ -35,6 +35,8 @@ export type PlannerResponseMeal = {
     personId: "bugra" | "sena";
     portion?: "small" | "normal" | "large";
     estimatedKcal?: number;
+    gramsPerPortion?: number;
+    estimatedKcalPer100g?: number;
     estimatedProteinG?: number;
   }>;
   context: MealContext;
@@ -44,6 +46,20 @@ export type PlannerResponseMeal = {
     makeAhead: boolean;
     reheating?: "none" | "microwave" | "pan" | "oven" | "cold_ok";
     prepNotes?: string;
+  };
+  batchPrep?: {
+    batchId: string;
+    plannedDayIds: string[];
+    plannedWeekdays: Weekday[];
+    portionCount: number;
+    perPersonPortions: Array<{
+      personId: "bugra" | "sena";
+      portionCount: number;
+      gramsPerPortion?: number;
+      estimatedKcalPerPortion?: number;
+      estimatedKcalPer100g?: number;
+    }>;
+    notes?: string;
   };
   estimatedNutrition?: {
     kcal?: number;
@@ -101,6 +117,53 @@ export function assertPlannerResponse(value: unknown): PlannerResponse {
 }
 
 export function buildDemoPlannerResponse(): PlannerResponse {
+  const chickenBatch = {
+    batchId: "batch-lunch-chicken-rice",
+    plannedDayIds: ["monday", "wednesday", "friday"],
+    plannedWeekdays: ["monday", "wednesday", "friday"] as Weekday[],
+    portionCount: 6,
+    perPersonPortions: [
+      {
+        personId: "bugra" as const,
+        portionCount: 3,
+        gramsPerPortion: 450,
+        estimatedKcalPerPortion: 720,
+        estimatedKcalPer100g: 160,
+      },
+      {
+        personId: "sena" as const,
+        portionCount: 3,
+        gramsPerPortion: 320,
+        estimatedKcalPerPortion: 510,
+        estimatedKcalPer100g: 159,
+      },
+    ],
+    notes: "Batch fuer Montag, Mittwoch und Freitag. Unterschiedliche Portionsgroessen einplanen.",
+  };
+  const lentilBatch = {
+    batchId: "batch-lunch-lentil-feta",
+    plannedDayIds: ["tuesday", "thursday"],
+    plannedWeekdays: ["tuesday", "thursday"] as Weekday[],
+    portionCount: 4,
+    perPersonPortions: [
+      {
+        personId: "bugra" as const,
+        portionCount: 2,
+        gramsPerPortion: 420,
+        estimatedKcalPerPortion: 650,
+        estimatedKcalPer100g: 155,
+      },
+      {
+        personId: "sena" as const,
+        portionCount: 2,
+        gramsPerPortion: 300,
+        estimatedKcalPerPortion: 460,
+        estimatedKcalPer100g: 153,
+      },
+    ],
+    notes: "Kalt essbarer Batch fuer Dienstag und Donnerstag.",
+  };
+
   const days: PlannerResponseDay[] = [
     ["monday", "Montag"],
     ["tuesday", "Dienstag"],
@@ -140,8 +203,16 @@ export function buildDemoPlannerResponse(): PlannerResponse {
       {
         mealId: `${weekday}-lunch-bugra`,
         mealType: "lunch",
-        title: index % 2 === 0 ? "Chicken-Reis-Bowl" : "Puten-Reis-Box",
-        people: [{ personId: "bugra", portion: "large" }],
+        title: index % 2 === 0 ? "Chicken-Reis-Bowl" : "Linsen-Feta-Salat",
+        people: [
+          {
+            personId: "bugra",
+            portion: "large",
+            gramsPerPortion: index % 2 === 0 ? 450 : 420,
+            estimatedKcal: index % 2 === 0 ? 720 : 650,
+            estimatedKcalPer100g: index % 2 === 0 ? 160 : 155,
+          },
+        ],
         context: index < 5 ? "office" : "home",
         mealPrep: {
           transportable: index < 5,
@@ -149,17 +220,26 @@ export function buildDemoPlannerResponse(): PlannerResponse {
           reheating: "microwave",
           prepNotes: index < 5 ? "Transportbox am Vorabend packen." : "Frisch anrichten.",
         },
+        ...(index < 5 ? { batchPrep: index % 2 === 0 ? chickenBatch : lentilBatch } : {}),
         ingredients: [
-          { name: index % 2 === 0 ? "Haehnchenbrust" : "Putenbrust", amount: 220, unit: "g", category: "meat_fish" },
-          { name: "Reis", amount: 120, unit: "g", category: "dry_goods" },
+          { name: index % 2 === 0 ? "Haehnchenbrust" : "Linsen", amount: index % 2 === 0 ? 220 : 180, unit: "g", category: index % 2 === 0 ? "meat_fish" : "canned" },
+          { name: index % 2 === 0 ? "Reis" : "Feta", amount: index % 2 === 0 ? 120 : 80, unit: "g", category: index % 2 === 0 ? "dry_goods" : "dairy_eggs" },
           { name: "Gemuese-Mix", amount: 180, unit: "g", category: "produce" },
         ],
       },
       {
         mealId: `${weekday}-lunch-sena`,
         mealType: "lunch",
-        title: index % 2 === 0 ? "Linsen-Feta-Salat" : "Hummus-Gemuese-Wrap",
-        people: [{ personId: "sena", portion: "normal" }],
+        title: index % 2 === 0 ? "Chicken-Reis-Bowl" : "Linsen-Feta-Salat",
+        people: [
+          {
+            personId: "sena",
+            portion: "normal",
+            gramsPerPortion: index % 2 === 0 ? 320 : 300,
+            estimatedKcal: index % 2 === 0 ? 510 : 460,
+            estimatedKcalPer100g: index % 2 === 0 ? 159 : 153,
+          },
+        ],
         context: index < 5 ? "office" : "home",
         mealPrep: {
           transportable: index < 5,
@@ -167,9 +247,10 @@ export function buildDemoPlannerResponse(): PlannerResponse {
           reheating: "cold_ok",
           prepNotes: index < 5 ? "Kalt essbar einpacken." : "Frisch anrichten.",
         },
+        ...(index < 5 ? { batchPrep: index % 2 === 0 ? chickenBatch : lentilBatch } : {}),
         ingredients: [
-          { name: index % 2 === 0 ? "Linsen" : "Wrap", amount: index % 2 === 0 ? 180 : 1, unit: index % 2 === 0 ? "g" : "piece", category: index % 2 === 0 ? "canned" : "bakery" },
-          { name: index % 2 === 0 ? "Feta" : "Hummus", amount: index % 2 === 0 ? 80 : 70, unit: "g", category: index % 2 === 0 ? "dairy_eggs" : "other" },
+          { name: index % 2 === 0 ? "Haehnchenbrust" : "Linsen", amount: index % 2 === 0 ? 150 : 130, unit: "g", category: index % 2 === 0 ? "meat_fish" : "canned" },
+          { name: index % 2 === 0 ? "Reis" : "Feta", amount: index % 2 === 0 ? 85 : 55, unit: "g", category: index % 2 === 0 ? "dry_goods" : "dairy_eggs" },
           { name: "Gemuese-Mix", amount: 150, unit: "g", category: "produce" },
         ],
       },
@@ -219,12 +300,56 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         sourceMealIds: days.map((day) => `${day.weekday}-breakfast-bugra`),
       },
       {
+        name: "Haehnchenbrust",
+        amount: 1110,
+        unit: "g",
+        category: "meat_fish",
+        sourceMealIds: ["monday", "wednesday", "friday"].flatMap((weekday) => [
+          `${weekday}-lunch-bugra`,
+          `${weekday}-lunch-sena`,
+        ]),
+        buyingHint: "Fuer drei Chicken-Reis-Bowl-Tage vorbereitet.",
+      },
+      {
+        name: "Reis",
+        amount: 615,
+        unit: "g",
+        category: "dry_goods",
+        sourceMealIds: ["monday", "wednesday", "friday"].flatMap((weekday) => [
+          `${weekday}-lunch-bugra`,
+          `${weekday}-lunch-sena`,
+        ]),
+      },
+      {
+        name: "Linsen",
+        amount: 620,
+        unit: "g",
+        category: "canned",
+        sourceMealIds: ["tuesday", "thursday"].flatMap((weekday) => [
+          `${weekday}-lunch-bugra`,
+          `${weekday}-lunch-sena`,
+        ]),
+        buyingHint: "Abtropfgewicht beachten.",
+      },
+      {
+        name: "Feta",
+        amount: 270,
+        unit: "g",
+        category: "dairy_eggs",
+        sourceMealIds: ["tuesday", "thursday"].flatMap((weekday) => [
+          `${weekday}-lunch-bugra`,
+          `${weekday}-lunch-sena`,
+        ]),
+      },
+      {
         name: "Gemuese-Mix",
-        amount: 2310,
+        amount: 1650,
         unit: "g",
         category: "produce",
-        sourceMealIds: days.flatMap((day) => [`${day.weekday}-lunch-bugra`, `${day.weekday}-lunch-sena`]),
-        buyingHint: "Frisches und TK-Gemuese kombinieren.",
+        sourceMealIds: days
+          .filter((day) => !["saturday", "sunday"].includes(day.weekday))
+          .flatMap((day) => [`${day.weekday}-lunch-bugra`, `${day.weekday}-lunch-sena`]),
+        buyingHint: "Menge ist ueber die zwei Lunch-Batches konsolidiert.",
       },
       {
         name: "Olivenoel",

@@ -148,6 +148,12 @@ ALTER TABLE week_contexts ADD COLUMN calendar_week INTEGER;
 ALTER TABLE week_contexts ADD COLUMN home_office_targets_json TEXT;
 `;
 
+const ep016LunchBatchPrepSql = `
+ALTER TABLE week_contexts ADD COLUMN lunch_batch_dish_count INTEGER NOT NULL DEFAULT 2 CHECK (
+  lunch_batch_dish_count >= 1 AND lunch_batch_dish_count <= 5
+);
+`;
+
 export const migrations: Migration[] = [
   {
     id: "0001_ep_002",
@@ -163,6 +169,11 @@ export const migrations: Migration[] = [
     id: "0003_ep_009",
     name: "calendar week home office setup",
     sql: ep009CalendarWeekSql,
+  },
+  {
+    id: "0004_ep_016",
+    name: "lunch batch prep planning",
+    sql: ep016LunchBatchPrepSql,
   },
 ];
 

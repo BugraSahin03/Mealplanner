@@ -147,4 +147,20 @@ describe("week plan view", () => {
       peopleSummary: "Gemeinsam",
     });
   });
+
+  it("summarizes lunch batch prep dishes with days, portions, grams and calories", () => {
+    const view = buildWeekPlanView(buildDemoPlannerResponse());
+    const mondayLunch = view.days[0]?.meals.find((meal) => meal.mealId === "monday-lunch-bugra");
+
+    expect(view.lunchBatchDishes).toHaveLength(2);
+    expect(view.lunchBatchDishes[0]).toMatchObject({
+      batchId: "batch-lunch-chicken-rice",
+      title: "Chicken-Reis-Bowl",
+      daysSummary: "Mo, Mi, Fr",
+      peopleSummary: "Buğra, Sena",
+    });
+    expect(view.lunchBatchDishes[0]?.portionSummary).toContain("Buğra: 3 Portion(en), 450 g, ca. 720 kcal");
+    expect(view.lunchBatchDishes[0]?.portionSummary).toContain("Sena: 3 Portion(en), 320 g, ca. 510 kcal");
+    expect(mondayLunch?.portionSummary).toBe("Buğra: 450 g, ca. 720 kcal");
+  });
 });

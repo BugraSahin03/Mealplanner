@@ -38,7 +38,7 @@ describe("database schema", () => {
         "shopping_items",
       ]),
     );
-    expect(getSchemaVersion(db)).toBe("0003_ep_009");
+    expect(getSchemaVersion(db)).toBe("0004_ep_016");
     expect(listProfiles(db).map((profile) => profile.personId)).toEqual(["bugra", "sena"]);
     expect(getProfile(db, "bugra")?.primaryGoal).toBe("muscle_gain");
   });
@@ -63,6 +63,14 @@ describe("database schema", () => {
         "home_office_targets_json",
       ]),
     );
+  });
+
+  it("stores dynamic lunch batch dish count per week context", () => {
+    const columns = db
+      .prepare("PRAGMA table_info(week_contexts)")
+      .all() as Array<{ name: string }>;
+
+    expect(columns.map((column) => column.name)).toContain("lunch_batch_dish_count");
   });
 
   it("enforces planner job statuses", () => {

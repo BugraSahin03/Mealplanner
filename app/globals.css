@@ -738,6 +738,63 @@ textarea:focus {
   color: rgba(255, 255, 255, 0.72);
 }
 
+.calendar-command-tools {
+  align-items: end;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lunch-batch-stepper {
+  background: #fff7ed;
+  border: 1px solid rgba(251, 146, 60, 0.36);
+  border-radius: 1rem;
+  box-shadow: 0 16px 34px rgba(8, 18, 30, 0.16);
+  color: #7c2d12;
+  display: grid;
+  gap: 0.42rem;
+  min-width: 12rem;
+  padding: 0.75rem;
+}
+
+.lunch-batch-stepper > span,
+.lunch-batch-stepper > small {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lunch-batch-stepper > div {
+  align-items: center;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 2.2rem minmax(2rem, 1fr) 2.2rem;
+}
+
+.lunch-batch-stepper button {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid rgba(251, 146, 60, 0.48);
+  border-radius: 0.75rem;
+  color: #9a3412;
+  cursor: pointer;
+  display: inline-grid;
+  font-size: 1.1rem;
+  font-weight: 950;
+  height: 2.2rem;
+  justify-content: center;
+}
+
+.lunch-batch-stepper button:hover {
+  background: #ffedd5;
+}
+
+.lunch-batch-stepper strong {
+  color: #431407;
+  font-size: 1.35rem;
+  text-align: center;
+}
+
 .profile-token-tray {
   align-items: center;
   display: flex;
@@ -820,6 +877,49 @@ textarea:focus {
   background: #fff2f2;
   border-color: #ff9b9b;
   transform: translateY(-1px);
+}
+
+.lunch-batch-summary {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.lunch-batch-summary article {
+  background:
+    linear-gradient(135deg, rgba(255, 247, 237, 0.98), rgba(255, 255, 255, 0.96)),
+    #ffffff;
+  border: 1px solid rgba(251, 146, 60, 0.24);
+  border-radius: 1rem;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.85rem;
+}
+
+.lunch-batch-summary div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.lunch-batch-summary span {
+  color: #c2410c;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lunch-batch-summary strong {
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.lunch-batch-summary p,
+.lunch-batch-summary small {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 .trash-icon {
@@ -1150,6 +1250,13 @@ textarea:focus {
   font-size: 0.82rem;
   line-height: 1.35;
   margin-bottom: 0;
+}
+
+.calendar-meal small {
+  color: #475569;
+  font-size: 0.74rem;
+  font-weight: 760;
+  line-height: 1.35;
 }
 
 .empty-meal {
