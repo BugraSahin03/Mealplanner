@@ -142,6 +142,8 @@ describe("week plan view", () => {
       "Buğra",
       "Sena",
     ]);
+    expect(monday?.meals[0]?.title).toBe("Protein-Skyr");
+    expect(monday?.meals[0]?.ingredientSummary).toBe("Skyr, Haferflocken, Beeren");
     expect(monday?.meals.find((meal) => meal.mealType === "dinner")).toMatchObject({
       isSharedDinner: true,
       peopleSummary: "Gemeinsam",

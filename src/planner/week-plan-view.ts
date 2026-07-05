@@ -135,6 +135,13 @@ function buildIngredientSummary(meal: PlannerResponse["plan"]["days"][number]["m
     .join(", ");
 }
 
+function stripWeekdayTitlePrefix(title: string): string {
+  return title.replace(
+    /^(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag):\s*/u,
+    "",
+  );
+}
+
 function buildPortionSummary(people: MealPersonView[]): string | null {
   const summaries = people
     .map((person) => {
@@ -164,7 +171,7 @@ function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number])
     mealId: meal.mealId,
     mealType: meal.mealType,
     slotLabel: mealTypeLabels[meal.mealType],
-    title: meal.title,
+    title: stripWeekdayTitlePrefix(meal.title),
     contextLabel: contextLabels[meal.context],
     people,
     peopleSummary: buildPeopleSummary(people, meal.context),

@@ -379,6 +379,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                               key={meal.mealId}
                             >
                               <strong>{meal.title}</strong>
+                              <p>{meal.ingredientSummary}</p>
                             </article>
                           ))
                         ) : (
