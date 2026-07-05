@@ -22,7 +22,7 @@ Essenplanner bekommt eigene:
 ```text
 Hetzner Server
   - BudgetBuddy: bestehend, nicht anfassen
-  - Essenplanner Web-App: spaeter Next.js
+  - Essenplanner Web-App: Next.js auf 127.0.0.1:3008
   - OpenClaw Gateway/Agent: Essenplanner Planner Backend
   - Codex/OpenAI Auth: fuer openai-codex Provider
   - Zugriff: privat ueber Tailscale
@@ -107,11 +107,12 @@ Einschaetzung:
 
 Empfohlen:
 
-- eigener Linux-User oder mindestens eigenes Verzeichnis,
-- z. B. `/opt/essenplanner`,
-- eigene `.env`,
-- eigene Logs,
-- eigene systemd Services oder Docker Compose.
+- eigener Linux-User `essenplanner`,
+- App-Verzeichnis `/opt/essenplanner`,
+- SQLite-Datenbank `/var/lib/essenplanner/essenplanner.db`,
+- lokale Backups unter `/var/backups/essenplanner`,
+- eigener systemd-Service `essenplanner.service`,
+- eigener Port `127.0.0.1:3008`, damit BudgetBuddy auf `127.0.0.1:3000` unangetastet bleibt.
 
 ## Phase 3: Codex auf Hetzner einrichten
 
@@ -201,19 +202,45 @@ Empfohlen:
 - Gateway Token aktivieren,
 - keine offene Public-IP-Freigabe.
 
-## Phase 6: Web-App erst nach KI-Beweis
+## Phase 6: Web-App als eigener systemd-Dienst
 
-Erst wenn Codex + OpenClaw auf Hetzner funktionieren:
+Die App wird analog zu BudgetBuddy, aber vollständig getrennt betrieben:
 
-- Next.js-Projekt erstellen,
-- Datenmodell bauen,
-- Dummy Planner,
-- OpenClaw PlannerAdapter,
-- JSON-Schema-Validierung,
-- UI.
+- Unit-Vorlage: `scripts/deploy/essenplanner.service`
+- Installationsskript: `scripts/deploy/install-production-service.sh`
+- Produktionsdoku: `docs/production-app-service.md`
+- Healthcheck: `GET /api/health`
+- sicherer Standardadapter: `ESSENPLANNER_PLANNER_ADAPTER=fixture`
+- optionaler OpenClaw-Adapter später bewusst über Server-Umgebung: `ESSENPLANNER_PLANNER_ADAPTER=openclaw-cli`
+
+Die Unit startet Next.js mit:
+
+```bash
+npm run start -- --hostname 127.0.0.1 --port 3008
+```
+
+Damit entsteht kein öffentlicher App-Listener auf `0.0.0.0`.
+
+## Phase 7: Tailscale-only Zugriff
+
+Essenplanner wird erst nach Freigabe über Tailscale erreichbar gemacht. Wichtig:
+
+- Kein Tailscale Funnel.
+- Keine öffentliche URL.
+- Keine öffentliche Firewall-Freigabe für `3008/tcp`.
+- BudgetBuddy-Tailscale-Serve für `/` auf `127.0.0.1:3000` nicht überschreiben.
+- Vor Aktivierung entscheiden, ob Essenplanner über einen eigenen Tailnet-Port oder eine eigene Tailscale-Serve-Route läuft.
+
+Vor einer Freigabe prüfen:
+
+```bash
+systemctl is-active essenplanner.service
+curl -fsS http://127.0.0.1:3008/api/health
+tailscale serve status
+tailscale funnel status
+ss -ltnp | grep -E ':(3000|3008)'
+```
 
 ## Naechster konkreter Schritt
 
-SSH-Zugang klaeren.
-
-Danach kann eine read-only Bestandsaufnahme laufen. Erst danach entscheiden wir, ob wir Essenplanner per Docker Compose, systemd oder einer gemischten Variante deployen.
+EP-008 bereitet den systemd-Betrieb vor. Ein produktiver Rollout erfolgt erst nach ausdrücklicher Freigabe und ohne BudgetBuddy zu verändern.
