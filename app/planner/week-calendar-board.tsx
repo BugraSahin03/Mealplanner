@@ -32,7 +32,7 @@ type Props = {
 const mealSlots: Array<"breakfast" | "lunch" | "dinner"> = ["breakfast", "lunch", "dinner"];
 
 const mealSlotLabels: Record<(typeof mealSlots)[number], string> = {
-  breakfast: "Fruehstueck",
+  breakfast: "Frühstück",
   lunch: "Mittagessen",
   dinner: "Abendessen",
 };
@@ -101,6 +101,9 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
       return undefined;
     }
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     function closeOnEscape(event: KeyboardEvent): void {
       if (event.key === "Escape") {
         setSelectedMeal(null);
@@ -108,7 +111,10 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
     }
 
     document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
   }, [selectedMeal]);
 
   function setPersonHome(weekday: Weekday, personId: PersonId, isHome: boolean): void {
@@ -429,12 +435,12 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                 <h2 id="meal-dialog-title">{selectedMeal.meal.title}</h2>
               </div>
               <button
-                aria-label="Gericht-Details schliessen"
+                aria-label="Gericht-Details schließen"
                 className="meal-dialog-close"
                 onClick={() => setSelectedMeal(null)}
                 type="button"
               >
-                X
+                ×
               </button>
             </header>
 
@@ -449,9 +455,8 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
               {selectedMeal.meal.calorieSummary ? (
                 <p className="calorie-estimate">{selectedMeal.meal.calorieSummary}</p>
               ) : (
-                <p className="calorie-estimate">Noch keine Kalorien-Schaetzung vorhanden.</p>
+                <p className="calorie-estimate">Keine Kalorienangabe vorhanden.</p>
               )}
-              <small>{selectedMeal.meal.nutritionDisclaimer}</small>
               <div className="meal-person-grid">
                 {selectedMeal.meal.people.map((person) => (
                   <div className={`meal-person-detail meal-person-${person.personId}`} key={person.personId}>

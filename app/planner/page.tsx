@@ -183,7 +183,7 @@ export default function PlannerPage() {
             <section className="section-block shopping-list-section" id="einkauf">
               <div className="section-heading">
                 <p className="eyebrow">Einkaufsliste</p>
-                <h2>Gruppiert fuer den Wocheneinkauf</h2>
+                <h2>Gruppiert für den Wocheneinkauf</h2>
               </div>
 
               <ShoppingList groups={weekPlan.shoppingGroups} />

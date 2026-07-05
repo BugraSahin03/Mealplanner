@@ -32,7 +32,6 @@ export type MealView = {
   ingredientSummary: string;
   ingredients: MealIngredientView[];
   calorieSummary: string | null;
-  nutritionDisclaimer: string;
   mealPrepSummary: string | null;
   notes: string | null;
 };
@@ -75,7 +74,7 @@ const weekdayLabels: Record<Weekday, string> = {
 };
 
 const mealTypeLabels: Record<MealType, string> = {
-  breakfast: "Fruehstueck",
+  breakfast: "Frühstück",
   lunch: "Mittagessen",
   dinner: "Abendessen",
   snack: "Snack",
@@ -97,7 +96,7 @@ const personLabels: Record<"bugra" | "sena", string> = {
 const portionLabels: Record<"small" | "normal" | "large", string> = {
   small: "klein",
   normal: "normal",
-  large: "gross",
+  large: "groß",
 };
 
 const unitLabels: Record<PlannerResponse["shoppingList"][number]["unit"], string> = {
@@ -159,7 +158,7 @@ function buildPersonDetailLine(person: MealPersonView): string {
     person.portion ? `Portion: ${person.portion}` : null,
   ].filter(Boolean);
 
-  return details.length > 0 ? `${details.join(" · ")} fuer ${person.label}` : person.label;
+  return details.length > 0 ? `${details.join(" · ")} für ${person.label}` : person.label;
 }
 
 function buildCalorieSummary(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): string | null {
@@ -168,7 +167,7 @@ function buildCalorieSummary(meal: PlannerResponse["plan"]["days"][number]["meal
     .map((person) => {
       const label = personLabels[person.personId];
       const portion = person.portionGrams ? ` pro ${formatNumber(person.portionGrams)} g Portion` : "";
-      return `ca. ${formatNumber(person.estimatedKcal ?? 0)} kcal${portion} fuer ${label}`;
+      return `ca. ${formatNumber(person.estimatedKcal ?? 0)} kcal${portion} für ${label}`;
     });
 
   if (personLines.length > 0) {
@@ -234,7 +233,6 @@ function mapMeal(
       optional: ingredient.optional ?? false,
     })),
     calorieSummary: buildCalorieSummary(meal),
-    nutritionDisclaimer: "Grobe AI-Schaetzung, keine exakten Naehrwertdaten.",
     mealPrepSummary: buildMealPrepSummary(meal),
     notes: meal.notes ?? meal.mealPrep?.prepNotes ?? null,
   };

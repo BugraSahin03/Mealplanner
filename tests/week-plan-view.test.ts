@@ -68,7 +68,7 @@ function buildSevenDayResponse(): PlannerResponse {
         notes: "Nur bei leerem Vorrat.",
       },
     ],
-    plannerNotes: ["Mittagessen fuer Office geeignet."],
+    plannerNotes: ["Mittagessen für Office geeignet."],
   };
 }
 
@@ -81,7 +81,7 @@ describe("week plan view", () => {
     expect(view.days[0]?.label).toBe("Montag");
     expect(view.days.every((day) => day.meals.length === 3)).toBe(true);
     expect(view.days[0]?.meals.map((meal) => meal.slotLabel)).toEqual([
-      "Fruehstueck",
+      "Frühstück",
       "Mittagessen",
       "Abendessen",
     ]);
@@ -154,18 +154,17 @@ describe("week plan view", () => {
     const breakfast = monday?.meals.find((meal) => meal.mealId === "monday-breakfast-bugra");
 
     expect(breakfast).toMatchObject({
-      slotLabel: "Fruehstueck",
+      slotLabel: "Frühstück",
       contextLabel: "Meal Prep",
-      calorieSummary: "ca. 620 kcal pro 480 g Portion fuer Buğra",
-      nutritionDisclaimer: "Grobe AI-Schaetzung, keine exakten Naehrwertdaten.",
+      calorieSummary: "ca. 620 kcal pro 480 g Portion für Buğra",
       mealPrepSummary: null,
     });
     expect(breakfast?.people[0]).toMatchObject({
       label: "Buğra",
-      portion: "gross",
+      portion: "groß",
       portionGrams: 480,
       estimatedKcal: 620,
-      detailLine: "ca. 620 kcal · pro 480 g Portion · Portion: gross fuer Buğra",
+      detailLine: "ca. 620 kcal · pro 480 g Portion · Portion: groß für Buğra",
     });
     expect(breakfast?.ingredients).toEqual([
       { name: "Skyr", amount: "300 g", notes: null, pantryItem: false, optional: false },
@@ -192,8 +191,8 @@ describe("week plan view", () => {
 
     expect(meal?.calorieSummary).toBe("ca. 150 kcal pro 100 g");
     expect(meal?.people.map((person) => person.detailLine)).toEqual([
-      "Portion: gross fuer Buğra",
-      "Portion: normal fuer Sena",
+      "Portion: groß für Buğra",
+      "Portion: normal für Sena",
     ]);
   });
 });

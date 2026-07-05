@@ -202,7 +202,7 @@ export function buildDemoPlannerResponse(): PlannerResponse {
     schemaVersion: "1.0",
     plan: {
       title: "Demo-Wochenplan",
-      summary: "Validierter Beispielplan fuer eine komplette Woche ohne OpenClaw-Aufruf.",
+      summary: "Validierter Beispielplan für eine komplette Woche ohne OpenClaw-Aufruf.",
       days,
     },
     shoppingList: [
@@ -212,7 +212,7 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         unit: "g",
         category: "dairy_eggs",
         sourceMealIds: days.map((day) => `${day.weekday}-breakfast-bugra`),
-        buyingHint: "Mehrere grosse Becher kaufen.",
+        buyingHint: "Mehrere große Becher kaufen.",
       },
       {
         name: "Joghurt",
@@ -246,6 +246,6 @@ export function buildDemoPlannerResponse(): PlannerResponse {
         buyingHint: "Nur kaufen, wenn der Vorrat leer ist.",
       },
     ],
-    plannerNotes: ["Demo-Erfolg fuer den Job-Statusfluss."],
+    plannerNotes: ["Demo-Erfolg für den Job-Statusfluss."],
   };
 }
