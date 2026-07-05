@@ -16,6 +16,7 @@ export type MealView = {
   contextLabel: string;
   people: MealPersonView[];
   peopleSummary: string;
+  isPersonalMeal: boolean;
   isSharedDinner: boolean;
   ingredientSummary: string;
   notes: string | null;
@@ -125,6 +126,7 @@ function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number])
     contextLabel: contextLabels[meal.context],
     people,
     peopleSummary: buildPeopleSummary(people, meal.context),
+    isPersonalMeal: people.length === 1 && meal.mealType !== "dinner",
     isSharedDinner: meal.mealType === "dinner" && meal.context === "shared" && people.length > 1,
     ingredientSummary: buildIngredientSummary(meal),
     notes: meal.notes ?? meal.mealPrep?.prepNotes ?? null,

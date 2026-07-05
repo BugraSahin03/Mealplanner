@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildWeekPlanView } from "../src/planner/week-plan-view";
-import type { PlannerResponse } from "../src/planner/response";
+import { buildDemoPlannerResponse, type PlannerResponse } from "../src/planner/response";
 import { groupShoppingListItems } from "../src/shopping-list/grouping";
 
 function buildSevenDayResponse(): PlannerResponse {
@@ -127,5 +127,24 @@ describe("week plan view", () => {
       "dairy_eggs",
       "dry_goods",
     ]);
+  });
+
+  it("supports separate breakfast and lunch cards per person", () => {
+    const view = buildWeekPlanView(buildDemoPlannerResponse());
+    const monday = view.days[0];
+
+    expect(monday?.meals.filter((meal) => meal.mealType === "breakfast")).toHaveLength(2);
+    expect(monday?.meals.filter((meal) => meal.mealType === "lunch")).toHaveLength(2);
+    expect(monday?.meals.filter((meal) => meal.mealType === "dinner")).toHaveLength(1);
+    expect(monday?.meals.filter((meal) => meal.isPersonalMeal).map((meal) => meal.peopleSummary)).toEqual([
+      "Buğra",
+      "Sena",
+      "Buğra",
+      "Sena",
+    ]);
+    expect(monday?.meals.find((meal) => meal.mealType === "dinner")).toMatchObject({
+      isSharedDinner: true,
+      peopleSummary: "Gemeinsam",
+    });
   });
 });

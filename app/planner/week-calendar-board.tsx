@@ -64,7 +64,7 @@ function getDayContext(homeState: HomeState, weekday: Weekday, personId: PersonI
 }
 
 function getMealForSlot(day: WeekPlanView["days"][number] | undefined, slot: (typeof mealSlots)[number]) {
-  return day?.meals.find((meal) => meal.mealType === slot) ?? null;
+  return day?.meals.filter((meal) => meal.mealType === slot) ?? [];
 }
 
 export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
@@ -293,23 +293,38 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
 
               <div className="calendar-meals">
                 {mealSlots.map((slot) => {
-                  const meal = getMealForSlot(planDay, slot);
+                  const meals = getMealForSlot(planDay, slot);
 
                   return (
-                    <section className={meal?.isSharedDinner ? "calendar-meal calendar-meal-shared" : "calendar-meal"} key={slot}>
+                    <section className="calendar-meal-slot" key={slot}>
                       <span>{mealSlotLabels[slot]}</span>
-                      {meal ? (
-                        <>
-                          <strong>{meal.title}</strong>
-                          <div>
-                            <em>{meal.contextLabel}</em>
-                            <em>{meal.peopleSummary}</em>
-                          </div>
-                          <p>{meal.ingredientSummary}</p>
-                        </>
-                      ) : (
-                        <strong className="empty-meal">Leer</strong>
-                      )}
+                      <div>
+                        {meals.length > 0 ? (
+                          meals.map((meal) => (
+                            <article
+                              className={
+                                meal.isSharedDinner
+                                  ? "calendar-meal calendar-meal-shared"
+                                  : meal.isPersonalMeal
+                                    ? "calendar-meal calendar-meal-personal"
+                                    : "calendar-meal"
+                              }
+                              key={meal.mealId}
+                            >
+                              <strong>{meal.title}</strong>
+                              <div>
+                                <em>{meal.contextLabel}</em>
+                                <em>{meal.peopleSummary}</em>
+                              </div>
+                              <p>{meal.ingredientSummary}</p>
+                            </article>
+                          ))
+                        ) : (
+                          <article className="calendar-meal calendar-meal-empty">
+                            <strong className="empty-meal">Leer</strong>
+                          </article>
+                        )}
+                      </div>
                     </section>
                   );
                 })}
