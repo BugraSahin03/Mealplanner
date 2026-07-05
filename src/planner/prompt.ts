@@ -28,6 +28,8 @@ Important rules:
 - Buğra and Sena may share a batch lunch dish while still receiving different grams and estimated calories per portion.
 - Do not add a fixed cooking or prep day to the week plan; only describe the lunch dishes, distribution, portions, grams, and rough AI calorie estimates.
 - Dinner should be shared when practical.
+- If planningRules.dinnerLeftoverPlanning.enabled is true, intentionally repeat shared dinners across consecutive days using planningRules.dinnerLeftoverPlanning.defaultDinnerSpanDays as the usual span.
+- Mark repeated dinners with dinnerLeftovers.leftoverGroupId and dinnerLeftovers.role values "fresh_cook" and "leftover" so the app can show which dinner days belong together.
 - Include ingredients for every meal.
 - Consolidate ingredients into shoppingList.
 - Use stable ids for dayId, mealId, and sourceMealIds.

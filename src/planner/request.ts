@@ -55,6 +55,11 @@ export type PlannerRequest = {
       weekdays: Array<Extract<Weekday, "monday" | "tuesday" | "wednesday" | "thursday" | "friday">>;
       notes: string;
     };
+    dinnerLeftoverPlanning: {
+      enabled: boolean;
+      defaultDinnerSpanDays: number;
+      notes: string;
+    };
     shoppingMode: "weekly";
     stores: string[];
     globalNotes: string;
@@ -131,6 +136,12 @@ export function buildPlannerRequestFromWeekContext(
         weekdays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
         notes:
           "Plane Mittagessen fuer Montag bis Freitag als Batch-Prep: begrenze die Anzahl verschiedener Lunch-Gerichte und verteile sie mit personenspezifischen Portionen.",
+      },
+      dinnerLeftoverPlanning: {
+        enabled: true,
+        defaultDinnerSpanDays: 2,
+        notes:
+          "Plane gemeinsame Abendessen bewusst so, dass ein Kochlauf in der Regel zwei aufeinanderfolgende Abendessen abdeckt: frisch gekocht plus Restetag.",
       },
       shoppingMode: "weekly",
       stores: ["Netto", "Lidl"],

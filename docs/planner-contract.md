@@ -190,6 +190,24 @@ Der Response kann pro Lunch-Mahlzeit `batchPrep` enthalten. Damit kann die App a
 
 Der konkrete Koch- oder Prep-Tag ist bewusst nicht Teil des Wochenplans.
 
+## Dinner-Resteplanung
+
+Der Planner-Request enthaelt unter `planningRules.dinnerLeftoverPlanning` die Regel fuer gemeinsame Abendessen:
+
+- `enabled`,
+- `defaultDinnerSpanDays`, standardmaessig `2`,
+- optionale Hinweise.
+
+Wenn die Regel aktiv ist, soll OpenClaw gemeinsame Abendessen bewusst fuer aufeinanderfolgende Tage wiederholen, z. B. Montag frisch gekocht und Dienstag als Restetag. Die App trackt im MVP keinen echten Restebestand, sondern bildet nur die geplante Zusammengehoerigkeit ab.
+
+Der Response kann pro Dinner-Mahlzeit `dinnerLeftovers` enthalten. Damit kann die App anzeigen:
+
+- welche Dinner-Tage zusammengehoeren,
+- ob ein Dinner frisch gekocht oder als Restetag geplant ist,
+- wie viele Abendessen ein Kochlauf abdeckt.
+
+Die Einkaufsliste muss die Mengen fuer alle geplanten Dinner-Portionen konsolidieren.
+
 ## Personen
 
 Personen werden mit stabilen IDs referenziert:

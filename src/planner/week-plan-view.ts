@@ -37,6 +37,8 @@ export type MealView = {
   personTheme: "bugra" | "sena" | "shared";
   isPersonalMeal: boolean;
   isSharedDinner: boolean;
+  dinnerLeftoverGroupId: string | null;
+  dinnerLeftoverRole: "fresh_cook" | "leftover" | "repeat_serving" | null;
   ingredientSummary: string;
   ingredients: MealIngredientView[];
   calorieSummary: string | null;
@@ -55,6 +57,14 @@ export type LunchBatchDishView = {
   notes: string | null;
 };
 
+export type DinnerLeftoverGroupView = {
+  leftoverGroupId: string;
+  title: string;
+  daysSummary: string;
+  spanDays: number;
+  notes: string | null;
+};
+
 export type DayPlanView = {
   dayId: string;
   weekday: Weekday;
@@ -68,6 +78,7 @@ export type WeekPlanView = {
   summary: string | null;
   days: DayPlanView[];
   lunchBatchDishes: LunchBatchDishView[];
+  dinnerLeftoverGroups: DinnerLeftoverGroupView[];
   shoppingGroups: ShoppingListGroupView[];
   plannerNotes: string[];
   warnings: string[];
@@ -328,6 +339,8 @@ function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number])
     personTheme: getPersonTheme(people),
     isPersonalMeal: people.length === 1 && meal.mealType !== "dinner",
     isSharedDinner: meal.mealType === "dinner" && meal.context === "shared" && people.length > 1,
+    dinnerLeftoverGroupId: meal.dinnerLeftovers?.leftoverGroupId ?? null,
+    dinnerLeftoverRole: meal.dinnerLeftovers?.role ?? null,
     ingredientSummary: buildIngredientSummary(meal),
     ingredients: meal.ingredients.map((ingredient) => ({
       name: ingredient.name,
@@ -340,7 +353,7 @@ function mapMeal(meal: PlannerResponse["plan"]["days"][number]["meals"][number])
     calorieFacts: buildCalorieFacts(meal, people),
     mealPrepSummary: buildMealPrepSummary(meal),
     portionSummary: buildPortionSummary(people),
-    notes: meal.notes ?? meal.mealPrep?.prepNotes ?? null,
+    notes: meal.notes ?? meal.mealPrep?.prepNotes ?? meal.dinnerLeftovers?.notes ?? null,
   };
 }
 
@@ -381,6 +394,34 @@ function buildLunchBatchDishes(plannerResponse: PlannerResponse): LunchBatchDish
   return [...batches.values()];
 }
 
+function buildDinnerLeftoverGroups(plannerResponse: PlannerResponse): DinnerLeftoverGroupView[] {
+  const groups = new Map<string, DinnerLeftoverGroupView>();
+
+  for (const day of plannerResponse.plan.days) {
+    for (const meal of day.meals) {
+      if (
+        meal.mealType !== "dinner" ||
+        !meal.dinnerLeftovers ||
+        groups.has(meal.dinnerLeftovers.leftoverGroupId)
+      ) {
+        continue;
+      }
+
+      groups.set(meal.dinnerLeftovers.leftoverGroupId, {
+        leftoverGroupId: meal.dinnerLeftovers.leftoverGroupId,
+        title: meal.title,
+        daysSummary: meal.dinnerLeftovers.plannedWeekdays
+          .map((weekday) => weekdayShortLabels[weekday])
+          .join(", "),
+        spanDays: meal.dinnerLeftovers.spanDays,
+        notes: meal.dinnerLeftovers.notes ?? null,
+      });
+    }
+  }
+
+  return [...groups.values()];
+}
+
 export function buildWeekPlanView(response: unknown): WeekPlanView {
   const plannerResponse = assertPlannerResponse(response);
   const daysByWeekday = new Map(plannerResponse.plan.days.map((day) => [day.weekday, day]));
@@ -400,6 +441,7 @@ export function buildWeekPlanView(response: unknown): WeekPlanView {
       };
     }),
     lunchBatchDishes: buildLunchBatchDishes(plannerResponse),
+    dinnerLeftoverGroups: buildDinnerLeftoverGroups(plannerResponse),
     shoppingGroups: groupShoppingListItems(plannerResponse.shoppingList),
     plannerNotes: plannerResponse.plannerNotes ?? [],
     warnings: plannerResponse.warnings ?? [],

@@ -65,7 +65,7 @@
     "planningRules": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mealsPerDay", "budget", "lunchBatchPrep"],
+      "required": ["mealsPerDay", "budget", "lunchBatchPrep", "dinnerLeftoverPlanning"],
       "properties": {
         "mealsPerDay": {
           "type": "array",
@@ -112,6 +112,24 @@
                 "type": "string",
                 "enum": ["monday", "tuesday", "wednesday", "thursday", "friday"]
               }
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        },
+        "dinnerLeftoverPlanning": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "defaultDinnerSpanDays"],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "defaultDinnerSpanDays": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3
             },
             "notes": {
               "type": "string"
