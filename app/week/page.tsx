@@ -7,6 +7,7 @@ import {
   buildHomeOfficeTargetSummary,
   getContextForDay,
   normalizeHomeOfficeTargets,
+  normalizeLunchBatchDishCount,
   weekdays,
   weekContextPeople,
 } from "@/src/week-context/model";
@@ -39,6 +40,7 @@ export default function WeekPage() {
   const targetSummary = buildHomeOfficeTargetSummary(context);
   const metTargets = targetSummary.filter((target) => target.isMet).length;
   const homeOfficeTargets = normalizeHomeOfficeTargets(context.homeOfficeTargets);
+  const lunchBatchDishCount = normalizeLunchBatchDishCount(context.lunchBatchDishCount);
 
   return (
     <main className="app-shell">
@@ -78,6 +80,7 @@ export default function WeekPage() {
 
         <form className="week-form" action={saveWeekContextAction}>
           <input type="hidden" name="weekStartDate" value={context.weekStartDate ?? ""} />
+          <input type="hidden" name="lunchBatchDishCount" value={lunchBatchDishCount} />
 
           <section className="week-calendar-summary">
             <div>

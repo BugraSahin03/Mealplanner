@@ -65,7 +65,7 @@
     "planningRules": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mealsPerDay", "budget"],
+      "required": ["mealsPerDay", "budget", "lunchBatchPrep"],
       "properties": {
         "mealsPerDay": {
           "type": "array",
@@ -85,6 +85,33 @@
             "weeklyTargetEur": {
               "type": "number",
               "minimum": 0
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        },
+        "lunchBatchPrep": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "weekdayDishCount", "weekdays"],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "weekdayDishCount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "weekdays": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 5,
+              "items": {
+                "type": "string",
+                "enum": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+              }
             },
             "notes": {
               "type": "string"

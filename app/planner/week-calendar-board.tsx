@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import type { WeekPlanView } from "@/src/planner/week-plan-view";
 import type { DayContext, WeekContext, Weekday } from "@/src/planner/repository";
 import type { PersonId } from "@/src/profiles/repository";
-import { normalizeHomeOfficeTargets } from "@/src/week-context/model";
+import { normalizeHomeOfficeTargets, normalizeLunchBatchDishCount } from "@/src/week-context/model";
 import { savePlannerWeekContextAction } from "./actions";
 
 type PersonConfig = {
@@ -82,6 +82,9 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
   const [draggedRemoval, setDraggedRemoval] = useState<{ weekday: Weekday; personId: PersonId } | null>(null);
   const [hoveredDropZone, setHoveredDropZone] = useState<string | null>(null);
   const [isTrashHovered, setIsTrashHovered] = useState(false);
+  const [lunchBatchDishCount, setLunchBatchDishCount] = useState(() =>
+    normalizeLunchBatchDishCount(context.lunchBatchDishCount),
+  );
   const homeOfficeTargets = normalizeHomeOfficeTargets(context.homeOfficeTargets);
   const targetCounts = useMemo(
     () =>
@@ -123,10 +126,15 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
     }
   }
 
+  function adjustLunchBatchDishCount(delta: number): void {
+    setLunchBatchDishCount((current) => normalizeLunchBatchDishCount(current + delta));
+  }
+
   return (
     <form className="calendar-planner" action={savePlannerWeekContextAction}>
       <input type="hidden" name="weekStartDate" value={context.weekStartDate ?? ""} />
       <input type="hidden" name="notes" value={context.notes ?? ""} />
+      <input type="hidden" name="lunchBatchDishCount" value={lunchBatchDishCount} />
       {people.map((person) => (
         <input
           key={person.personId}
@@ -167,55 +175,94 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
           </p>
         </div>
 
-        <div className="profile-token-tray" aria-label="Homeoffice Profile">
-          {people.map((person) => (
-            <button
-              className={`profile-token profile-token-${person.personId}`}
-              draggable
-              key={person.personId}
-              onDragEnd={resetDragState}
-              onDragStart={(event) => {
-                event.dataTransfer.effectAllowed = "copy";
-                event.dataTransfer.setData("text/plain", person.personId);
-                setDraggedPerson(person.personId);
+        <div className="calendar-command-tools">
+          <div className="lunch-batch-stepper" aria-label="Anzahl verschiedener Mittagsgerichte Montag bis Freitag">
+            <span>Mittagsgerichte</span>
+            <div>
+              <button
+                aria-label="Weniger Lunch-Batch-Gerichte"
+                onClick={() => adjustLunchBatchDishCount(-1)}
+                type="button"
+              >
+                -
+              </button>
+              <strong>{lunchBatchDishCount}</strong>
+              <button
+                aria-label="Mehr Lunch-Batch-Gerichte"
+                onClick={() => adjustLunchBatchDishCount(1)}
+                type="button"
+              >
+                +
+              </button>
+            </div>
+            <small>verschiedene Gerichte Mo-Fr</small>
+          </div>
+
+          <div className="profile-token-tray" aria-label="Homeoffice Profile">
+            {people.map((person) => (
+              <button
+                className={`profile-token profile-token-${person.personId}`}
+                draggable
+                key={person.personId}
+                onDragEnd={resetDragState}
+                onDragStart={(event) => {
+                  event.dataTransfer.effectAllowed = "copy";
+                  event.dataTransfer.setData("text/plain", person.personId);
+                  setDraggedPerson(person.personId);
+                }}
+                type="button"
+              >
+                <span aria-hidden="true" />
+                <strong>{person.displayName}</strong>
+                <small>ziehen</small>
+              </button>
+            ))}
+            <div
+              aria-label="Homeoffice entfernen"
+              className={isTrashHovered ? "home-trash-zone home-trash-zone-hover" : "home-trash-zone"}
+              onDragEnter={(event) => {
+                if (draggedRemoval) {
+                  event.preventDefault();
+                  setIsTrashHovered(true);
+                }
               }}
-              type="button"
+              onDragLeave={() => setIsTrashHovered(false)}
+              onDragOver={(event) => {
+                if (draggedRemoval) {
+                  event.preventDefault();
+                }
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                const payload = event.dataTransfer.getData("text/plain");
+                if (payload.startsWith("remove:")) {
+                  removeHomeOfficeFromPayload(payload);
+                }
+                resetDragState();
+              }}
+              role="button"
+              tabIndex={0}
             >
-              <span aria-hidden="true" />
-              <strong>{person.displayName}</strong>
-              <small>ziehen</small>
-            </button>
-          ))}
-          <div
-            aria-label="Homeoffice entfernen"
-            className={isTrashHovered ? "home-trash-zone home-trash-zone-hover" : "home-trash-zone"}
-            onDragEnter={(event) => {
-              if (draggedRemoval) {
-                event.preventDefault();
-                setIsTrashHovered(true);
-              }
-            }}
-            onDragLeave={() => setIsTrashHovered(false)}
-            onDragOver={(event) => {
-              if (draggedRemoval) {
-                event.preventDefault();
-              }
-            }}
-            onDrop={(event) => {
-              event.preventDefault();
-              const payload = event.dataTransfer.getData("text/plain");
-              if (payload.startsWith("remove:")) {
-                removeHomeOfficeFromPayload(payload);
-              }
-              resetDragState();
-            }}
-            role="button"
-            tabIndex={0}
-          >
-            <span className="trash-icon" aria-hidden="true" />
+              <span className="trash-icon" aria-hidden="true" />
+            </div>
           </div>
         </div>
       </section>
+
+      {weekPlan && weekPlan.lunchBatchDishes.length > 0 ? (
+        <section className="lunch-batch-summary" aria-label="Lunch-Batch-Prep">
+          {weekPlan.lunchBatchDishes.map((batch) => (
+            <article key={batch.batchId}>
+              <div>
+                <span>{batch.daysSummary}</span>
+                <strong>{batch.title}</strong>
+              </div>
+              <p>{batch.portionSummary}</p>
+              {batch.notes ? <small>{batch.notes}</small> : null}
+            </article>
+          ))}
+        </section>
+      ) : null}
 
       <div className="calendar-board" aria-label="Wochenkalender">
         {days.map((day) => {
@@ -326,16 +373,12 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                                 meal.isSharedDinner
                                   ? "calendar-meal calendar-meal-shared"
                                   : meal.isPersonalMeal
-                                    ? "calendar-meal calendar-meal-personal"
+                                    ? `calendar-meal calendar-meal-personal calendar-meal-${meal.people[0]?.personId}`
                                     : "calendar-meal"
                               }
                               key={meal.mealId}
                             >
                               <strong>{meal.title}</strong>
-                              <div>
-                                <em>{meal.contextLabel}</em>
-                                <em>{meal.peopleSummary}</em>
-                              </div>
                               <p>{meal.ingredientSummary}</p>
                             </article>
                           ))
