@@ -69,6 +69,8 @@ function getMealForSlot(day: WeekPlanView["days"][number] | undefined, slot: (ty
 
 export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
   const [homeState, setHomeState] = useState(() => buildInitialHomeState(context, days, people));
+  const [draggedPerson, setDraggedPerson] = useState<PersonId | null>(null);
+  const [hoveredDropZone, setHoveredDropZone] = useState<string | null>(null);
   const targetCounts = useMemo(
     () =>
       people.reduce<Record<PersonId, number>>(
@@ -141,11 +143,20 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
               className={`profile-token profile-token-${person.personId}`}
               draggable
               key={person.personId}
-              onDragStart={(event) => event.dataTransfer.setData("text/plain", person.personId)}
+              onDragEnd={() => {
+                setDraggedPerson(null);
+                setHoveredDropZone(null);
+              }}
+              onDragStart={(event) => {
+                event.dataTransfer.effectAllowed = "copy";
+                event.dataTransfer.setData("text/plain", person.personId);
+                setDraggedPerson(person.personId);
+              }}
               type="button"
             >
               <span aria-hidden="true" />
-              {person.displayName}
+              <strong>{person.displayName}</strong>
+              <small>ziehen</small>
             </button>
           ))}
         </div>
@@ -168,28 +179,49 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
               <div className="home-drop-grid">
                 {people.map((person) => {
                   const isHome = homeState[day.weekday]?.[person.personId] ?? false;
+                  const dropZoneId = `${day.weekday}-${person.personId}`;
+                  const isDropReady = draggedPerson === person.personId;
+                  const isDropHovered = hoveredDropZone === dropZoneId;
 
                   return (
                     <button
                       className={
                         isHome
-                          ? `home-drop-zone home-drop-zone-active home-drop-zone-${person.personId}`
-                          : "home-drop-zone"
+                          ? `home-drop-zone home-drop-zone-active home-drop-zone-${person.personId}${isDropReady ? " home-drop-zone-ready" : ""}${isDropHovered ? " home-drop-zone-hover" : ""}`
+                          : `home-drop-zone${isDropReady ? " home-drop-zone-ready" : ""}${isDropHovered ? " home-drop-zone-hover" : ""}`
                       }
                       key={person.personId}
                       onClick={() => setPersonHome(day.weekday, person.personId, !isHome)}
-                      onDragOver={(event) => event.preventDefault()}
+                      onDragEnter={(event) => {
+                        event.preventDefault();
+                        if (isDropReady) {
+                          setHoveredDropZone(dropZoneId);
+                        }
+                      }}
+                      onDragLeave={() => {
+                        if (hoveredDropZone === dropZoneId) {
+                          setHoveredDropZone(null);
+                        }
+                      }}
+                      onDragOver={(event) => {
+                        if (isDropReady) {
+                          event.preventDefault();
+                        }
+                      }}
                       onDrop={(event) => {
                         event.preventDefault();
                         const droppedPerson = event.dataTransfer.getData("text/plain") as PersonId;
                         if (droppedPerson === person.personId) {
                           setPersonHome(day.weekday, person.personId, true);
                         }
+                        setDraggedPerson(null);
+                        setHoveredDropZone(null);
                       }}
                       type="button"
                     >
                       <span>{person.displayName}</span>
-                      <strong>{isHome ? "Home" : "Office"}</strong>
+                      <strong>{isHome ? "Homeoffice" : "Büro"}</strong>
+                      <small>{isHome ? "gesetzt" : "hier ablegen"}</small>
                     </button>
                   );
                 })}
