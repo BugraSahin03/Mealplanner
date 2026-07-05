@@ -452,8 +452,29 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
 
             <section className="meal-dialog-section">
               <h3>Portionen & Kalorien</h3>
-              {selectedMeal.meal.calorieSummary ? (
-                <p className="calorie-estimate">{selectedMeal.meal.calorieSummary}</p>
+              {selectedMeal.meal.calorieFacts.length > 0 ? (
+                <div className="calorie-fact-grid">
+                  {selectedMeal.meal.calorieFacts.map((fact) => (
+                    <div className="calorie-fact-card" key={`${fact.label ?? "portion"}-${fact.kcal}-${fact.grams}`}>
+                      {fact.label ? <span>{fact.label}</span> : null}
+                      <div>
+                        {fact.kcal ? (
+                          <strong>
+                            {fact.kcal}
+                            <small>kcal</small>
+                          </strong>
+                        ) : null}
+                        {fact.grams ? (
+                          <strong>
+                            {fact.grams}
+                            <small>g</small>
+                          </strong>
+                        ) : null}
+                      </div>
+                      {fact.kcalPer100G ? <p>{fact.kcalPer100G} kcal pro 100 g</p> : null}
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <p className="calorie-estimate">Keine Kalorienangabe vorhanden.</p>
               )}

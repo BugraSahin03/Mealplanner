@@ -18,6 +18,13 @@ export type MealIngredientView = {
   optional: boolean;
 };
 
+export type MealCalorieFactView = {
+  label: string | null;
+  kcal: string | null;
+  grams: string | null;
+  kcalPer100G: string | null;
+};
+
 export type MealView = {
   mealId: string;
   mealType: MealType;
@@ -32,6 +39,7 @@ export type MealView = {
   ingredientSummary: string;
   ingredients: MealIngredientView[];
   calorieSummary: string | null;
+  calorieFacts: MealCalorieFactView[];
   mealPrepSummary: string | null;
   notes: string | null;
 };
@@ -176,6 +184,46 @@ function buildCalorieSummary(meal: PlannerResponse["plan"]["days"][number]["meal
   return null;
 }
 
+function formatKcalPer100G(kcal: number, grams: number): string | null {
+  if (grams <= 0) {
+    return null;
+  }
+
+  return formatNumber((kcal / grams) * 100);
+}
+
+function buildCalorieFacts(meal: PlannerResponse["plan"]["days"][number]["meals"][number]): MealCalorieFactView[] {
+  const peopleWithCalories = meal.people.filter((person) => person.estimatedKcal || person.portionGrams);
+
+  if (peopleWithCalories.length > 0) {
+    return peopleWithCalories.map((person) => ({
+      label: peopleWithCalories.length > 1 ? personLabels[person.personId] : null,
+      kcal: person.estimatedKcal ? formatNumber(person.estimatedKcal) : null,
+      grams: person.portionGrams ? formatNumber(person.portionGrams) : null,
+      kcalPer100G: person.estimatedKcal && person.portionGrams
+        ? formatKcalPer100G(person.estimatedKcal, person.portionGrams)
+        : meal.estimatedNutrition?.kcalPer100G
+          ? formatNumber(meal.estimatedNutrition.kcalPer100G)
+          : null,
+    }));
+  }
+
+  if (meal.estimatedNutrition?.kcalPer100G || meal.estimatedNutrition?.kcal) {
+    return [
+      {
+        label: null,
+        kcal: meal.estimatedNutrition.kcal ? formatNumber(meal.estimatedNutrition.kcal) : null,
+        grams: null,
+        kcalPer100G: meal.estimatedNutrition.kcalPer100G
+          ? formatNumber(meal.estimatedNutrition.kcalPer100G)
+          : null,
+      },
+    ];
+  }
+
+  return [];
+}
+
 function getPersonTheme(people: MealPersonView[]): MealView["personTheme"] {
   if (people.length === 1) {
     return people[0]?.personId ?? "shared";
@@ -227,6 +275,7 @@ function mapMeal(
       optional: ingredient.optional ?? false,
     })),
     calorieSummary: buildCalorieSummary(meal),
+    calorieFacts: buildCalorieFacts(meal),
     mealPrepSummary: buildMealPrepSummary(meal),
     notes: meal.notes ?? meal.mealPrep?.prepNotes ?? null,
   };

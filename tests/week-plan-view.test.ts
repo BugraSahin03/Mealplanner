@@ -157,6 +157,14 @@ describe("week plan view", () => {
       slotLabel: "Frühstück",
       contextLabel: "Meal Prep",
       calorieSummary: "ca. 620 kcal pro 480 g Portion",
+      calorieFacts: [
+        {
+          label: null,
+          kcal: "620",
+          grams: "480",
+          kcalPer100G: "129",
+        },
+      ],
       mealPrepSummary: null,
       personTheme: "bugra",
     });
@@ -190,6 +198,14 @@ describe("week plan view", () => {
     const meal = view.days[0]?.meals.find((entry) => entry.mealId === "monday-dinner");
 
     expect(meal?.calorieSummary).toBe("ca. 150 kcal pro 100 g");
+    expect(meal?.calorieFacts).toEqual([
+      {
+        label: null,
+        kcal: null,
+        grams: null,
+        kcalPer100G: "150",
+      },
+    ]);
     expect(meal?.personTheme).toBe("shared");
     expect(meal?.people.map((person) => person.portion)).toEqual(["groß", "normal"]);
   });
