@@ -38,7 +38,7 @@ function padDatePart(value: number): string {
   return String(value).padStart(2, "0");
 }
 
-function toIsoDate(date: Date): string {
+export function toIsoDate(date: Date): string {
   return [
     date.getFullYear(),
     padDatePart(date.getMonth() + 1),
@@ -46,10 +46,18 @@ function toIsoDate(date: Date): string {
   ].join("-");
 }
 
-function addDays(date: Date, days: number): Date {
+export function addDays(date: Date, days: number): Date {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
   return next;
+}
+
+export function getIsoWeekStart(referenceDate = new Date()): Date {
+  const date = new Date(referenceDate);
+  date.setHours(0, 0, 0, 0);
+  const dayNumber = date.getDay() || 7;
+
+  return addDays(date, 1 - dayNumber);
 }
 
 export function getNextMonday(referenceDate = new Date()): Date {
@@ -72,6 +80,33 @@ export function getIsoCalendarWeek(date: Date): { calendarYear: number; calendar
 
 export function buildWeekId(calendarYear: number, calendarWeek: number): string {
   return `${calendarYear}-W${String(calendarWeek).padStart(2, "0")}`;
+}
+
+export function parseWeekId(weekId: string): { calendarYear: number; calendarWeek: number } | null {
+  const match = /^(\d{4})-W(\d{2})$/.exec(weekId.trim());
+  if (!match) {
+    return null;
+  }
+
+  const calendarYear = Number(match[1]);
+  const calendarWeek = Number(match[2]);
+  if (!Number.isInteger(calendarYear) || !Number.isInteger(calendarWeek) || calendarWeek < 1 || calendarWeek > 53) {
+    return null;
+  }
+
+  return { calendarYear, calendarWeek };
+}
+
+export function getWeekStartDateFromWeekId(weekId: string): Date | null {
+  const parsed = parseWeekId(weekId);
+  if (!parsed) {
+    return null;
+  }
+
+  const januaryFourth = new Date(parsed.calendarYear, 0, 4);
+  const firstWeekStart = getIsoWeekStart(januaryFourth);
+
+  return addDays(firstWeekStart, (parsed.calendarWeek - 1) * 7);
 }
 
 export function buildWeekIdFromStartDate(weekStartDate: string): string {
@@ -104,8 +139,7 @@ export function normalizeLunchBatchDishCount(value: number | null | undefined): 
   return Math.max(1, Math.min(5, count));
 }
 
-export function buildDefaultWeekContext(referenceDate = new Date()): WeekContext {
-  const weekStart = getNextMonday(referenceDate);
+export function buildWeekContextForStartDate(weekStart: Date): WeekContext {
   const weekStartDate = toIsoDate(weekStart);
   const { calendarYear, calendarWeek } = getIsoCalendarWeek(weekStart);
 
@@ -130,6 +164,10 @@ export function buildDefaultWeekContext(referenceDate = new Date()): WeekContext
       }));
     }),
   };
+}
+
+export function buildDefaultWeekContext(referenceDate = new Date()): WeekContext {
+  return buildWeekContextForStartDate(getNextMonday(referenceDate));
 }
 
 export function validateWeekContext(context: WeekContext): string[] {

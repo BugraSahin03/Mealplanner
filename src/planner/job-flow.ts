@@ -1,6 +1,6 @@
 import type { SqliteDatabase } from "../db/sqlite";
 import { listProfiles } from "../profiles/repository";
-import { getOrCreateCurrentWeekContext } from "../week-context/repository";
+import { getOrCreateCurrentWeekContext, getOrCreateWeekContextById } from "../week-context/repository";
 import { buildPlannerRequestFromWeekContext } from "./request";
 import { createPlannerAdapterFromEnv, runPlannerJob, type PlannerAdapter } from "./adapter";
 import {
@@ -15,6 +15,14 @@ import { buildDemoPlannerResponse } from "./response";
 
 export function createCurrentWeekPlannerJob(db: SqliteDatabase): PlannerJob {
   const weekContext = getOrCreateCurrentWeekContext(db);
+  return createPlannerJobForWeek(db, weekContext.weekId);
+}
+
+export function createPlannerJobForWeek(
+  db: SqliteDatabase,
+  weekId: string,
+): PlannerJob {
+  const weekContext = getOrCreateWeekContextById(db, weekId);
   const profiles = listProfiles(db);
   const request = buildPlannerRequestFromWeekContext(weekContext, profiles);
 
@@ -64,4 +72,12 @@ export async function runLatestPlannerJobWithConfiguredAdapter(
 ): Promise<PlannerJob> {
   const job = getLatestPlannerJob(db) ?? createCurrentWeekPlannerJob(db);
   return runPlannerJob(db, job.jobId, adapter);
+}
+
+export async function runPlannerJobWithConfiguredAdapter(
+  db: SqliteDatabase,
+  jobId: string,
+  adapter: PlannerAdapter = createPlannerAdapterFromEnv(),
+): Promise<PlannerJob> {
+  return runPlannerJob(db, jobId, adapter);
 }

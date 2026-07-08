@@ -11,5 +11,6 @@ export async function saveWeekContextAction(formData: FormData): Promise<void> {
   saveCurrentWeekContext(getDb(), context);
   revalidatePath("/week");
   revalidatePath("/planner");
+  revalidatePath("/weeks");
   revalidatePath("/");
 }

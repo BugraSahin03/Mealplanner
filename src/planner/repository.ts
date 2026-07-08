@@ -260,6 +260,23 @@ export function getWeekContext(db: SqliteDatabase, weekId: string): WeekContext 
   };
 }
 
+export function listWeekContexts(db: SqliteDatabase): WeekContext[] {
+  const rows = db
+    .prepare(
+      `
+        SELECT week_id
+        FROM week_contexts
+        ORDER BY week_start_date DESC, week_id DESC
+      `,
+    )
+    .all() as Array<{ week_id: string }>;
+
+  return rows.flatMap((row) => {
+    const context = getWeekContext(db, row.week_id);
+    return context ? [context] : [];
+  });
+}
+
 export function createPlannerJob(
   db: SqliteDatabase,
   input: {
@@ -429,6 +446,45 @@ export function listPlannerJobs(db: SqliteDatabase, limit = 10): PlannerJob[] {
 
 export function getLatestPlannerJob(db: SqliteDatabase): PlannerJob | null {
   return listPlannerJobs(db, 1)[0] ?? null;
+}
+
+export function listPlannerJobsForWeek(
+  db: SqliteDatabase,
+  weekId: string,
+  limit = 10,
+): PlannerJob[] {
+  const rows = db
+    .prepare(
+      `
+        SELECT job_id, week_id, status, request_json, response_json, error_message,
+               error_code, created_at, updated_at, completed_at
+        FROM planner_jobs
+        WHERE week_id = ?
+        ORDER BY created_at DESC, job_id DESC
+        LIMIT ?
+      `,
+    )
+    .all(weekId, limit) as PlannerJobRow[];
+
+  return rows.map((row) => ({
+    jobId: row.job_id,
+    weekId: row.week_id,
+    status: row.status,
+    request: parseJson(row.request_json, null),
+    response: row.response_json ? parseJson(row.response_json, null) : null,
+    errorMessage: row.error_message,
+    errorCode: row.error_code,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    completedAt: row.completed_at,
+  }));
+}
+
+export function getLatestPlannerJobForWeek(
+  db: SqliteDatabase,
+  weekId: string,
+): PlannerJob | null {
+  return listPlannerJobsForWeek(db, weekId, 1)[0] ?? null;
 }
 
 export function saveWeekPlan(db: SqliteDatabase, input: WeekPlanInput): WeekPlan {

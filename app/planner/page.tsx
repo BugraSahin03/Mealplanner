@@ -1,10 +1,12 @@
 import Link from "next/link";
 
 import { getDb } from "@/src/db/client";
-import { getLatestPlannerJob, listPlannerJobs, type PlannerJob } from "@/src/planner/repository";
+import { getLatestPlannerJobForWeek, listPlannerJobsForWeek, type PlannerJob } from "@/src/planner/repository";
 import { buildWeekPlanView } from "@/src/planner/week-plan-view";
 import { weekdays, weekContextPeople } from "@/src/week-context/model";
-import { getOrCreateCurrentWeekContext } from "@/src/week-context/repository";
+import { getOrCreateCurrentWeekContext, getOrCreateWeekContextById } from "@/src/week-context/repository";
+import { getWeekLabel, resolveWeekIdFromParam } from "@/src/week-context/weeks";
+import { WeekSwitcher } from "../week-switcher";
 import { createPlannerJobAction, runPlannerJobAction } from "./actions";
 import { RunPlannerButton } from "./run-planner-button";
 import { ShoppingList } from "./shopping-list";
@@ -57,11 +59,19 @@ function readConfiguredPlannerAdapter(): string {
     : "Fixture";
 }
 
-export default function PlannerPage() {
+type PlannerPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function PlannerPage({ searchParams }: PlannerPageProps) {
+  const params = await searchParams;
   const db = getDb();
-  const weekContext = getOrCreateCurrentWeekContext(db);
-  const latestJob = getLatestPlannerJob(db);
-  const jobs = listPlannerJobs(db, 5);
+  const selectedWeekId = resolveWeekIdFromParam(params?.week);
+  const weekContext = selectedWeekId
+    ? getOrCreateWeekContextById(db, selectedWeekId)
+    : getOrCreateCurrentWeekContext(db);
+  const latestJob = getLatestPlannerJobForWeek(db, weekContext.weekId);
+  const jobs = listPlannerJobsForWeek(db, weekContext.weekId, 5);
   const latestStatus = latestJob?.status ?? "idle";
   const runDisabled = !latestJob || latestJob.status === "running" || latestJob.status === "success";
   const runLabel = latestJob?.status === "failed" ? "Planner erneut starten" : "Planner starten";
@@ -81,10 +91,13 @@ export default function PlannerPage() {
           <Link className="nav-link" href="/profile">
             Profile
           </Link>
-          <Link className="nav-link nav-link-active" href="/planner">
+          <Link className="nav-link" href="/weeks">
+            Wochen
+          </Link>
+          <Link className="nav-link nav-link-active" href={`/planner?week=${weekContext.weekId}`}>
             Wochenplan
           </Link>
-          <Link className="nav-link" href="/planner#einkauf">
+          <Link className="nav-link" href={`/planner?week=${weekContext.weekId}#einkauf`}>
             Einkaufsliste
           </Link>
         </nav>
@@ -93,14 +106,17 @@ export default function PlannerPage() {
       <div className="content">
         <header className="page-header">
           <div>
-            <p className="eyebrow">Planner-Job</p>
+            <p className="eyebrow">Planner-Job · KW {weekContext.calendarWeek}</p>
             <h1>Wochenplanung als Auftrag.</h1>
+            <p className="section-copy">Du siehst gerade {getWeekLabel(weekContext, { withYear: true })}.</p>
           </div>
           <div className={`status-pill job-status-pill job-status-${latestStatus}`}>
             <span>{statusLabels[latestStatus]}</span>
             <small>Status</small>
           </div>
         </header>
+
+        <WeekSwitcher basePath="/planner" context={weekContext} />
 
         <section className="section-block">
           <div className="section-heading">
@@ -115,7 +131,7 @@ export default function PlannerPage() {
             </div>
             <div>
               <span>Woche</span>
-              <strong>{latestJob?.weekId ?? "Aktuelle Woche wird beim Anlegen genutzt"}</strong>
+              <strong>{getWeekLabel(weekContext, { withYear: true })}</strong>
             </div>
             <div>
               <span>Aktualisiert</span>
@@ -140,11 +156,13 @@ export default function PlannerPage() {
 
           <div className="job-actions" aria-label="Planner-Job Aktionen">
             <form action={createPlannerJobAction}>
+              <input type="hidden" name="weekId" value={weekContext.weekId} />
               <button className="primary-button" type="submit">
                 Job anlegen
               </button>
             </form>
             <form action={runPlannerJobAction}>
+              <input type="hidden" name="jobId" value={latestJob?.jobId ?? ""} />
               <RunPlannerButton disabled={runDisabled} label={runLabel} />
             </form>
           </div>
