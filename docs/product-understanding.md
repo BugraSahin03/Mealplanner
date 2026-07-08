@@ -37,6 +37,8 @@ Eine Anwendung mit schoener UI und KI-Unterstuetzung, die:
 - Lebensmittelverschwendung reduziert,
 - flexibel genug fuer verschiedene Planungsarten bleibt.
 
+Die verbindliche visuelle Grundrichtung ist in [Designrichtung: Command 01](./design-direction.md) festgehalten.
+
 Geplant werden soll zunaechst eine komplette Woche mit drei Mahlzeiten pro Tag:
 
 - Fruehstueck,
