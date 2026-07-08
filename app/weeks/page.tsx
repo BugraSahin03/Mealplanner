@@ -70,10 +70,13 @@ export default async function WeeksPage({ searchParams }: WeeksPageProps) {
           <Link className="nav-link nav-link-active" href="/weeks">
             Wochen
           </Link>
+          <Link className="nav-link" href={current ? buildWeekHref("/plan", current.context.weekId) : "/plan"}>
+            Plan erstellen
+          </Link>
           <Link className="nav-link" href={current ? buildWeekHref("/planner", current.context.weekId) : "/planner"}>
             Wochenplan
           </Link>
-          <Link className="nav-link" href={current ? buildWeekHref("/planner", current.context.weekId, "#einkauf") : "/planner#einkauf"}>
+          <Link className="nav-link" href={current ? buildWeekHref("/shopping-list", current.context.weekId) : "/shopping-list"}>
             Einkaufsliste
           </Link>
         </nav>

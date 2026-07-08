@@ -13,7 +13,9 @@ import { saveCurrentWeekContext } from "@/src/week-context/repository";
 import { resolveWeekIdFromParam } from "@/src/week-context/weeks";
 
 function revalidatePlannerViews(): void {
+  revalidatePath("/plan");
   revalidatePath("/planner");
+  revalidatePath("/shopping-list");
   revalidatePath("/week");
   revalidatePath("/weeks");
   revalidatePath("/");

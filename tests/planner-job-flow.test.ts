@@ -4,7 +4,12 @@ import { createDatabase } from "../src/db/client";
 import type { SqliteDatabase } from "../src/db/sqlite";
 import { FixturePlannerAdapter, type PlannerAdapter } from "../src/planner/adapter";
 import { createPlannerJobForWeek, runLatestPlannerJobWithConfiguredAdapter } from "../src/planner/job-flow";
-import { getLatestPlannerJob, getLatestPlannerJobForWeek } from "../src/planner/repository";
+import {
+  getLatestPlannerJob,
+  getLatestPlannerJobForWeek,
+  getLatestSuccessfulPlannerJobForWeek,
+  startPlannerJob,
+} from "../src/planner/repository";
 
 let db: SqliteDatabase;
 
@@ -61,5 +66,16 @@ describe("planner job flow", () => {
         weekStartDate: "2026-07-20",
       },
     });
+  });
+
+  it("keeps the latest successful plan discoverable after a new draft job", async () => {
+    const successful = await runLatestPlannerJobWithConfiguredAdapter(db, new FixturePlannerAdapter());
+    const nextDraft = createPlannerJobForWeek(db, successful.weekId ?? "2026-W30");
+
+    expect(getLatestPlannerJobForWeek(db, successful.weekId ?? "")?.jobId).toBe(nextDraft.jobId);
+    expect(getLatestSuccessfulPlannerJobForWeek(db, successful.weekId ?? "")?.jobId).toBe(successful.jobId);
+
+    startPlannerJob(db, nextDraft.jobId);
+    expect(getLatestSuccessfulPlannerJobForWeek(db, successful.weekId ?? "")?.jobId).toBe(successful.jobId);
   });
 });
