@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getDb } from "@/src/db/client";
 import { buildPlannerRequestFromWeekContext } from "@/src/planner/request";
 import { listProfiles } from "@/src/profiles/repository";
+import { WeekSwitcher } from "../week-switcher";
 import {
   buildHomeOfficeTargetSummary,
   getContextForDay,
@@ -11,7 +12,8 @@ import {
   weekdays,
   weekContextPeople,
 } from "@/src/week-context/model";
-import { getOrCreateCurrentWeekContext } from "@/src/week-context/repository";
+import { getOrCreateCurrentWeekContext, getOrCreateWeekContextById } from "@/src/week-context/repository";
+import { getWeekLabel, resolveWeekIdFromParam } from "@/src/week-context/weeks";
 import { saveWeekContextAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -32,9 +34,17 @@ function formatIsoDate(date: string | null | undefined): string {
   }).format(new Date(`${date}T00:00:00`));
 }
 
-export default function WeekPage() {
+type WeekPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function WeekPage({ searchParams }: WeekPageProps) {
+  const params = await searchParams;
   const db = getDb();
-  const context = getOrCreateCurrentWeekContext(db);
+  const selectedWeekId = resolveWeekIdFromParam(params?.week);
+  const context = selectedWeekId
+    ? getOrCreateWeekContextById(db, selectedWeekId)
+    : getOrCreateCurrentWeekContext(db);
   const profiles = listProfiles(db);
   const plannerRequest = buildPlannerRequestFromWeekContext(context, profiles);
   const targetSummary = buildHomeOfficeTargetSummary(context);
@@ -54,13 +64,13 @@ export default function WeekPage() {
           <Link className="nav-link" href="/profile">
             Profile
           </Link>
-          <Link className="nav-link nav-link-active" href="/week">
-            Woche
+          <Link className="nav-link nav-link-active" href="/weeks">
+            Wochen
           </Link>
-          <Link className="nav-link" href="/planner">
+          <Link className="nav-link" href={`/planner?week=${context.weekId}`}>
             Wochenplan
           </Link>
-          <Link className="nav-link" href="/planner#einkauf">
+          <Link className="nav-link" href={`/planner?week=${context.weekId}#einkauf`}>
             Einkaufsliste
           </Link>
         </nav>
@@ -71,12 +81,15 @@ export default function WeekPage() {
           <div>
             <p className="eyebrow">Kalenderwoche {context.calendarWeek}</p>
             <h1>Homeoffice fuer KW {context.calendarWeek} planen.</h1>
+            <p className="section-copy">Du bearbeitest gerade {getWeekLabel(context, { withYear: true })}.</p>
           </div>
           <div className="status-pill">
             <span>{metTargets}/{targetSummary.length}</span>
             <small>Ziele erfuellt</small>
           </div>
         </header>
+
+        <WeekSwitcher basePath="/week" context={context} />
 
         <form className="week-form" action={saveWeekContextAction}>
           <input type="hidden" name="weekStartDate" value={context.weekStartDate ?? ""} />
@@ -85,7 +98,7 @@ export default function WeekPage() {
           <section className="week-calendar-summary">
             <div>
               <p className="eyebrow">Kalender</p>
-              <h2>{context.calendarYear} / KW {context.calendarWeek}</h2>
+              <h2>{getWeekLabel(context, { withYear: true })}</h2>
               <p className="muted">Woche ab {formatIsoDate(context.weekStartDate)}</p>
             </div>
             <div className="home-target-grid">

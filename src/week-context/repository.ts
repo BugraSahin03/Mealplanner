@@ -1,6 +1,11 @@
 import type { SqliteDatabase } from "../db/sqlite";
 import { getWeekContext, saveWeekContext, type WeekContext } from "../planner/repository";
-import { buildDefaultWeekContext, ensureCompleteWeekContext } from "./model";
+import {
+  buildDefaultWeekContext,
+  buildWeekContextForStartDate,
+  ensureCompleteWeekContext,
+  getWeekStartDateFromWeekId,
+} from "./model";
 
 export function getOrCreateCurrentWeekContext(
   db: SqliteDatabase,
@@ -21,4 +26,22 @@ export function saveCurrentWeekContext(
   context: WeekContext,
 ): WeekContext {
   return saveWeekContext(db, ensureCompleteWeekContext(context));
+}
+
+export function getOrCreateWeekContextById(
+  db: SqliteDatabase,
+  weekId: string,
+  fallbackDate = new Date(),
+): WeekContext {
+  const existing = getWeekContext(db, weekId);
+  if (existing) {
+    return ensureCompleteWeekContext(existing);
+  }
+
+  const weekStart = getWeekStartDateFromWeekId(weekId);
+  const fallback = weekStart
+    ? buildWeekContextForStartDate(weekStart)
+    : buildDefaultWeekContext(fallbackDate);
+
+  return saveWeekContext(db, fallback);
 }

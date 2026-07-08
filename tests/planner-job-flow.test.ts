@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createDatabase } from "../src/db/client";
 import type { SqliteDatabase } from "../src/db/sqlite";
 import { FixturePlannerAdapter, type PlannerAdapter } from "../src/planner/adapter";
-import { runLatestPlannerJobWithConfiguredAdapter } from "../src/planner/job-flow";
-import { getLatestPlannerJob } from "../src/planner/repository";
+import { createPlannerJobForWeek, runLatestPlannerJobWithConfiguredAdapter } from "../src/planner/job-flow";
+import { getLatestPlannerJob, getLatestPlannerJobForWeek } from "../src/planner/repository";
 
 let db: SqliteDatabase;
 
@@ -46,5 +46,20 @@ describe("planner job flow", () => {
     expect(saved?.response).toBeNull();
     expect(saved?.errorCode).toBe("planner_adapter_failed");
     expect(saved?.errorMessage).toBe("OpenClaw CLI exited with code 1.");
+  });
+
+  it("creates planner jobs for the explicitly selected week", () => {
+    const job = createPlannerJobForWeek(db, "2026-W30");
+    const saved = getLatestPlannerJobForWeek(db, "2026-W30");
+
+    expect(job.weekId).toBe("2026-W30");
+    expect(saved?.weekId).toBe("2026-W30");
+    expect(saved?.request).toMatchObject({
+      week: {
+        calendarYear: 2026,
+        calendarWeek: 30,
+        weekStartDate: "2026-07-20",
+      },
+    });
   });
 });

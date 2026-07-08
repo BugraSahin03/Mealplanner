@@ -18,6 +18,9 @@ export default function HomePage() {
           <Link className="nav-link" href="/profile">
             Profile
           </Link>
+          <Link className="nav-link" href="/weeks">
+            Wochen
+          </Link>
           <Link className="nav-link" href="/planner">
             Wochenplan
           </Link>
