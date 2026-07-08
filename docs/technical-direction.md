@@ -12,6 +12,8 @@ Gruende:
 - Sena kann einfach Zugriff bekommen.
 - Deployment auf dem vorhandenen Hetzner-Server ist pragmatisch.
 
+Die visuelle Grundrichtung fuer UI-Umsetzungen ist [Designrichtung: Command 01](./design-direction.md).
+
 Es soll im MVP keine Login-Logik geben.
 
 Stattdessen gibt es fest angelegte bzw. in der App bearbeitbare Profile:
