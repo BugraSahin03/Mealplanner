@@ -2,6 +2,25 @@
 
 EP-013 lieferte eine interne Preview-Seite unter `/ui-lab`. Die Route wurde nach der Entscheidung wieder entfernt. Die dauerhafte Designentscheidung steht in [Designrichtung: Command 01](./design-direction.md).
 
+## Review- und Visual-Check-Status
+
+Die UI-Lab-Preview wurde vor dem Re-Review lokal gezeigt und visuell geprueft.
+Dabei wurden mehrere Designrichtungen ausprobiert:
+
+- zuerst drei grundsaetzliche Richtungen,
+- danach drei Command-nahe und drei Market-Mobile-nahe Varianten,
+- anschliessend die finale Auswahl `Command 01: Command Center`.
+
+Bugra hat `Command 01` als verbindliche Designrichtung bestaetigt und danach
+explizit freigegeben, die temporaere `/ui-lab`-Probeseite wieder zu entfernen.
+Die Preview war damit ein Entscheidungswerkzeug, nicht Teil des produktiven MVP.
+
+Fuer den Review bedeutet das:
+
+- die EP-013-Akzeptanzkriterien wurden waehrend der lokalen Visual-Check-Phase erfuellt,
+- die finale Produktentscheidung ersetzt die Notwendigkeit, die Preview-Route dauerhaft im PR zu behalten,
+- die dauerhaft relevante Ausgabe des Tickets ist diese Dokumentation plus [Designrichtung: Command 01](./design-direction.md).
+
 ## Entscheidung
 
 Command 01: `Command Center` ist als verbindliche visuelle Grundlage ausgewaehlt.

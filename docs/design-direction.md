@@ -6,6 +6,10 @@ Die visuelle Grundrichtung fuer Essenplanner ist `Command 01: Command Center`.
 
 Diese Entscheidung gilt fuer kuenftige Screens und fuer die schrittweise Ueberarbeitung bestehender Screens. Die konkrete Informationsarchitektur einzelner Seiten wird weiterhin pro Ticket besprochen. Aus dem UI-Lab wird also nicht blind der konkrete Aufbau uebernommen, sondern die Designsprache.
 
+Die Entscheidung entstand aus dem EP-013 UI-Lab. Die temporaere Preview-Route
+wurde nach Bugras Visual Approval bewusst entfernt; dieses Dokument ist die
+dauerhafte Quelle fuer die getroffene Designrichtung.
+
 ## Charakter
 
 Essenplanner soll sich wie eine produktive private Arbeitszentrale anfuehlen:
