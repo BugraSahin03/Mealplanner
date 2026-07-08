@@ -10,6 +10,8 @@
     "lint": "eslint",
     "test": "vitest run --exclude '**/._*'",
     "test:watch": "vitest --exclude '**/._*'",
+    "check": "npm run lint && npm run test && npm run build && npm run check:schema",
+    "check:schema": "npm run validate:planner-request -- fixtures/planner-request.sample.json fixtures/planner-request.week.sample.json && npm run build:planner-test-prompt -- fixtures/planner-request.sample.json > /tmp/essenplanner-planner-test-prompt.md",
     "build:planner-test-prompt": "node scripts/build-planner-test-prompt.mjs",
     "validate:planner-request": "node scripts/validate-planner-request.mjs",
     "validate:planner-response": "node scripts/validate-openclaw-planner-response.mjs"
