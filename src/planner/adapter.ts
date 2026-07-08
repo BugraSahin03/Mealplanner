@@ -45,8 +45,35 @@ export type OpenClawCliAdapterOptions = {
   commandRunner?: OpenClawCommandRunner;
 };
 
+const openClawThinkingLevels = new Set(["none", "low", "medium", "high"]);
+
 function buildSessionKey(): string {
   return `essenplanner:planner:${new Date().toISOString()}`;
+}
+
+function readOpenClawTimeout(value: string | undefined): number | undefined {
+  if (value === undefined || value.trim() === "") {
+    return undefined;
+  }
+
+  const timeout = Number(value);
+  if (!Number.isInteger(timeout) || timeout < 60 || timeout > 1200) {
+    throw new Error("OPENCLAW_TIMEOUT_SECONDS must be an integer between 60 and 1200.");
+  }
+
+  return timeout;
+}
+
+function readOpenClawThinking(value: string | undefined): OpenClawCliAdapterOptions["thinking"] {
+  if (value === undefined || value.trim() === "") {
+    return undefined;
+  }
+
+  if (!openClawThinkingLevels.has(value)) {
+    throw new Error("OPENCLAW_THINKING must be one of none, low, medium, high.");
+  }
+
+  return value as OpenClawCliAdapterOptions["thinking"];
 }
 
 async function defaultCommandRunner(
@@ -54,10 +81,18 @@ async function defaultCommandRunner(
   args: string[],
   options: { timeoutMs: number },
 ): Promise<OpenClawCommandResult> {
-  return execFile(command, args, {
-    maxBuffer: 10 * 1024 * 1024,
-    timeout: options.timeoutMs,
-  });
+  try {
+    return await execFile(command, args, {
+      maxBuffer: 10 * 1024 * 1024,
+      timeout: options.timeoutMs,
+    });
+  } catch (error) {
+    const stderr = error && typeof error === "object" && "stderr" in error
+      ? String((error as { stderr?: unknown }).stderr ?? "").trim()
+      : "";
+    const message = error instanceof Error ? error.message : "OpenClaw command failed.";
+    throw new Error(stderr ? `${message}: ${stderr}` : message);
+  }
 }
 
 export class FixturePlannerAdapter implements PlannerAdapter {
@@ -131,12 +166,14 @@ export function createPlannerAdapterFromEnv(env: NodeJS.ProcessEnv = process.env
       command: env.OPENCLAW_BIN,
       agent: env.OPENCLAW_AGENT,
       sessionKey: env.OPENCLAW_SESSION_KEY,
-      timeoutSeconds: env.OPENCLAW_TIMEOUT_SECONDS
-        ? Number(env.OPENCLAW_TIMEOUT_SECONDS)
-        : undefined,
-      thinking: env.OPENCLAW_THINKING as OpenClawCliAdapterOptions["thinking"],
+      timeoutSeconds: readOpenClawTimeout(env.OPENCLAW_TIMEOUT_SECONDS),
+      thinking: readOpenClawThinking(env.OPENCLAW_THINKING),
       local: env.OPENCLAW_LOCAL === undefined ? true : env.OPENCLAW_LOCAL !== "false",
     });
+  }
+
+  if (adapter !== "fixture") {
+    throw new Error("ESSENPLANNER_PLANNER_ADAPTER must be fixture or openclaw-cli.");
   }
 
   return new FixturePlannerAdapter();

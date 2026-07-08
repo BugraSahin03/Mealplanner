@@ -61,7 +61,7 @@ Die KI-Komponente muss daher vor allem als **strukturierter Planner** funktionie
 
 ### Bewertung fuer Essenplanner
 
-OpenClaw passt gut, weil die kritische Annahme bereits lokal bewiesen wurde. Fuer den MVP kann die Next.js-App zunaechst einen `PlannerAdapter` bauen, der lokal/serverseitig einen kontrollierten OpenClaw-Agentenlauf startet und die JSON-Antwort validiert.
+OpenClaw passt gut, weil die kritische Annahme bereits lokal bewiesen wurde. Fuer den MVP nutzt die Next.js-App einen CLI-basierten `PlannerAdapter`, der lokal/serverseitig einen kontrollierten OpenClaw-Agentenlauf startet und die JSON-Antwort validiert. Die Runtime-Details stehen in `docs/openclaw-runtime.md`.
 
 Spaeter kann diese Integration auf Gateway WebSocket RPC oder einen eng begrenzten internen HTTP-RPC-Weg umgestellt werden.
 
@@ -147,7 +147,7 @@ openclaw agent \
 ### Phase 2: Essenplanner PlannerAdapter
 
 1. Finales JSON-Schema definieren.
-2. Next.js serverseitig einen OpenClaw-Adapter bauen.
+2. Next.js serverseitig den OpenClaw-CLI-Adapter betreiben.
 3. Agentenantwort parsebar machen.
 4. JSON gegen Schema validieren.
 5. Fehlerfall sauber anzeigen.

@@ -15,6 +15,7 @@ Projektwissen bleibt im Repo:
 - Planner-Vertrag: `docs/planner-contract.md`
 - Profil-Memory: `docs/profile-memory.md`
 - Agenten-/OpenClaw-Entscheidungen: `docs/decision-agent-harness.md`
+- OpenClaw-Runtime: `docs/openclaw-runtime.md`
 - Tests und Spikes: `docs/spikes/`
 - Dev-/Reviewer-Prozess: `docs/review-workflow.md`
 - Branches und Worktrees: `docs/parallel-development.md`
@@ -64,7 +65,7 @@ Vor produktiver Arbeit lesen:
 4. `docs/parallel-development.md`
 5. `docs/review-workflow.md`
 6. fuer fachliche Arbeit: `docs/planning-model.md`, `docs/mvp-scope.md`, `docs/planner-contract.md`
-7. fuer OpenClaw-Arbeit: `docs/decision-agent-harness.md`, `docs/spikes/planner-schema-validation.md`
+7. fuer OpenClaw-Arbeit: `docs/decision-agent-harness.md`, `docs/openclaw-runtime.md`, `docs/spikes/planner-schema-validation.md`
 
 ## Ticket-Arbeit
 
