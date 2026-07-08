@@ -18,9 +18,13 @@ Closes #
 
 ## Checks
 
+- [ ] `npm ci`
+- [ ] `npm run check`
 - [ ] `npm run lint`
 - [ ] `npm run test`
 - [ ] `npm run build`
+- [ ] `npm run check:schema`
+- [ ] GitHub Actions CI ist gruen oder Abweichung ist begruendet
 
 ## Visual Check
 

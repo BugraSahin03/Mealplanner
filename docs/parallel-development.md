@@ -101,7 +101,7 @@ Regeln:
 4. Issue auf `status:doing` setzen.
 5. Nur Dateien im Write-Scope aendern.
 6. Akzeptanzkriterien pruefen.
-7. Tests/Build/Linting ausfuehren, soweit sinnvoll.
+7. Tests/Build/Linting ausfuehren, soweit sinnvoll. Standard fuer frische Umgebungen: Node.js 22 aus `.nvmrc`, `npm ci`, dann `npm run check`.
 8. PR gegen `main` mit `Closes #<issue>` erstellen.
 9. Bei UI-/UX-nahen Tickets Preview aus dem Ticket-Worktree auf separatem Port starten und Issue auf `status:visual-check` setzen.
 10. Nach `Visual Check OK` oder wenn kein Visual Check noetig ist: Handoff direkt an den Reviewer schreiben und Issue auf `status:review` setzen.
@@ -156,6 +156,8 @@ Zusammenfassung:
 
 Checks:
 - ...
+- `npm run check`
+- GitHub Actions CI: gruen oder begruendete Abweichung
 
 Visual Check:
 - erforderlich: ja/nein

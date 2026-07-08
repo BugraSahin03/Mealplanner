@@ -8,8 +8,10 @@ Der aktuelle Projektstand wird in [`docs/product-understanding.md`](docs/product
 
 ## Lokal starten
 
+Voraussetzung: Node.js 22, siehe `.nvmrc`.
+
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
@@ -35,15 +37,24 @@ Details stehen in [`docs/production-app-service.md`](docs/production-app-service
 
 ## Checks
 
+Nach einem frischen Checkout:
+
+```bash
+npm ci
+npm run check
+```
+
+`npm run check` fuehrt Linting, Tests, Production-Build und die Planner-Schema-/Prompt-Checks aus. Die Vitest-Konfiguration ignoriert Mac-Resource-Dateien wie `._*`.
+
+Einzelne Checks:
+
 ```bash
 npm run lint
 npm run test
 npm run build
+npm run check:schema
 npm run validate:planner-request -- fixtures/planner-request.sample.json fixtures/planner-request.week.sample.json
-```
-
-Planner-Testprompt bauen:
-
-```bash
 npm run build:planner-test-prompt -- fixtures/planner-request.sample.json
 ```
+
+Pull Requests laufen zusaetzlich ueber GitHub Actions (`.github/workflows/ci.yml`) mit denselben Checks.
