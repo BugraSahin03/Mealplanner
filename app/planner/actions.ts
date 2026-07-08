@@ -4,10 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { getDb } from "@/src/db/client";
 import {
-  completeLatestPlannerJobWithDemoResponse,
   createCurrentWeekPlannerJob,
-  failLatestPlannerJobWithDemoError,
-  startLatestPlannerJob,
+  runLatestPlannerJobWithConfiguredAdapter,
 } from "@/src/planner/job-flow";
 import { buildWeekContextFromFormData } from "@/src/week-context/form";
 import { saveCurrentWeekContext } from "@/src/week-context/repository";
@@ -28,17 +26,7 @@ export async function createPlannerJobAction(): Promise<void> {
   revalidatePlannerViews();
 }
 
-export async function startPlannerJobAction(): Promise<void> {
-  startLatestPlannerJob(getDb());
-  revalidatePlannerViews();
-}
-
-export async function completePlannerJobAction(): Promise<void> {
-  completeLatestPlannerJobWithDemoResponse(getDb());
-  revalidatePlannerViews();
-}
-
-export async function failPlannerJobAction(): Promise<void> {
-  failLatestPlannerJobWithDemoError(getDb());
+export async function runPlannerJobAction(): Promise<void> {
+  await runLatestPlannerJobWithConfiguredAdapter(getDb());
   revalidatePlannerViews();
 }

@@ -289,11 +289,10 @@ Die App kapselt die Planerzeugung hinter einem `PlannerAdapter`.
 - `OpenClawCliPlannerAdapter` baut aus Planner-Request und Response-Schema einen Prompt, ruft `openclaw agent` auf und liest `payloads[0].text`.
 - `ESSENPLANNER_PLANNER_ADAPTER=openclaw-cli` aktiviert den CLI-Adapter serverseitig.
 - Ohne Konfiguration bleibt der Fixture-Adapter aktiv, damit lokale Entwicklung nicht von OpenClaw abhaengt.
+- Die Planner-Seite startet den jeweils konfigurierten Adapter ueber den aktuellen Planner-Job. Erfolgreiche Laeufe speichern nur validierte Responses; Fehler aus CLI, Parser oder Validator bleiben im Job sichtbar.
 
 Jede Adapter-Antwort wird vor dem Speichern gegen `schemas/planner-response.schema.json` validiert. Invalide Antworten setzen den Job auf `failed` und werden nicht in `response_json` gespeichert.
 
 ## Naechster Schritt
 
-Als Naechstes sollte ein OpenClaw-Test mit genau diesem Schema laufen.
-
-Wenn OpenClaw wiederholt valide Antworten liefert, kann die App-Implementierung starten.
+Weitere Haertung kann spaeter Laufzeitdetails wie Deployment-Secret-Handling, Retry-Strategie und Live-Polling ausbauen.

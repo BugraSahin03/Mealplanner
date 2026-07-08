@@ -138,7 +138,8 @@ Erste MVP-Umsetzung:
   - `running -> failed`,
   - `failed -> running` fuer einen erneuten Versuch.
 - Ein erfolgreicher Job darf nur mit einem strukturell validierten Planner-Response abgeschlossen werden.
-- Die erste UI zeigt den aktuellen Job-Status und simuliert Start, Erfolg und Fehler, bis der echte OpenClaw-Adapter folgt.
+- Die Planner-UI startet den konfigurierten Adapter: lokal standardmaessig Fixture, serverseitig optional OpenClaw CLI.
+- Waehrend der Server Action wird der Job als `running` gespeichert; danach landet er je nach Adapter-Ergebnis in `success` oder `failed`.
 
 OpenClaw-Adapter:
 

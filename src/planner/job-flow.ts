@@ -2,7 +2,7 @@ import type { SqliteDatabase } from "../db/sqlite";
 import { listProfiles } from "../profiles/repository";
 import { getOrCreateCurrentWeekContext } from "../week-context/repository";
 import { buildPlannerRequestFromWeekContext } from "./request";
-import { createPlannerAdapterFromEnv, runPlannerJob } from "./adapter";
+import { createPlannerAdapterFromEnv, runPlannerJob, type PlannerAdapter } from "./adapter";
 import {
   completePlannerJob,
   createPlannerJob,
@@ -58,7 +58,10 @@ export function failLatestPlannerJobWithDemoError(db: SqliteDatabase): PlannerJo
   });
 }
 
-export async function runLatestPlannerJobWithConfiguredAdapter(db: SqliteDatabase): Promise<PlannerJob> {
+export async function runLatestPlannerJobWithConfiguredAdapter(
+  db: SqliteDatabase,
+  adapter: PlannerAdapter = createPlannerAdapterFromEnv(),
+): Promise<PlannerJob> {
   const job = getLatestPlannerJob(db) ?? createCurrentWeekPlannerJob(db);
-  return runPlannerJob(db, job.jobId, createPlannerAdapterFromEnv());
+  return runPlannerJob(db, job.jobId, adapter);
 }

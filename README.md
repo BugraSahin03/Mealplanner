@@ -15,6 +15,12 @@ npm run dev
 
 Die App laeuft danach standardmaessig unter <http://localhost:3000>.
 
+Der Planner nutzt lokal ohne weitere Konfiguration den Fixture-Adapter. Ein echter OpenClaw-Lauf kann serverseitig oder lokal mit vorhandener OpenClaw-Auth aktiviert werden:
+
+```bash
+ESSENPLANNER_PLANNER_ADAPTER=openclaw-cli npm run dev
+```
+
 ## Produktion vorbereiten
 
 Der vorbereitete Hetzner-Betrieb läuft analog zu BudgetBuddy, aber als eigener Dienst:

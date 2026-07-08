@@ -5,12 +5,8 @@ import { getLatestPlannerJob, listPlannerJobs, type PlannerJob } from "@/src/pla
 import { buildWeekPlanView } from "@/src/planner/week-plan-view";
 import { weekdays, weekContextPeople } from "@/src/week-context/model";
 import { getOrCreateCurrentWeekContext } from "@/src/week-context/repository";
-import {
-  completePlannerJobAction,
-  createPlannerJobAction,
-  failPlannerJobAction,
-  startPlannerJobAction,
-} from "./actions";
+import { createPlannerJobAction, runPlannerJobAction } from "./actions";
+import { RunPlannerButton } from "./run-planner-button";
 import { ShoppingList } from "./shopping-list";
 import { WeekCalendarBoard } from "./week-calendar-board";
 
@@ -55,12 +51,20 @@ function readResponseTitle(job: PlannerJob | null): string {
   return (plan as { title?: string }).title ?? "Validierter Plan gespeichert.";
 }
 
+function readConfiguredPlannerAdapter(): string {
+  return process.env.ESSENPLANNER_PLANNER_ADAPTER === "openclaw-cli"
+    ? "OpenClaw CLI"
+    : "Fixture";
+}
+
 export default function PlannerPage() {
   const db = getDb();
   const weekContext = getOrCreateCurrentWeekContext(db);
   const latestJob = getLatestPlannerJob(db);
   const jobs = listPlannerJobs(db, 5);
   const latestStatus = latestJob?.status ?? "idle";
+  const runDisabled = !latestJob || latestJob.status === "running" || latestJob.status === "success";
+  const runLabel = latestJob?.status === "failed" ? "Planner erneut starten" : "Planner starten";
   const weekPlan = latestJob?.status === "success" && latestJob.response
     ? buildWeekPlanView(latestJob.response)
     : null;
@@ -121,6 +125,10 @@ export default function PlannerPage() {
               <span>Ergebnis</span>
               <strong>{readResponseTitle(latestJob)}</strong>
             </div>
+            <div>
+              <span>Ausfuehrung</span>
+              <strong>{readConfiguredPlannerAdapter()}</strong>
+            </div>
           </div>
 
           {latestJob?.status === "failed" ? (
@@ -136,32 +144,8 @@ export default function PlannerPage() {
                 Job anlegen
               </button>
             </form>
-            <form action={startPlannerJobAction}>
-              <button
-                className="secondary-button"
-                type="submit"
-                disabled={!latestJob || latestJob.status === "running" || latestJob.status === "success"}
-              >
-                Lauf starten
-              </button>
-            </form>
-            <form action={completePlannerJobAction}>
-              <button
-                className="secondary-button"
-                type="submit"
-                disabled={!latestJob || latestJob.status !== "running"}
-              >
-                Erfolg simulieren
-              </button>
-            </form>
-            <form action={failPlannerJobAction}>
-              <button
-                className="secondary-button"
-                type="submit"
-                disabled={!latestJob || latestJob.status !== "running"}
-              >
-                Fehler simulieren
-              </button>
+            <form action={runPlannerJobAction}>
+              <RunPlannerButton disabled={runDisabled} label={runLabel} />
             </form>
           </div>
         </section>
