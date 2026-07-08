@@ -424,7 +424,7 @@ export function listPlannerJobs(db: SqliteDatabase, limit = 10): PlannerJob[] {
         SELECT job_id, week_id, status, request_json, response_json, error_message,
                error_code, created_at, updated_at, completed_at
         FROM planner_jobs
-        ORDER BY created_at DESC, job_id DESC
+        ORDER BY created_at DESC, rowid DESC
         LIMIT ?
       `,
     )
@@ -460,7 +460,7 @@ export function listPlannerJobsForWeek(
                error_code, created_at, updated_at, completed_at
         FROM planner_jobs
         WHERE week_id = ?
-        ORDER BY created_at DESC, job_id DESC
+        ORDER BY created_at DESC, rowid DESC
         LIMIT ?
       `,
     )
@@ -485,6 +485,38 @@ export function getLatestPlannerJobForWeek(
   weekId: string,
 ): PlannerJob | null {
   return listPlannerJobsForWeek(db, weekId, 1)[0] ?? null;
+}
+
+export function getLatestSuccessfulPlannerJobForWeek(
+  db: SqliteDatabase,
+  weekId: string,
+): PlannerJob | null {
+  const rows = db
+    .prepare(
+      `
+        SELECT job_id, week_id, status, request_json, response_json, error_message,
+               error_code, created_at, updated_at, completed_at
+        FROM planner_jobs
+        WHERE week_id = ?
+          AND status = 'success'
+        ORDER BY completed_at DESC, created_at DESC, rowid DESC
+        LIMIT 1
+      `,
+    )
+    .all(weekId) as PlannerJobRow[];
+
+  return rows.map((row) => ({
+    jobId: row.job_id,
+    weekId: row.week_id,
+    status: row.status,
+    request: parseJson(row.request_json, null),
+    response: row.response_json ? parseJson(row.response_json, null) : null,
+    errorMessage: row.error_message,
+    errorCode: row.error_code,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    completedAt: row.completed_at,
+  }))[0] ?? null;
 }
 
 export function saveWeekPlan(db: SqliteDatabase, input: WeekPlanInput): WeekPlan {

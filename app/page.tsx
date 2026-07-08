@@ -21,10 +21,13 @@ export default function HomePage() {
           <Link className="nav-link" href="/weeks">
             Wochen
           </Link>
+          <Link className="nav-link" href="/plan">
+            Plan erstellen
+          </Link>
           <Link className="nav-link" href="/planner">
             Wochenplan
           </Link>
-          <Link className="nav-link" href="/planner#einkauf">
+          <Link className="nav-link" href="/shopping-list">
             Einkaufsliste
           </Link>
         </nav>
@@ -88,7 +91,7 @@ export default function HomePage() {
 
           <div className="week-grid" aria-label="Wochenkontext">
             {overview.week.map((day) => (
-              <Link className="day-tile day-tile-link" href="/planner#plan" key={day.weekday}>
+              <Link className="day-tile day-tile-link" href="/plan" key={day.weekday}>
                 <strong>{day.weekday}</strong>
                 <span>Buğra: {day.bugraContext}</span>
                 <span>Sena: {day.senaContext}</span>
@@ -114,6 +117,19 @@ export default function HomePage() {
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="section-block">
+          <div className="section-heading">
+            <p className="eyebrow">Planungsauftrag</p>
+            <h2>Kalenderwoche bewusst starten</h2>
+          </div>
+          <p className="section-copy">
+            Waehle die Woche, pruefe Homeoffice, starte danach den Planner und nutze Plan plus Einkauf fuer dieselbe KW.
+          </p>
+          <Link className="primary-button" href="/plan">
+            Plan erstellen
+          </Link>
         </section>
 
         <section id="einkauf" className="section-block shopping-section">

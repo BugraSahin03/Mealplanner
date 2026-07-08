@@ -9,8 +9,10 @@ import { saveCurrentWeekContext } from "@/src/week-context/repository";
 export async function saveWeekContextAction(formData: FormData): Promise<void> {
   const context = buildWeekContextFromFormData(formData);
   saveCurrentWeekContext(getDb(), context);
+  revalidatePath("/plan");
   revalidatePath("/week");
   revalidatePath("/planner");
+  revalidatePath("/shopping-list");
   revalidatePath("/weeks");
   revalidatePath("/");
 }

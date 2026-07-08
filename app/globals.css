@@ -407,10 +407,13 @@ textarea:focus {
   border-radius: 0.45rem;
   color: #ffffff;
   cursor: pointer;
+  display: inline-flex;
   font-weight: 850;
+  justify-content: center;
   justify-self: start;
   min-height: 2.8rem;
   padding: 0.75rem 1rem;
+  text-decoration: none;
 }
 
 .primary-button:hover {
@@ -423,9 +426,12 @@ textarea:focus {
   border-radius: 0.45rem;
   color: var(--ink);
   cursor: pointer;
+  display: inline-flex;
   font-weight: 850;
+  justify-content: center;
   min-height: 2.8rem;
   padding: 0.75rem 1rem;
+  text-decoration: none;
 }
 
 .secondary-button:hover:not(:disabled) {
@@ -1954,6 +1960,181 @@ button.calendar-meal:focus-visible {
   line-height: 1.2;
 }
 
+.command-app-shell {
+  background: #101816;
+  color: #eef8f2;
+}
+
+.command-sidebar {
+  background: #0b1210;
+  border-right: 1px solid rgba(238, 248, 242, 0.12);
+}
+
+.command-content {
+  max-width: 86rem;
+}
+
+.command-page-header {
+  align-items: end;
+  display: grid;
+  gap: 1rem;
+}
+
+.command-page-header h1 {
+  color: #ffffff;
+  max-width: 13ch;
+}
+
+.command-page-header .eyebrow,
+.command-section-block .eyebrow,
+.plan-command-primary .eyebrow {
+  color: #9bffca;
+}
+
+.command-page-header .section-copy,
+.command-section-block .section-copy {
+  color: rgba(238, 248, 242, 0.72);
+}
+
+.command-content .week-switcher-button,
+.command-content .week-switcher-current,
+.command-section-block,
+.plan-command-primary,
+.plan-command-week,
+.plan-flow-links {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(238, 248, 242, 0.14);
+  box-shadow: none;
+  color: #eef8f2;
+}
+
+.command-content .week-switcher-current strong,
+.command-content .week-switcher-button,
+.command-section-block h2,
+.plan-command-primary h2,
+.plan-command-week strong,
+.plan-parameter-grid strong {
+  color: #ffffff;
+}
+
+.command-content .week-switcher-current span,
+.plan-command-primary p,
+.plan-command-week p,
+.plan-parameter-grid p,
+.command-section-block .muted,
+.command-section-block .job-row p {
+  color: rgba(238, 248, 242, 0.72);
+}
+
+.plan-command-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: minmax(0, 1.35fr) minmax(14rem, 0.65fr);
+  grid-template-areas: "primary week";
+}
+
+.plan-command-primary,
+.plan-command-week {
+  border-radius: 0.35rem;
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+}
+
+.plan-command-primary {
+  align-content: space-between;
+  grid-area: primary;
+  min-height: 21rem;
+}
+
+.plan-command-primary h2 {
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 0.9;
+}
+
+.plan-command-week {
+  grid-area: week;
+}
+
+.plan-command-week strong {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 0.85;
+}
+
+.plan-command-week span,
+.plan-parameter-grid span {
+  color: #9bffca;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.command-primary-button {
+  background: #9bffca;
+  color: #101816;
+}
+
+.command-primary-button:hover {
+  background: #c2ffdf;
+}
+
+.command-primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.command-subtle-link {
+  color: rgba(238, 248, 242, 0.72);
+  font-size: 0.88rem;
+  font-weight: 850;
+  justify-self: start;
+  text-decoration: none;
+}
+
+.command-subtle-link:hover {
+  color: #9bffca;
+}
+
+.command-section-block .job-detail-grid div,
+.command-section-block .job-row,
+.plan-parameter-grid article {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(238, 248, 242, 0.14);
+  border-radius: 0.35rem;
+}
+
+.plan-parameter-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.plan-parameter-grid article {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem;
+}
+
+.plan-flow-links {
+  border-radius: 0.35rem;
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.plan-flow-links a {
+  border-radius: 0.25rem;
+  color: rgba(238, 248, 242, 0.74);
+  font-weight: 850;
+  padding: 0.65rem 0.75rem;
+  text-decoration: none;
+}
+
+.plan-flow-links a[aria-current="page"] {
+  background: #9bffca;
+  color: #101816;
+}
+
 @media (min-width: 720px) {
   .app-shell {
     grid-template-columns: 15.5rem minmax(0, 1fr);
@@ -2098,10 +2279,35 @@ button.calendar-meal:focus-visible {
   .week-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .command-page-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .plan-parameter-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .plan-flow-links {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 1120px) {
   .shopping-list-board {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .plan-command-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "primary"
+      "week";
+  }
+
+  .plan-command-primary {
+    min-height: 0;
   }
 }

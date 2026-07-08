@@ -13,7 +13,7 @@ import {
   weekContextPeople,
 } from "@/src/week-context/model";
 import { getOrCreateCurrentWeekContext, getOrCreateWeekContextById } from "@/src/week-context/repository";
-import { getWeekLabel, resolveWeekIdFromParam } from "@/src/week-context/weeks";
+import { buildWeekHref, getWeekLabel, resolveWeekIdFromParam } from "@/src/week-context/weeks";
 import { saveWeekContextAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -67,10 +67,13 @@ export default async function WeekPage({ searchParams }: WeekPageProps) {
           <Link className="nav-link nav-link-active" href="/weeks">
             Wochen
           </Link>
+          <Link className="nav-link" href={buildWeekHref("/plan", context.weekId)}>
+            Plan erstellen
+          </Link>
           <Link className="nav-link" href={`/planner?week=${context.weekId}`}>
             Wochenplan
           </Link>
-          <Link className="nav-link" href={`/planner?week=${context.weekId}#einkauf`}>
+          <Link className="nav-link" href={buildWeekHref("/shopping-list", context.weekId)}>
             Einkaufsliste
           </Link>
         </nav>
@@ -197,6 +200,9 @@ export default async function WeekPage({ searchParams }: WeekPageProps) {
             <button className="primary-button" type="submit">
               Speichern
             </button>
+            <Link className="secondary-button" href={buildWeekHref("/plan", context.weekId)}>
+              Planungsauftrag oeffnen
+            </Link>
           </div>
         </form>
       </div>

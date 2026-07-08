@@ -1,63 +1,27 @@
 import Link from "next/link";
 
 import { getDb } from "@/src/db/client";
-import { getLatestPlannerJobForWeek, listPlannerJobsForWeek, type PlannerJob } from "@/src/planner/repository";
+import {
+  getLatestPlannerJobForWeek,
+  getLatestSuccessfulPlannerJobForWeek,
+  listPlannerJobsForWeek,
+} from "@/src/planner/repository";
+import {
+  formatPlannerTimestamp,
+  plannerJobStatusDescriptions,
+  plannerJobStatusLabels,
+  readConfiguredPlannerAdapter,
+  readPlannerResponseTitle,
+} from "@/src/planner/job-status-view";
 import { buildWeekPlanView } from "@/src/planner/week-plan-view";
 import { weekdays, weekContextPeople } from "@/src/week-context/model";
 import { getOrCreateCurrentWeekContext, getOrCreateWeekContextById } from "@/src/week-context/repository";
-import { getWeekLabel, resolveWeekIdFromParam } from "@/src/week-context/weeks";
+import { buildWeekHref, getWeekLabel, resolveWeekIdFromParam } from "@/src/week-context/weeks";
 import { WeekSwitcher } from "../week-switcher";
-import { createPlannerJobAction, runPlannerJobAction } from "./actions";
-import { RunPlannerButton } from "./run-planner-button";
 import { ShoppingList } from "./shopping-list";
 import { WeekCalendarBoard } from "./week-calendar-board";
 
 export const dynamic = "force-dynamic";
-
-const statusLabels: Record<PlannerJob["status"], string> = {
-  idle: "Bereit",
-  running: "Laeuft",
-  success: "Fertig",
-  failed: "Fehler",
-};
-
-const statusDescriptions: Record<PlannerJob["status"], string> = {
-  idle: "Der Auftrag ist angelegt und wartet auf den Planner.",
-  running: "Die Wochenplanung wird verarbeitet.",
-  success: "Der Planner-Response wurde validiert und gespeichert.",
-  failed: "Der Auftrag ist fehlgeschlagen. Fehlerdetails sind gespeichert.",
-};
-
-function formatTimestamp(value: string | null): string {
-  if (!value) {
-    return "Noch nicht gesetzt";
-  }
-
-  return new Intl.DateTimeFormat("de-DE", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(new Date(`${value.replace(" ", "T")}Z`));
-}
-
-function readResponseTitle(job: PlannerJob | null): string {
-  const response = job?.response;
-  if (!response || typeof response !== "object" || Array.isArray(response)) {
-    return "Noch kein validierter Plan gespeichert.";
-  }
-
-  const plan = (response as { plan?: unknown }).plan;
-  if (!plan || typeof plan !== "object" || Array.isArray(plan)) {
-    return "Noch kein validierter Plan gespeichert.";
-  }
-
-  return (plan as { title?: string }).title ?? "Validierter Plan gespeichert.";
-}
-
-function readConfiguredPlannerAdapter(): string {
-  return process.env.ESSENPLANNER_PLANNER_ADAPTER === "openclaw-cli"
-    ? "OpenClaw CLI"
-    : "Fixture";
-}
 
 type PlannerPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -71,12 +35,11 @@ export default async function PlannerPage({ searchParams }: PlannerPageProps) {
     ? getOrCreateWeekContextById(db, selectedWeekId)
     : getOrCreateCurrentWeekContext(db);
   const latestJob = getLatestPlannerJobForWeek(db, weekContext.weekId);
+  const latestSuccessfulJob = getLatestSuccessfulPlannerJobForWeek(db, weekContext.weekId);
   const jobs = listPlannerJobsForWeek(db, weekContext.weekId, 5);
   const latestStatus = latestJob?.status ?? "idle";
-  const runDisabled = !latestJob || latestJob.status === "running" || latestJob.status === "success";
-  const runLabel = latestJob?.status === "failed" ? "Planner erneut starten" : "Planner starten";
-  const weekPlan = latestJob?.status === "success" && latestJob.response
-    ? buildWeekPlanView(latestJob.response)
+  const weekPlan = latestSuccessfulJob?.response
+    ? buildWeekPlanView(latestSuccessfulJob.response)
     : null;
 
   return (
@@ -94,10 +57,13 @@ export default async function PlannerPage({ searchParams }: PlannerPageProps) {
           <Link className="nav-link" href="/weeks">
             Wochen
           </Link>
+          <Link className="nav-link" href={buildWeekHref("/plan", weekContext.weekId)}>
+            Plan erstellen
+          </Link>
           <Link className="nav-link nav-link-active" href={`/planner?week=${weekContext.weekId}`}>
             Wochenplan
           </Link>
-          <Link className="nav-link" href={`/planner?week=${weekContext.weekId}#einkauf`}>
+          <Link className="nav-link" href={buildWeekHref("/shopping-list", weekContext.weekId)}>
             Einkaufsliste
           </Link>
         </nav>
@@ -106,12 +72,12 @@ export default async function PlannerPage({ searchParams }: PlannerPageProps) {
       <div className="content">
         <header className="page-header">
           <div>
-            <p className="eyebrow">Planner-Job · KW {weekContext.calendarWeek}</p>
-            <h1>Wochenplanung als Auftrag.</h1>
+            <p className="eyebrow">Wochenplan · KW {weekContext.calendarWeek}</p>
+            <h1>Wochenplan ansehen.</h1>
             <p className="section-copy">Du siehst gerade {getWeekLabel(weekContext, { withYear: true })}.</p>
           </div>
           <div className={`status-pill job-status-pill job-status-${latestStatus}`}>
-            <span>{statusLabels[latestStatus]}</span>
+            <span>{plannerJobStatusLabels[latestStatus]}</span>
             <small>Status</small>
           </div>
         </header>
@@ -121,7 +87,7 @@ export default async function PlannerPage({ searchParams }: PlannerPageProps) {
         <section className="section-block">
           <div className="section-heading">
             <p className="eyebrow">Aktueller Auftrag</p>
-            <h2>{latestJob ? statusDescriptions[latestJob.status] : "Noch kein Auftrag angelegt."}</h2>
+            <h2>{plannerJobStatusDescriptions[latestStatus]}</h2>
           </div>
 
           <div className="job-detail-grid">
@@ -135,11 +101,11 @@ export default async function PlannerPage({ searchParams }: PlannerPageProps) {
             </div>
             <div>
               <span>Aktualisiert</span>
-              <strong>{formatTimestamp(latestJob?.updatedAt ?? null)}</strong>
+              <strong>{formatPlannerTimestamp(latestJob?.updatedAt ?? null)}</strong>
             </div>
             <div>
               <span>Ergebnis</span>
-              <strong>{readResponseTitle(latestJob)}</strong>
+              <strong>{readPlannerResponseTitle(latestSuccessfulJob)}</strong>
             </div>
             <div>
               <span>Ausfuehrung</span>
@@ -154,18 +120,9 @@ export default async function PlannerPage({ searchParams }: PlannerPageProps) {
             </div>
           ) : null}
 
-          <div className="job-actions" aria-label="Planner-Job Aktionen">
-            <form action={createPlannerJobAction}>
-              <input type="hidden" name="weekId" value={weekContext.weekId} />
-              <button className="primary-button" type="submit">
-                Job anlegen
-              </button>
-            </form>
-            <form action={runPlannerJobAction}>
-              <input type="hidden" name="jobId" value={latestJob?.jobId ?? ""} />
-              <RunPlannerButton disabled={runDisabled} label={runLabel} />
-            </form>
-          </div>
+          <Link className="primary-button" href={buildWeekHref("/plan", weekContext.weekId)}>
+            Planungsauftrag oeffnen
+          </Link>
         </section>
 
         <section className="section-block plan-board-section" id="plan">
@@ -189,6 +146,9 @@ export default async function PlannerPage({ searchParams }: PlannerPageProps) {
               </div>
 
               <ShoppingList groups={weekPlan.shoppingGroups} />
+              <Link className="secondary-button" href={buildWeekHref("/shopping-list", weekContext.weekId)}>
+                Einkaufsliste als Seite oeffnen
+              </Link>
             </section>
           </>
         ) : (
@@ -216,10 +176,10 @@ export default async function PlannerPage({ searchParams }: PlannerPageProps) {
               jobs.map((job) => (
                 <article className="job-row" key={job.jobId}>
                   <div>
-                    <span>{statusLabels[job.status]}</span>
+                    <span>{plannerJobStatusLabels[job.status]}</span>
                     <strong>{job.jobId}</strong>
                   </div>
-                  <p>{formatTimestamp(job.updatedAt)}</p>
+                  <p>{formatPlannerTimestamp(job.updatedAt)}</p>
                 </article>
               ))
             )}
