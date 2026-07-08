@@ -169,6 +169,26 @@ describe("planner adapter", () => {
     ).toBeInstanceOf(OpenClawCliPlannerAdapter);
   });
 
+  it("rejects invalid OpenClaw adapter environment values early", () => {
+    expect(() => {
+      createPlannerAdapterFromEnv({ ESSENPLANNER_PLANNER_ADAPTER: "gateway" });
+    }).toThrow("ESSENPLANNER_PLANNER_ADAPTER");
+
+    expect(() => {
+      createPlannerAdapterFromEnv({
+        ESSENPLANNER_PLANNER_ADAPTER: "openclaw-cli",
+        OPENCLAW_TIMEOUT_SECONDS: "30",
+      });
+    }).toThrow("OPENCLAW_TIMEOUT_SECONDS");
+
+    expect(() => {
+      createPlannerAdapterFromEnv({
+        ESSENPLANNER_PLANNER_ADAPTER: "openclaw-cli",
+        OPENCLAW_THINKING: "maximum",
+      });
+    }).toThrow("OPENCLAW_THINKING");
+  });
+
   it("calls OpenClaw CLI with a generated prompt file and validates stdout", async () => {
     const response = buildDemoPlannerResponse();
     const calls: Array<{ command: string; args: string[]; prompt: string }> = [];

@@ -46,9 +46,14 @@ Der `fixture`-Adapter ist der sichere Standard für den ersten Dienststart. Der 
 
 ```bash
 ESSENPLANNER_PLANNER_ADAPTER=openclaw-cli
+OPENCLAW_BIN=/usr/bin/openclaw
+OPENCLAW_AGENT=main
+OPENCLAW_TIMEOUT_SECONDS=420
+OPENCLAW_THINKING=low
+OPENCLAW_LOCAL=true
 ```
 
-Auth-Dateien und OpenClaw-/Codex-Credentials bleiben ausschließlich auf dem Server und werden nicht im Repo dokumentiert.
+Auth-Dateien und OpenClaw-/Codex-Credentials bleiben ausschließlich auf dem Server und werden nicht im Repo dokumentiert. Die Runtime-Entscheidung und alle OpenClaw-Checks stehen gesammelt in [`docs/openclaw-runtime.md`](openclaw-runtime.md).
 
 ## Vorbereitung auf dem VPS
 
@@ -70,6 +75,16 @@ Erwartung:
 - `budgetbuddy.service` läuft weiter auf `127.0.0.1:3000`.
 - `3008` ist vor Essenplanner-Installation noch frei.
 - UFW erlaubt keinen öffentlichen App-Port.
+
+OpenClaw-Runtime vorbereiten, bevor der echte Adapter aktiviert wird:
+
+```bash
+apt-get update
+apt-get install -y bubblewrap
+command -v bwrap
+```
+
+`bubblewrap` muss vorhanden sein, damit OpenClaw/Codex ohne Sandbox-Warnung laufen kann.
 
 ## App bereitstellen
 
@@ -133,6 +148,17 @@ Das Skript erledigt nur Standardarbeit:
 - systemd-Unit installieren.
 - Dienst aktivieren und neu starten.
 - Healthcheck gegen `http://127.0.0.1:3008/api/health` prüfen.
+
+Vor Umschalten auf `ESSENPLANNER_PLANNER_ADAPTER=openclaw-cli`:
+
+```bash
+cd /opt/essenplanner
+runuser -u essenplanner -- openclaw models status --json
+runuser -u essenplanner -- npm run check:openclaw-runtime
+runuser -u essenplanner -- npm run check:openclaw-runtime -- --smoke
+```
+
+Der erste Befehl prueft Binary, Auth-Status und `bubblewrap`. Der zweite fuehrt einen echten Planner-Smoke-Test aus und validiert die OpenClaw-Antwort gegen das Planner-Response-Schema.
 
 ## Betrieb
 

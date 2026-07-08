@@ -23,6 +23,8 @@ Der Planner nutzt lokal ohne weitere Konfiguration den Fixture-Adapter. Ein echt
 ESSENPLANNER_PLANNER_ADAPTER=openclaw-cli npm run dev
 ```
 
+Die produktionsnahe OpenClaw-Runtime ist in [`docs/openclaw-runtime.md`](docs/openclaw-runtime.md) beschrieben.
+
 ## Produktion vorbereiten
 
 Der vorbereitete Hetzner-Betrieb läuft analog zu BudgetBuddy, aber als eigener Dienst:
@@ -58,3 +60,10 @@ npm run build:planner-test-prompt -- fixtures/planner-request.sample.json
 ```
 
 Pull Requests laufen zusaetzlich ueber GitHub Actions (`.github/workflows/ci.yml`) mit denselben Checks.
+
+Serverseitige OpenClaw-Runtime pruefen:
+
+```bash
+npm run check:openclaw-runtime
+npm run check:openclaw-runtime -- --smoke
+```

@@ -145,9 +145,11 @@ OpenClaw-Adapter:
 
 - Die Planerzeugung laeuft ueber ein `PlannerAdapter`-Interface.
 - Lokal kann ein Fixture-Adapter genutzt werden.
+- Fuer den MVP ist der OpenClaw-CLI-Adapter die Runtime-Entscheidung; Gateway bleibt eine spaetere Option.
 - Auf dem Server kann `ESSENPLANNER_PLANNER_ADAPTER=openclaw-cli` den OpenClaw-CLI-Adapter aktivieren.
 - Der CLI-Adapter baut den Prompt aus Planner-Request und `schemas/planner-response.schema.json`, fordert deutschsprachige sichtbare Inhalte an und validiert die extrahierte Antwort vor dem Speichern.
+- Runtime-Details, Env-Variablen, Auth-/bubblewrap-Checks und Gateway-Sicherheitsannahmen stehen in `docs/openclaw-runtime.md`.
 
 ## Noch offen
 
-- spaetere Entscheidung, ob OpenClaw dauerhaft per CLI-Adapter oder Gateway angebunden wird.
+- spaeter pruefen, ob Gateway und echte Hintergrundjobs den CLI-Adapter ersetzen sollen.
