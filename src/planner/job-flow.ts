@@ -8,6 +8,7 @@ import {
   createPlannerJob,
   failPlannerJob,
   getLatestPlannerJob,
+  getLatestPlannerJobForWeek,
   startPlannerJob,
   type PlannerJob,
 } from "./repository";
@@ -30,6 +31,19 @@ export function createPlannerJobForWeek(
     weekId: weekContext.weekId,
     request,
   });
+}
+
+export function startPlannerJobForWeek(
+  db: SqliteDatabase,
+  weekId: string,
+): PlannerJob {
+  const latestJob = getLatestPlannerJobForWeek(db, weekId);
+  if (latestJob?.status === "running") {
+    return latestJob;
+  }
+
+  const job = createPlannerJobForWeek(db, weekId);
+  return startPlannerJob(db, job.jobId);
 }
 
 export function startLatestPlannerJob(db: SqliteDatabase): PlannerJob {

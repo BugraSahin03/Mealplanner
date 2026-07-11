@@ -3,11 +3,16 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createDatabase } from "../src/db/client";
 import type { SqliteDatabase } from "../src/db/sqlite";
 import { FixturePlannerAdapter, type PlannerAdapter } from "../src/planner/adapter";
-import { createPlannerJobForWeek, runLatestPlannerJobWithConfiguredAdapter } from "../src/planner/job-flow";
+import {
+  createPlannerJobForWeek,
+  runLatestPlannerJobWithConfiguredAdapter,
+  startPlannerJobForWeek,
+} from "../src/planner/job-flow";
 import {
   getLatestPlannerJob,
   getLatestPlannerJobForWeek,
   getLatestSuccessfulPlannerJobForWeek,
+  listPlannerJobsForWeek,
   startPlannerJob,
 } from "../src/planner/repository";
 
@@ -77,5 +82,14 @@ describe("planner job flow", () => {
 
     startPlannerJob(db, nextDraft.jobId);
     expect(getLatestSuccessfulPlannerJobForWeek(db, successful.weekId ?? "")?.jobId).toBe(successful.jobId);
+  });
+
+  it("reuses a running job for the same week instead of creating duplicates", () => {
+    const first = startPlannerJobForWeek(db, "2026-W30");
+    const second = startPlannerJobForWeek(db, "2026-W30");
+
+    expect(first.status).toBe("running");
+    expect(second.jobId).toBe(first.jobId);
+    expect(listPlannerJobsForWeek(db, "2026-W30")).toHaveLength(1);
   });
 });

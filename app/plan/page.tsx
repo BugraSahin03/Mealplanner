@@ -10,10 +10,11 @@ import {
   normalizeLunchBatchDishCount,
 } from "@/src/week-context/model";
 import { getOrCreateCurrentWeekContext, getOrCreateWeekContextById } from "@/src/week-context/repository";
-import { getWeekDateRange, resolveWeekIdFromParam } from "@/src/week-context/weeks";
+import { buildWeekHref, getWeekDateRange, resolveWeekIdFromParam } from "@/src/week-context/weeks";
 import { WeekSwitcher } from "../week-switcher";
-import { createAndRunPlannerJobForWeekAction } from "./actions";
 import { AppBottomNav } from "../app-bottom-nav";
+import { PlannerStatusPanel } from "./planner-status-panel";
+import { presentPlannerError, type PlannerStatusSnapshot } from "./status";
 
 export const dynamic = "force-dynamic";
 
@@ -32,8 +33,13 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
   const latestSuccessfulJob = getLatestSuccessfulPlannerJobForWeek(db, context.weekId);
   const targetSummary = buildHomeOfficeTargetSummary(context);
   const lunchBatchDishCount = normalizeLunchBatchDishCount(context.lunchBatchDishCount);
-  const hasExistingPlan = latestSuccessfulJob !== null;
-  const canStartJob = latestJob?.status !== "running";
+  const initialStatus: PlannerStatusSnapshot = {
+    jobId: latestJob?.jobId ?? null,
+    status: latestJob?.status ?? "idle",
+    errorMessage: presentPlannerError(latestJob),
+    updatedAt: latestJob?.updatedAt ?? null,
+    hasPlan: latestSuccessfulJob !== null,
+  };
 
   return (
     <main className="command-app-shell bottom-nav-page">
@@ -52,16 +58,11 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
         <WeekSwitcher basePath="/plan" context={context} />
 
         <section className="plan-command-grid">
-          <article className="plan-command-primary">
-            <p className="eyebrow">Diese Woche</p>
-            <h2>{hasExistingPlan ? "Plan erneuern" : "Jetzt planen"}</h2>
-            <form action={createAndRunPlannerJobForWeekAction}>
-              <input type="hidden" name="weekId" value={context.weekId} />
-              <button className="primary-button command-primary-button" disabled={!canStartJob} type="submit">
-                {hasExistingPlan ? "Plan neu erstellen" : "Plan erstellen"}
-              </button>
-            </form>
-          </article>
+          <PlannerStatusPanel
+            initialStatus={initialStatus}
+            plannerHref={buildWeekHref("/planner", context.weekId)}
+            weekId={context.weekId}
+          />
 
           <article className="plan-command-week">
             <span>Ausgewaehlte Woche</span>
