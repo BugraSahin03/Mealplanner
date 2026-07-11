@@ -5,7 +5,6 @@ import {
   buildWeekHref,
   buildWeekSummaries,
   getWeekDateRange,
-  getWeekLabel,
   resolveWeekIdFromParam,
   type WeekSummary,
 } from "@/src/week-context/weeks";
@@ -57,29 +56,21 @@ export default async function WeeksPage({ searchParams }: WeeksPageProps) {
   const current = weeks.find((week) => week.bucket === "current") ?? weeks[0];
 
   return (
-    <main className="bottom-nav-page">
-      <div className="content weeks-content">
+    <main className="weeks-command-page bottom-nav-page">
+      <div className="weeks-command-content">
         <Link className="brand brand-link" href="/">
           <span className="brand-mark" aria-hidden="true" />
           <span>Essenplanner</span>
         </Link>
-        <header className="page-header">
+        <header className="weeks-command-header">
           <div>
-            <p className="eyebrow">Wochenverwaltung</p>
-            <h1>Wochen gezielt vorbereiten.</h1>
-            {current ? (
-              <p className="section-copy">Aktuelle Kalenderwoche: {getWeekLabel(current.context, { withYear: true })}</p>
-            ) : null}
-          </div>
-          <div className="status-pill">
-            <span>{weeks.length}</span>
-            <small>Wochen</small>
+            <p className="eyebrow">Wochen</p>
+            <h1>Deine Wochen.</h1>
           </div>
         </header>
 
-        <section className="section-block week-section">
-          <div className="section-heading">
-            <p className="eyebrow">Jahresübersicht</p>
+        <section className="weeks-command-list week-section">
+          <div className="weeks-command-list-heading">
             <h2>Kalenderwochen</h2>
           </div>
 
