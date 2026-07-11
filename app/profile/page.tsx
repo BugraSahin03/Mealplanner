@@ -2,8 +2,10 @@ import Link from "next/link";
 
 import { getDb } from "@/src/db/client";
 import { listToText, profileToFormDefaults } from "@/src/profiles/form";
-import { primaryGoalOptions, primaryGoalLabels } from "@/src/profiles/model";
+import { primaryGoalOptions } from "@/src/profiles/model";
 import { listProfiles, type Profile } from "@/src/profiles/repository";
+import { buildWeekIdFromDate, getIsoWeekStart } from "@/src/week-context/model";
+import { AppBottomNav } from "../app-bottom-nav";
 import { saveProfileAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -18,9 +20,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
 
       <div className="profile-form-header">
         <div>
-          <p className="eyebrow">Profil</p>
           <h2>{profile.displayName}</h2>
-          <p className="muted">{primaryGoalLabels[profile.primaryGoal]}</p>
         </div>
         <button className="primary-button" type="submit">
           Speichern
@@ -102,61 +102,30 @@ function ProfileForm({ profile }: { profile: Profile }) {
 
 export default function ProfilePage() {
   const profiles = listProfiles(getDb());
+  const currentWeekId = buildWeekIdFromDate(getIsoWeekStart());
 
   return (
-    <main className="app-shell">
-      <aside className="sidebar" aria-label="Bereiche">
+    <main className="profile-command-page bottom-nav-page">
+      <div className="profile-command-content">
         <Link className="brand brand-link" href="/">
           <span className="brand-mark" aria-hidden="true" />
           <span>Essenplanner</span>
         </Link>
 
-        <nav className="nav-list" aria-label="Hauptnavigation">
-          <Link className="nav-link nav-link-active" href="/profile">
-            Profile
-          </Link>
-          <Link className="nav-link" href="/weeks">
-            Wochen
-          </Link>
-          <Link className="nav-link" href="/plan">
-            Plan erstellen
-          </Link>
-          <Link className="nav-link" href="/planner">
-            Wochenplan
-          </Link>
-          <Link className="nav-link" href="/shopping-list">
-            Einkaufsliste
-          </Link>
-        </nav>
-      </aside>
-
-      <div className="content">
-        <header className="page-header">
+        <header className="profile-command-header">
           <div>
             <p className="eyebrow">Profile</p>
-            <h1>Grundlage fuer gute Wochenplaene.</h1>
-          </div>
-          <div className="status-pill">
-            <span>{profiles.length}</span>
-            <small>Profile</small>
+            <h1>Eure Profile.</h1>
           </div>
         </header>
 
-        <section className="section-block">
-          <div className="section-heading">
-            <p className="eyebrow">Ohne Login erreichbar</p>
-            <h2>Buğra und Sena</h2>
-          </div>
-          <p className="section-copy">
-            Diese Felder bleiben strukturierte App-Daten. Die Markdown-Profilmemory
-            bleibt separat und wird spaeter kontrolliert daraus gepflegt.
-          </p>
-        </section>
-
-        {profiles.map((profile) => (
-          <ProfileForm key={profile.personId} profile={profile} />
-        ))}
+        <div className="profile-command-list">
+          {profiles.map((profile) => (
+            <ProfileForm key={profile.personId} profile={profile} />
+          ))}
+        </div>
       </div>
+      <AppBottomNav active="profile" weekId={currentWeekId} />
     </main>
   );
 }

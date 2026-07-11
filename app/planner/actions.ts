@@ -16,7 +16,6 @@ function revalidatePlannerViews(): void {
   revalidatePath("/plan");
   revalidatePath("/planner");
   revalidatePath("/shopping-list");
-  revalidatePath("/week");
   revalidatePath("/weeks");
   revalidatePath("/");
 }

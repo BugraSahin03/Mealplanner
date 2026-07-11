@@ -1343,6 +1343,7 @@ button.calendar-meal:focus-visible {
   overflow: auto;
   padding: clamp(1rem, 3vw, 1.7rem);
   width: min(100%, 56rem);
+  color: #19202a;
 }
 
 .meal-dialog-bugra {
@@ -1379,6 +1380,7 @@ button.calendar-meal:focus-visible {
 }
 
 .meal-dialog-header h2 {
+  color: #19202a;
   font-size: clamp(1.35rem, 5vw, 2rem);
   line-height: 1.08;
   overflow-wrap: anywhere;
@@ -1429,13 +1431,14 @@ button.calendar-meal:focus-visible {
 }
 
 .meal-dialog-section h3 {
+  color: #19202a;
   font-size: 1rem;
   margin-bottom: 0;
 }
 
 .meal-dialog-section p,
 .meal-dialog-section small {
-  color: var(--ink-soft);
+  color: #475569;
   line-height: 1.45;
   margin-bottom: 0;
   overflow-wrap: anywhere;
@@ -1539,8 +1542,12 @@ button.calendar-meal:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.meal-ingredient-list strong {
+  color: #19202a;
+}
+
 .meal-ingredient-list span {
-  color: var(--accent-strong);
+  color: #075745;
   font-size: 0.86rem;
   font-weight: 850;
   text-align: right;
@@ -2309,5 +2316,676 @@ button.calendar-meal:focus-visible {
 
   .plan-command-primary {
     min-height: 0;
+  }
+}
+
+.start-page {
+  background: #101816;
+  color: #eef8f2;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 100svh;
+}
+
+.start-header,
+.start-footer {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 1.25rem clamp(1.25rem, 5vw, 4.5rem);
+}
+
+.bottom-nav-page {
+  min-height: 100svh;
+  padding-bottom: 4.6rem;
+}
+
+.app-bottom-nav {
+  align-items: stretch;
+  background: rgba(11, 18, 16, 0.97);
+  border-top: 1px solid rgba(238, 248, 242, 0.14);
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  left: 0;
+  min-height: 4.6rem;
+  position: fixed;
+  right: 0;
+  z-index: 40;
+}
+
+.app-bottom-nav a {
+  align-items: center;
+  border-right: 1px solid rgba(238, 248, 242, 0.08);
+  color: rgba(238, 248, 242, 0.54);
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 850;
+  justify-content: center;
+  padding: 0.75rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.app-bottom-nav a:last-child {
+  border-right: 0;
+}
+
+.app-bottom-nav a:hover,
+.app-bottom-nav a[aria-current="page"] {
+  background: rgba(155, 255, 202, 0.08);
+  color: #9bffca;
+}
+
+.start-runtime-footer {
+  justify-content: flex-end;
+}
+
+.start-header {
+  border-bottom: 1px solid rgba(238, 248, 242, 0.12);
+}
+
+.start-week {
+  align-items: center;
+  display: flex;
+  gap: 0.7rem;
+}
+
+.start-week > div {
+  display: grid;
+  gap: 0.25rem;
+  text-align: right;
+}
+
+.start-week a {
+  align-items: center;
+  border: 1px solid rgba(238, 248, 242, 0.16);
+  border-radius: 999px;
+  color: rgba(238, 248, 242, 0.72);
+  display: inline-flex;
+  font-size: 1.25rem;
+  height: 2rem;
+  justify-content: center;
+  text-decoration: none;
+  width: 2rem;
+}
+
+.start-week a:hover {
+  border-color: #9bffca;
+  color: #9bffca;
+}
+
+.start-week strong {
+  color: #ffffff;
+}
+
+.start-week span,
+.start-footer p {
+  color: rgba(238, 248, 242, 0.5);
+  font-size: 0.78rem;
+}
+
+.start-focus {
+  align-content: center;
+  display: grid;
+  gap: clamp(2.5rem, 8vw, 7rem);
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.55fr);
+  padding: clamp(3rem, 8vw, 8rem) clamp(1.25rem, 8vw, 8rem);
+}
+
+.start-focus-copy {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.start-focus .eyebrow {
+  color: #9bffca;
+}
+
+.start-focus h1 {
+  color: #ffffff;
+  font-size: clamp(3rem, 8vw, 7.5rem);
+  line-height: 0.88;
+  max-width: 10ch;
+}
+
+.start-focus-copy > p:last-child {
+  color: rgba(238, 248, 242, 0.64);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin-bottom: 0;
+  max-width: 34rem;
+}
+
+.start-focus form {
+  align-self: center;
+}
+
+.start-primary-action {
+  align-items: center;
+  appearance: none;
+  background: #9bffca;
+  border: 0;
+  border-radius: 0.25rem;
+  color: #101816;
+  cursor: pointer;
+  display: flex;
+  font-weight: 900;
+  gap: 1rem;
+  justify-content: space-between;
+  min-height: 9rem;
+  padding: 1.5rem;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+}
+
+.start-primary-action span {
+  font-size: clamp(1.4rem, 3vw, 2.4rem);
+  line-height: 1.05;
+}
+
+.start-primary-action b {
+  font-size: 2rem;
+  transition: transform 150ms ease;
+}
+
+.start-primary-action:hover {
+  background: #c2ffdf;
+}
+
+.start-primary-action:hover b {
+  transform: translateX(0.2rem);
+}
+
+.start-footer {
+  border-top: 1px solid rgba(238, 248, 242, 0.12);
+  gap: 1rem;
+}
+
+.start-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.start-footer nav a {
+  color: rgba(238, 248, 242, 0.72);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.start-footer nav a:hover {
+  color: #9bffca;
+}
+
+.start-footer p {
+  align-items: center;
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 0;
+  text-align: right;
+}
+
+.start-status-dot {
+  background: #9bffca;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  height: 0.45rem;
+  width: 0.45rem;
+}
+
+.start-status-failed {
+  background: #ff8c8c;
+}
+
+@media (max-width: 760px) {
+  .start-focus {
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  .start-focus h1 {
+    font-size: 3.4rem;
+  }
+
+  .start-primary-action {
+    min-height: 6.5rem;
+  }
+
+  .start-footer {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .start-footer p {
+    text-align: left;
+  }
+}
+
+@media (max-width: 460px) {
+  .start-header {
+    align-items: start;
+  }
+
+  .start-week span {
+    max-width: 9rem;
+  }
+
+  .start-focus {
+    padding-bottom: 3rem;
+    padding-top: 3rem;
+  }
+
+  .start-focus h1 {
+    font-size: 2.85rem;
+  }
+}
+
+.planner-command-page {
+  background: #101816;
+  color: #eef8f2;
+  min-height: 100svh;
+}
+
+.planner-brand,
+.command-page-brand {
+  color: #ffffff;
+  justify-self: start;
+}
+
+.command-app-shell {
+  min-height: 100svh;
+}
+
+.planner-topbar {
+  align-items: center;
+  border-bottom: 1px solid rgba(238, 248, 242, 0.12);
+  display: flex;
+  justify-content: space-between;
+  padding: 1.1rem clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.planner-topbar nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.planner-topbar nav a,
+.planner-command-footer a {
+  color: rgba(238, 248, 242, 0.68);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.planner-topbar nav a:hover,
+.planner-command-footer a:hover {
+  color: #9bffca;
+}
+
+.planner-command-content {
+  display: grid;
+  gap: 1.5rem;
+  margin: 0 auto;
+  max-width: 94rem;
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.planner-command-header {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+}
+
+.planner-command-header .eyebrow,
+.planner-command-page .calendar-command .eyebrow {
+  color: #9bffca;
+}
+
+.planner-command-header h1 {
+  color: #ffffff;
+  font-size: clamp(3.5rem, 7vw, 6.5rem);
+  line-height: 0.8;
+  margin: 0.7rem 0 1rem;
+  max-width: none;
+}
+
+.planner-command-header > div > p:last-child {
+  color: rgba(238, 248, 242, 0.56);
+  margin-bottom: 0;
+}
+
+.planner-plan-state {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.planner-plan-state span {
+  background: #9bffca;
+  border-radius: 999px;
+  box-shadow: 0 0 0 0.3rem rgba(155, 255, 202, 0.1);
+  height: 0.55rem;
+  width: 0.55rem;
+}
+
+.planner-plan-state-failed span {
+  background: #ff8c8c;
+  box-shadow: 0 0 0 0.3rem rgba(255, 140, 140, 0.1);
+}
+
+.planner-plan-state p {
+  color: rgba(238, 248, 242, 0.7);
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin-bottom: 0;
+}
+
+.planner-command-page .week-switcher-button,
+.planner-command-page .week-switcher-current {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(238, 248, 242, 0.12);
+  box-shadow: none;
+  color: rgba(238, 248, 242, 0.68);
+}
+
+.planner-command-page .week-switcher-current strong {
+  color: #ffffff;
+}
+
+.planner-command-page .week-switcher-current span {
+  color: rgba(238, 248, 242, 0.5);
+}
+
+.planner-calendar-shell {
+  min-width: 0;
+}
+
+.planner-command-page .calendar-command {
+  background: #17221f;
+  border-color: rgba(238, 248, 242, 0.12);
+  border-radius: 0.3rem;
+  box-shadow: none;
+}
+
+.planner-command-page .calendar-command .section-copy {
+  color: rgba(238, 248, 242, 0.58);
+}
+
+.planner-command-page .lunch-batch-stepper {
+  background: #9bffca;
+  border: 0;
+  border-radius: 0.25rem;
+  box-shadow: none;
+  color: #101816;
+}
+
+.planner-command-page .lunch-batch-stepper button {
+  border-color: rgba(16, 24, 22, 0.2);
+  border-radius: 0.2rem;
+  color: #101816;
+}
+
+.planner-command-page .lunch-batch-stepper strong,
+.planner-command-page .lunch-batch-stepper span,
+.planner-command-page .lunch-batch-stepper small {
+  color: #101816;
+}
+
+.planner-command-page .profile-token,
+.planner-command-page .home-trash-zone {
+  border-radius: 0.25rem;
+  box-shadow: none;
+}
+
+.planner-command-page .calendar-board {
+  gap: 0.75rem;
+}
+
+.planner-command-page .calendar-day {
+  background: #17221f;
+  border-color: rgba(238, 248, 242, 0.12);
+  border-radius: 0.3rem;
+  box-shadow: none;
+}
+
+.planner-command-page .calendar-day::before {
+  background: #9bffca;
+  width: 0.22rem;
+}
+
+.planner-command-page .calendar-day header {
+  background: #121c19;
+  border-bottom-color: rgba(238, 248, 242, 0.1);
+}
+
+.planner-command-page .calendar-day header span,
+.planner-command-page .calendar-meal-slot > span {
+  color: #9bffca;
+}
+
+.planner-command-page .calendar-day h3 {
+  color: #ffffff;
+}
+
+.planner-command-page .calendar-day header small {
+  color: rgba(238, 248, 242, 0.5);
+}
+
+.planner-command-page .home-drop-zone {
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(238, 248, 242, 0.2);
+  border-radius: 0.25rem;
+}
+
+.planner-command-page .home-drop-zone strong {
+  color: #ffffff;
+}
+
+.planner-command-page .home-drop-zone span,
+.planner-command-page .home-drop-zone small {
+  color: rgba(238, 248, 242, 0.58);
+}
+
+.planner-command-page .home-drop-zone-bugra {
+  background: #162b42;
+  border-color: #4b8fd8;
+}
+
+.planner-command-page .home-drop-zone-sena {
+  background: #3a1f31;
+  border-color: #d65f98;
+}
+
+.planner-command-page .weekend-rest-panel {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(238, 248, 242, 0.1);
+  border-radius: 0.25rem;
+}
+
+.planner-command-page .weekend-rest-panel strong {
+  color: #ffffff;
+}
+
+.planner-command-page .weekend-rest-panel span,
+.planner-command-page .weekend-rest-panel small {
+  color: rgba(238, 248, 242, 0.5);
+}
+
+.planner-command-page .calendar-meal-slot {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(238, 248, 242, 0.1);
+  border-radius: 0.25rem;
+}
+
+.planner-command-page .calendar-meal {
+  border-radius: 0.25rem;
+  box-shadow: none;
+}
+
+.planner-command-page .calendar-meal strong {
+  color: #19202a;
+}
+
+.planner-command-page .calendar-meal p {
+  color: #667085;
+}
+
+.planner-command-page .lunch-batch-summary article,
+.planner-command-page .dinner-leftover-summary article {
+  background: #17221f;
+  border-color: rgba(238, 248, 242, 0.12);
+  border-radius: 0.3rem;
+  box-shadow: none;
+}
+
+.planner-command-page .lunch-batch-summary strong,
+.planner-command-page .dinner-leftover-summary strong {
+  color: #ffffff;
+}
+
+.planner-command-page .lunch-batch-summary p,
+.planner-command-page .lunch-batch-summary small,
+.planner-command-page .dinner-leftover-summary p,
+.planner-command-page .dinner-leftover-summary small {
+  color: rgba(238, 248, 242, 0.56);
+}
+
+.planner-command-footer {
+  border-top: 1px solid rgba(238, 248, 242, 0.12);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  padding-top: 1.25rem;
+}
+
+@media (max-width: 720px) {
+  .planner-topbar,
+  .planner-command-header {
+    align-items: start;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .planner-topbar nav {
+    border-top: 1px solid rgba(238, 248, 242, 0.1);
+    padding-top: 0.9rem;
+    width: 100%;
+  }
+
+  .planner-command-header h1 {
+    font-size: 3.6rem;
+  }
+}
+
+.profile-command-page {
+  background: #101816;
+  color: #eef8f2;
+}
+
+.profile-command-content {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  margin: 0 auto;
+  max-width: 88rem;
+  padding: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.profile-command-header {
+  border-bottom: 1px solid rgba(238, 248, 242, 0.12);
+  display: grid;
+  padding: clamp(2rem, 6vw, 5rem) 0;
+}
+
+.profile-command-header .eyebrow,
+.profile-command-page .profile-form .eyebrow {
+  color: #9bffca;
+}
+
+.profile-command-header h1 {
+  color: #ffffff;
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  line-height: 0.88;
+  margin: 0.8rem 0 1rem;
+  max-width: 10ch;
+}
+
+.profile-command-header p:last-child {
+  color: rgba(238, 248, 242, 0.58);
+  margin-bottom: 0;
+}
+
+.profile-command-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.profile-command-page .profile-form {
+  background: #17221f;
+  border-color: rgba(238, 248, 242, 0.12);
+  border-radius: 0.3rem;
+  box-shadow: none;
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.profile-command-page .profile-form h2 {
+  color: #ffffff;
+}
+
+.profile-command-page .profile-form .muted {
+  color: rgba(238, 248, 242, 0.54);
+}
+
+.profile-command-page .profile-form label {
+  color: rgba(238, 248, 242, 0.72);
+}
+
+.profile-command-page .profile-form input,
+.profile-command-page .profile-form select,
+.profile-command-page .profile-form textarea {
+  background: #101816;
+  border-color: rgba(238, 248, 242, 0.16);
+  border-radius: 0.25rem;
+  color: #ffffff;
+}
+
+.profile-command-page .profile-form input::placeholder,
+.profile-command-page .profile-form textarea::placeholder {
+  color: rgba(238, 248, 242, 0.34);
+}
+
+.profile-command-page .profile-form input:focus,
+.profile-command-page .profile-form select:focus,
+.profile-command-page .profile-form textarea:focus {
+  border-color: #9bffca;
+  box-shadow: 0 0 0 0.18rem rgba(155, 255, 202, 0.12);
+  outline: 0;
+}
+
+.profile-command-page .profile-form .primary-button {
+  background: #9bffca;
+  border-radius: 0.25rem;
+  color: #101816;
+}
+
+@media (max-width: 560px) {
+  .bottom-nav-page {
+    padding-bottom: 4.2rem;
+  }
+
+  .app-bottom-nav {
+    min-height: 4.2rem;
+  }
+
+  .app-bottom-nav a {
+    font-size: 0.62rem;
+    padding: 0.55rem 0.3rem;
+  }
+
+  .profile-command-header h1 {
+    font-size: 3.2rem;
   }
 }

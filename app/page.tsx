@@ -1,157 +1,134 @@
 import Link from "next/link";
 
-import { buildHomeOverview, countOfficeSlots } from "@/src/home/overview";
+import { createAndRunPlannerJobForWeekAction } from "@/app/plan/actions";
+import { getDb } from "@/src/db/client";
+import {
+  formatPlannerTimestamp,
+  plannerJobStatusLabels,
+  readConfiguredPlannerAdapter,
+} from "@/src/planner/job-status-view";
+import {
+  getLatestPlannerJobForWeek,
+  getLatestSuccessfulPlannerJobForWeek,
+  type PlannerJob,
+} from "@/src/planner/repository";
+import { buildWeekIdFromDate, getIsoWeekStart } from "@/src/week-context/model";
+import { getOrCreateWeekContextById } from "@/src/week-context/repository";
+import {
+  buildWeekHref,
+  buildWeekSwitcherState,
+  getWeekDateRange,
+  resolveWeekIdFromParam,
+} from "@/src/week-context/weeks";
+import { AppBottomNav } from "./app-bottom-nav";
 
-export default function HomePage() {
-  const overview = buildHomeOverview();
-  const officeSlots = countOfficeSlots(overview.week);
+export const dynamic = "force-dynamic";
+
+function hasShoppingList(job: PlannerJob | null): boolean {
+  if (!job?.response || typeof job.response !== "object" || Array.isArray(job.response)) {
+    return false;
+  }
+
+  const shoppingList = (job.response as { shoppingList?: unknown }).shoppingList;
+  return Array.isArray(shoppingList) && shoppingList.length > 0;
+}
+
+type HomePageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+  const db = getDb();
+  const currentWeekId = buildWeekIdFromDate(getIsoWeekStart());
+  const selectedWeekId = resolveWeekIdFromParam(params?.week);
+  const context = getOrCreateWeekContextById(db, selectedWeekId ?? currentWeekId);
+  const switcher = buildWeekSwitcherState(context);
+  const latestJob = getLatestPlannerJobForWeek(db, context.weekId);
+  const latestSuccessfulJob = getLatestSuccessfulPlannerJobForWeek(db, context.weekId);
+  const hasPlan = latestSuccessfulJob !== null;
+  const shoppingReady = hasShoppingList(latestSuccessfulJob);
+  const latestStatus = latestJob?.status ?? "idle";
+  const isRunning = latestStatus === "running";
+
+  const focus = isRunning
+    ? {
+        eyebrow: "Wird gerade erledigt",
+        title: "Dein Wochenplan entsteht.",
+        copy: "Du musst nichts weiter tun. Den aktuellen Stand findest du im Wochenplan.",
+        label: "Status ansehen",
+        href: buildWeekHref("/planner", context.weekId),
+      }
+    : hasPlan
+      ? {
+          eyebrow: "Alles vorbereitet",
+          title: shoppingReady ? "Du kannst einkaufen." : "Dein Wochenplan ist fertig.",
+          copy: shoppingReady
+            ? "Die Einkaufsliste für diese Woche wartet auf dich."
+            : "Der Plan für diese Woche ist bereit.",
+          label: shoppingReady ? "Einkaufsliste öffnen" : "Wochenplan öffnen",
+          href: buildWeekHref(shoppingReady ? "/shopping-list" : "/planner", context.weekId),
+        }
+      : {
+          eyebrow: "Ein Klick für diese Woche",
+          title: "Lass deine Woche planen.",
+          copy: "Homeoffice und Essenswünsche werden automatisch berücksichtigt.",
+          label: "Wochenplan erstellen",
+          href: null,
+        };
 
   return (
-    <main className="app-shell">
-      <aside className="sidebar" aria-label="Bereiche">
-        <div className="brand">
+    <main className="start-page bottom-nav-page">
+      <header className="start-header">
+        <Link className="brand brand-link" href="/">
           <span className="brand-mark" aria-hidden="true" />
           <span>Essenplanner</span>
+        </Link>
+        <div className="start-week">
+          <Link aria-label={`Zu KW ${switcher.previous.calendarWeek}`} href={buildWeekHref("/", switcher.previous.weekId)}>
+            ‹
+          </Link>
+          <div>
+            <strong>KW {context.calendarWeek}</strong>
+            <span>{getWeekDateRange(context, { withYear: true })}</span>
+          </div>
+          <Link aria-label={`Zu KW ${switcher.next.calendarWeek}`} href={buildWeekHref("/", switcher.next.weekId)}>
+            ›
+          </Link>
+        </div>
+      </header>
+
+      <section className="start-focus" aria-labelledby="start-title">
+        <div className="start-focus-copy">
+          <p className="eyebrow">{focus.eyebrow}</p>
+          <h1 id="start-title">{focus.title}</h1>
+          <p>{focus.copy}</p>
         </div>
 
-        <nav className="nav-list" aria-label="Hauptnavigation">
-          <Link className="nav-link" href="/profile">
-            Profile
+        {focus.href ? (
+          <Link className="start-primary-action" href={focus.href}>
+            <span>{focus.label}</span>
+            <b aria-hidden="true">→</b>
           </Link>
-          <Link className="nav-link" href="/weeks">
-            Wochen
-          </Link>
-          <Link className="nav-link" href="/plan">
-            Plan erstellen
-          </Link>
-          <Link className="nav-link" href="/planner">
-            Wochenplan
-          </Link>
-          <Link className="nav-link" href="/shopping-list">
-            Einkaufsliste
-          </Link>
-        </nav>
-      </aside>
+        ) : (
+          <form action={createAndRunPlannerJobForWeekAction}>
+            <input type="hidden" name="weekId" value={context.weekId} />
+            <button className="start-primary-action" type="submit">
+              <span>{focus.label}</span>
+              <b aria-hidden="true">→</b>
+            </button>
+          </form>
+        )}
+      </section>
 
-      <div className="content">
-        <header className="page-header">
-          <div>
-            <p className="eyebrow">Naechste Wochenplanung</p>
-            <h1>Planen, einkaufen, weniger nachdenken.</h1>
-          </div>
-          <div className="status-pill">
-            <span>{officeSlots}</span>
-            <small>Office-Slots</small>
-          </div>
-        </header>
-
-        <section className="workflow-band" aria-label="Planungsfluss">
-          <div>
-            <span>1</span>
-            Profile pruefen
-          </div>
-          <div>
-            <span>2</span>
-            Office-Tage setzen
-          </div>
-          <div>
-            <span>3</span>
-            Plan erzeugen
-          </div>
-          <div>
-            <span>4</span>
-            Liste nutzen
-          </div>
-        </section>
-
-        <section id="profile" className="section-block">
-          <div className="section-heading">
-            <p className="eyebrow">Profile</p>
-            <h2>Ziele fuer diese Planung</h2>
-          </div>
-
-          <div className="person-grid">
-            {overview.people.map((person) => (
-              <article className="person-card" key={person.id}>
-                <div>
-                  <p className="person-name">{person.name}</p>
-                  <p className="muted">{person.goal}</p>
-                </div>
-                <p>{person.focus}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="woche" className="section-block">
-          <div className="section-heading">
-            <p className="eyebrow">Wochen-Setup</p>
-            <h2>Office und Homeoffice je Person</h2>
-          </div>
-
-          <div className="week-grid" aria-label="Wochenkontext">
-            {overview.week.map((day) => (
-              <Link className="day-tile day-tile-link" href="/plan" key={day.weekday}>
-                <strong>{day.weekday}</strong>
-                <span>Buğra: {day.bugraContext}</span>
-                <span>Sena: {day.senaContext}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section id="plan" className="section-block">
-          <div className="section-heading">
-            <p className="eyebrow">Wochenplan</p>
-            <h2>Erste Planvorschau</h2>
-          </div>
-
-          <div className="meal-list">
-            {overview.meals.map((meal) => (
-              <article className="meal-row" key={meal.slot}>
-                <div>
-                  <span>{meal.slot}</span>
-                  <strong>{meal.title}</strong>
-                </div>
-                <p>{meal.context}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="section-block">
-          <div className="section-heading">
-            <p className="eyebrow">Planungsauftrag</p>
-            <h2>Kalenderwoche bewusst starten</h2>
-          </div>
-          <p className="section-copy">
-            Waehle die Woche, pruefe Homeoffice, starte danach den Planner und nutze Plan plus Einkauf fuer dieselbe KW.
-          </p>
-          <Link className="primary-button" href="/plan">
-            Plan erstellen
-          </Link>
-        </section>
-
-        <section id="einkauf" className="section-block shopping-section">
-          <div className="section-heading">
-            <p className="eyebrow">Einkaufsliste</p>
-            <h2>Konsolidiert fuer den Wocheneinkauf</h2>
-          </div>
-
-          <div className="shopping-grid">
-            {overview.shopping.map((group) => (
-              <article className="shopping-group" key={group.category}>
-                <h3>{group.category}</h3>
-                <ul>
-                  {group.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
-      </div>
+      <footer className="start-footer start-runtime-footer">
+        <p>
+          <span className={`start-status-dot start-status-${latestStatus}`} aria-hidden="true" />
+          Planner {plannerJobStatusLabels[latestStatus]} · {readConfiguredPlannerAdapter()}
+          {latestJob?.updatedAt ? ` · ${formatPlannerTimestamp(latestJob.updatedAt)}` : ""}
+        </p>
+      </footer>
+      <AppBottomNav active="home" weekId={context.weekId} />
     </main>
   );
 }

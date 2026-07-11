@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import type { MealView, WeekPlanView } from "@/src/planner/week-plan-view";
 import type { DayContext, WeekContext, Weekday } from "@/src/planner/repository";
@@ -54,12 +54,6 @@ function buildInitialHomeState(context: WeekContext, days: CalendarDay[], people
   }, {} as HomeState);
 }
 
-function countHomeWeekdays(homeState: HomeState, personId: PersonId): number {
-  return Object.entries(homeState).filter(([weekday, people]) => {
-    return weekday !== "saturday" && weekday !== "sunday" && people[personId];
-  }).length;
-}
-
 function isWeekend(weekday: Weekday): boolean {
   return weekday === "saturday" || weekday === "sunday";
 }
@@ -86,19 +80,10 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
   const [lunchBatchDishCount, setLunchBatchDishCount] = useState(() =>
     normalizeLunchBatchDishCount(context.lunchBatchDishCount),
   );
+  const formRef = useRef<HTMLFormElement>(null);
+  const isInitialCalendarState = useRef(true);
+  const [, startTransition] = useTransition();
   const homeOfficeTargets = normalizeHomeOfficeTargets(context.homeOfficeTargets);
-  const targetCounts = useMemo(
-    () =>
-      people.reduce<Record<PersonId, number>>(
-        (counts, person) => {
-          counts[person.personId] = countHomeWeekdays(homeState, person.personId);
-          return counts;
-        },
-        {} as Record<PersonId, number>,
-      ),
-    [homeState, people],
-  );
-
   useEffect(() => {
     if (!selectedMeal) {
       return undefined;
@@ -119,6 +104,27 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [selectedMeal]);
+
+  useEffect(() => {
+    if (isInitialCalendarState.current) {
+      isInitialCalendarState.current = false;
+      return undefined;
+    }
+
+    const timeout = window.setTimeout(() => {
+      const form = formRef.current;
+      if (!form) {
+        return;
+      }
+
+      const formData = new FormData(form);
+      startTransition(() => {
+        void savePlannerWeekContextAction(formData);
+      });
+    }, 350);
+
+    return () => window.clearTimeout(timeout);
+  }, [homeState, lunchBatchDishCount, startTransition]);
 
   function setPersonHome(weekday: Weekday, personId: PersonId, isHome: boolean): void {
     if (isWeekend(weekday)) {
@@ -153,7 +159,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
   }
 
   return (
-    <form className="calendar-planner" action={savePlannerWeekContextAction}>
+    <form className="calendar-planner" ref={formRef}>
       <input type="hidden" name="weekStartDate" value={context.weekStartDate ?? ""} />
       <input type="hidden" name="notes" value={context.notes ?? ""} />
       <input type="hidden" name="lunchBatchDishCount" value={lunchBatchDishCount} />
@@ -190,11 +196,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
 
       <section className="calendar-command">
         <div>
-          <p className="eyebrow">Kalenderwoche {context.calendarWeek}</p>
           <h2>{weekPlan?.title ?? "Wochenplan"}</h2>
-          <p className="section-copy">
-            {weekPlan?.summary ?? "Mahlzeiten erscheinen hier, sobald ein Planner-Lauf abgeschlossen ist."}
-          </p>
         </div>
 
         <div className="calendar-command-tools">
@@ -270,36 +272,6 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
           </div>
         </div>
       </section>
-
-      {weekPlan && weekPlan.lunchBatchDishes.length > 0 ? (
-        <section className="lunch-batch-summary" aria-label="Lunch-Batch-Prep">
-          {weekPlan.lunchBatchDishes.map((batch) => (
-            <article key={batch.batchId}>
-              <div>
-                <span>{batch.daysSummary}</span>
-                <strong>{batch.title}</strong>
-              </div>
-              <p>{batch.portionSummary}</p>
-              {batch.notes ? <small>{batch.notes}</small> : null}
-            </article>
-          ))}
-        </section>
-      ) : null}
-
-      {weekPlan && weekPlan.dinnerLeftoverGroups.length > 0 ? (
-        <section className="dinner-leftover-summary" aria-label="Dinner-Resteplanung">
-          {weekPlan.dinnerLeftoverGroups.map((group) => (
-            <article key={group.leftoverGroupId}>
-              <div>
-                <span>{group.daysSummary}</span>
-                <strong>{group.title}</strong>
-              </div>
-              <p>{group.spanDays} Abendessen aus einem Kochlauf</p>
-              {group.notes ? <small>{group.notes}</small> : null}
-            </article>
-          ))}
-        </section>
-      ) : null}
 
       <div className="calendar-board" aria-label="Wochenkalender">
         {days.map((day) => {
@@ -438,40 +410,6 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
             </article>
           );
         })}
-      </div>
-
-      {weekPlan && (weekPlan.plannerNotes.length > 0 || weekPlan.warnings.length > 0) ? (
-        <div className="plan-notes-grid">
-          {weekPlan.plannerNotes.length > 0 ? (
-            <div>
-              <span>Planer-Notizen</span>
-              {weekPlan.plannerNotes.map((note) => (
-                <p key={note}>{note}</p>
-              ))}
-            </div>
-          ) : null}
-          {weekPlan.warnings.length > 0 ? (
-            <div>
-              <span>Hinweise</span>
-              {weekPlan.warnings.map((warning) => (
-                <p key={warning}>{warning}</p>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      <div className="calendar-footer">
-        <div>
-          {people.map((person) => (
-            <span className={`home-count home-count-${person.personId}`} key={person.personId}>
-              {person.displayName}: {targetCounts[person.personId] ?? 0} Homeoffice-Tage
-            </span>
-          ))}
-        </div>
-        <button className="primary-button" type="submit">
-          Kalender speichern
-        </button>
       </div>
 
       {selectedMeal ? (
