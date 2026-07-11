@@ -2989,3 +2989,116 @@ button.calendar-meal:focus-visible {
     font-size: 3.2rem;
   }
 }
+
+.weeks-command-page {
+  background: #101816;
+  color: #eef8f2;
+}
+
+.weeks-command-content {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  margin: 0 auto;
+  max-width: 74rem;
+  padding: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.weeks-command-content .brand {
+  color: #ffffff;
+  justify-self: start;
+}
+
+.weeks-command-header {
+  border-bottom: 1px solid rgba(238, 248, 242, 0.12);
+  padding: clamp(2rem, 6vw, 5rem) 0;
+}
+
+.weeks-command-header .eyebrow {
+  color: #9bffca;
+}
+
+.weeks-command-header h1 {
+  color: #ffffff;
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  line-height: 0.88;
+  margin: 0.8rem 0 0;
+  max-width: 10ch;
+}
+
+.weeks-command-list {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.weeks-command-list-heading h2 {
+  color: #ffffff;
+}
+
+.weeks-command-page .week-year-list,
+.weeks-command-page .week-list {
+  gap: 0.55rem;
+}
+
+.weeks-command-page .week-year-group {
+  background: #17221f;
+  border-color: rgba(238, 248, 242, 0.12);
+  border-radius: 0.3rem;
+}
+
+.weeks-command-page .week-year-group summary {
+  min-height: 4.25rem;
+  padding: 1rem 1.15rem;
+}
+
+.weeks-command-page .week-year-group summary::after {
+  color: #9bffca;
+}
+
+.weeks-command-page .week-year-group summary span {
+  color: #ffffff;
+}
+
+.weeks-command-page .week-year-group summary small {
+  color: rgba(238, 248, 242, 0.48);
+}
+
+.weeks-command-page .week-list {
+  border-top-color: rgba(238, 248, 242, 0.1);
+  padding: 0.65rem;
+}
+
+.weeks-command-page .week-list-row {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: transparent;
+  border-radius: 0.25rem;
+  color: rgba(238, 248, 242, 0.72);
+  min-height: 4rem;
+}
+
+.weeks-command-page .week-list-row span {
+  color: rgba(238, 248, 242, 0.48);
+}
+
+.weeks-command-page .week-list-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(238, 248, 242, 0.14);
+  box-shadow: none;
+  color: #ffffff;
+}
+
+.weeks-command-page .week-list-row-active {
+  background: #9bffca;
+  border-color: #9bffca;
+  box-shadow: none;
+  color: #101816;
+}
+
+.weeks-command-page .week-list-row-active span {
+  color: rgba(16, 24, 22, 0.58);
+}
+
+@media (max-width: 560px) {
+  .weeks-command-header h1 {
+    font-size: 3.2rem;
+  }
+}
