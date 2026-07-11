@@ -9,6 +9,7 @@ import {
   resolveWeekIdFromParam,
   type WeekSummary,
 } from "@/src/week-context/weeks";
+import { AppBottomNav } from "../app-bottom-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ function WeekRow({ summary, selectedWeekId }: { summary: WeekSummary; selectedWe
   const isSelected = summary.context.weekId === selectedWeekId;
 
   return (
-    <Link className={isSelected ? "week-list-row week-list-row-active" : "week-list-row"} href={buildWeekHref("/week", summary.context.weekId)}>
+    <Link className={isSelected ? "week-list-row week-list-row-active" : "week-list-row"} href={buildWeekHref("/planner", summary.context.weekId)}>
       <span>KW {summary.context.calendarWeek}</span>
       <strong>{getWeekDateRange(summary.context)}</strong>
     </Link>
@@ -56,33 +57,12 @@ export default async function WeeksPage({ searchParams }: WeeksPageProps) {
   const current = weeks.find((week) => week.bucket === "current") ?? weeks[0];
 
   return (
-    <main className="app-shell">
-      <aside className="sidebar" aria-label="Bereiche">
+    <main className="bottom-nav-page">
+      <div className="content weeks-content">
         <Link className="brand brand-link" href="/">
           <span className="brand-mark" aria-hidden="true" />
           <span>Essenplanner</span>
         </Link>
-
-        <nav className="nav-list" aria-label="Hauptnavigation">
-          <Link className="nav-link" href="/profile">
-            Profile
-          </Link>
-          <Link className="nav-link nav-link-active" href="/weeks">
-            Wochen
-          </Link>
-          <Link className="nav-link" href={current ? buildWeekHref("/plan", current.context.weekId) : "/plan"}>
-            Plan erstellen
-          </Link>
-          <Link className="nav-link" href={current ? buildWeekHref("/planner", current.context.weekId) : "/planner"}>
-            Wochenplan
-          </Link>
-          <Link className="nav-link" href={current ? buildWeekHref("/shopping-list", current.context.weekId) : "/shopping-list"}>
-            Einkaufsliste
-          </Link>
-        </nav>
-      </aside>
-
-      <div className="content weeks-content">
         <header className="page-header">
           <div>
             <p className="eyebrow">Wochenverwaltung</p>
@@ -120,6 +100,7 @@ export default async function WeeksPage({ searchParams }: WeeksPageProps) {
           </div>
         </section>
       </div>
+      <AppBottomNav active="planner" weekId={current?.context.weekId} />
     </main>
   );
 }

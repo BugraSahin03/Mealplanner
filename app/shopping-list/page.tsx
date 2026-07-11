@@ -4,9 +4,10 @@ import { getDb } from "@/src/db/client";
 import { getLatestSuccessfulPlannerJobForWeek } from "@/src/planner/repository";
 import { buildWeekPlanView } from "@/src/planner/week-plan-view";
 import { getOrCreateCurrentWeekContext, getOrCreateWeekContextById } from "@/src/week-context/repository";
-import { buildWeekHref, getWeekLabel, resolveWeekIdFromParam } from "@/src/week-context/weeks";
+import { buildWeekHref, resolveWeekIdFromParam } from "@/src/week-context/weeks";
 import { WeekSwitcher } from "../week-switcher";
 import { ShoppingList } from "../planner/shopping-list";
+import { AppBottomNav } from "../app-bottom-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -27,42 +28,16 @@ export default async function ShoppingListPage({ searchParams }: ShoppingListPag
     : null;
 
   return (
-    <main className="app-shell command-app-shell">
-      <aside className="sidebar command-sidebar" aria-label="Bereiche">
-        <Link className="brand brand-link" href="/">
+    <main className="command-app-shell bottom-nav-page">
+      <div className="content command-content">
+        <Link className="brand brand-link command-page-brand" href="/">
           <span className="brand-mark" aria-hidden="true" />
           <span>Essenplanner</span>
         </Link>
-
-        <nav className="nav-list" aria-label="Hauptnavigation">
-          <Link className="nav-link" href="/profile">
-            Profile
-          </Link>
-          <Link className="nav-link" href="/weeks">
-            Wochen
-          </Link>
-          <Link className="nav-link" href={buildWeekHref("/plan", context.weekId)}>
-            Plan erstellen
-          </Link>
-          <Link className="nav-link" href={buildWeekHref("/planner", context.weekId)}>
-            Wochenplan
-          </Link>
-          <Link className="nav-link nav-link-active" href={buildWeekHref("/shopping-list", context.weekId)}>
-            Einkaufsliste
-          </Link>
-        </nav>
-      </aside>
-
-      <div className="content command-content">
         <header className="command-page-header">
           <div>
-            <p className="eyebrow">Einkaufsliste · KW {context.calendarWeek}</p>
-            <h1>Einkauf fuer diese Woche.</h1>
-            <p className="section-copy">Du siehst die Einkaufsliste fuer {getWeekLabel(context, { withYear: true })}.</p>
-          </div>
-          <div className="status-pill">
-            <span>{weekPlan?.shoppingGroups.length ?? 0}</span>
-            <small>Gruppen</small>
+            <p className="eyebrow">KW {context.calendarWeek}</p>
+            <h1>Einkaufen.</h1>
           </div>
         </header>
 
@@ -70,27 +45,20 @@ export default async function ShoppingListPage({ searchParams }: ShoppingListPag
 
         {weekPlan ? (
           <section className="section-block command-section-block shopping-list-section">
-            <div className="section-heading">
-              <p className="eyebrow">Gruppiert fuer den Wocheneinkauf</p>
-              <h2>{weekPlan.title}</h2>
-            </div>
             <ShoppingList groups={weekPlan.shoppingGroups} />
           </section>
         ) : (
           <section className="section-block command-section-block plan-empty-state">
             <div className="section-heading">
-              <p className="eyebrow">Noch keine Liste</p>
-              <h2>Fuer diese KW gibt es noch keine Einkaufsliste.</h2>
+              <h2>Noch keine Liste.</h2>
             </div>
-            <p className="section-copy">
-              Starte zuerst den Planungsauftrag fuer diese Kalenderwoche. Danach wird die passende Einkaufsliste hier angezeigt.
-            </p>
             <Link className="primary-button command-primary-button" href={buildWeekHref("/plan", context.weekId)}>
               Plan erstellen
             </Link>
           </section>
         )}
       </div>
+      <AppBottomNav active="shopping" weekId={context.weekId} />
     </main>
   );
 }
