@@ -55,14 +55,9 @@ export async function getPlannerStatusAction(weekIdInput: string): Promise<Plann
 export async function startPlannerJobForWeekAction(weekIdInput: string): Promise<PlannerStatusSnapshot> {
   const weekId = requireWeekId(weekIdInput);
   const db = getDb();
-  const existingJob = getLatestPlannerJobForWeek(db, weekId);
-  if (existingJob?.status === "running") {
-    return buildStatusSnapshot(weekId, existingJob);
-  }
+  const { job: runningJob, startedNewJob } = startPlannerJobForWeek(db, weekId);
 
-  const runningJob = startPlannerJobForWeek(db, weekId);
-
-  if (runningJob.status === "running") {
+  if (startedNewJob) {
     after(async () => {
       await runPlannerJobWithConfiguredAdapter(getDb(), runningJob.jobId);
       revalidatePlanWorkflow();

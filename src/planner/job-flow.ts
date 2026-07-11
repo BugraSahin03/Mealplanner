@@ -33,17 +33,22 @@ export function createPlannerJobForWeek(
   });
 }
 
+export type StartPlannerJobResult = {
+  job: PlannerJob;
+  startedNewJob: boolean;
+};
+
 export function startPlannerJobForWeek(
   db: SqliteDatabase,
   weekId: string,
-): PlannerJob {
+): StartPlannerJobResult {
   const latestJob = getLatestPlannerJobForWeek(db, weekId);
   if (latestJob?.status === "running") {
-    return latestJob;
+    return { job: latestJob, startedNewJob: false };
   }
 
   const job = createPlannerJobForWeek(db, weekId);
-  return startPlannerJob(db, job.jobId);
+  return { job: startPlannerJob(db, job.jobId), startedNewJob: true };
 }
 
 export function startLatestPlannerJob(db: SqliteDatabase): PlannerJob {

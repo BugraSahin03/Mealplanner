@@ -6,6 +6,7 @@ import { FixturePlannerAdapter, type PlannerAdapter } from "../src/planner/adapt
 import {
   createPlannerJobForWeek,
   runLatestPlannerJobWithConfiguredAdapter,
+  runPlannerJobWithConfiguredAdapter,
   startPlannerJobForWeek,
 } from "../src/planner/job-flow";
 import {
@@ -88,8 +89,34 @@ describe("planner job flow", () => {
     const first = startPlannerJobForWeek(db, "2026-W30");
     const second = startPlannerJobForWeek(db, "2026-W30");
 
-    expect(first.status).toBe("running");
-    expect(second.jobId).toBe(first.jobId);
+    expect(first.job.status).toBe("running");
+    expect(first.startedNewJob).toBe(true);
+    expect(second.job.jobId).toBe(first.job.jobId);
+    expect(second.startedNewJob).toBe(false);
     expect(listPlannerJobsForWeek(db, "2026-W30")).toHaveLength(1);
+  });
+
+  it("dispatches the adapter only for the newly started job", async () => {
+    let adapterCalls = 0;
+    const adapter: PlannerAdapter = {
+      async createPlan() {
+        adapterCalls += 1;
+        return new FixturePlannerAdapter().createPlan();
+      },
+    };
+    const starts = [
+      startPlannerJobForWeek(db, "2026-W30"),
+      startPlannerJobForWeek(db, "2026-W30"),
+    ];
+
+    await Promise.all(
+      starts
+        .filter((start) => start.startedNewJob)
+        .map((start) => runPlannerJobWithConfiguredAdapter(db, start.job.jobId, adapter)),
+    );
+
+    expect(adapterCalls).toBe(1);
+    expect(listPlannerJobsForWeek(db, "2026-W30")).toHaveLength(1);
+    expect(getLatestPlannerJobForWeek(db, "2026-W30")?.status).toBe("success");
   });
 });
