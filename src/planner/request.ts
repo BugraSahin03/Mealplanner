@@ -1,6 +1,7 @@
 import type { WeekContext, Weekday } from "./repository";
 import type { Profile } from "../profiles/repository";
 import { normalizeHomeOfficeTargets, normalizeLunchBatchDishCount, weekdays } from "../week-context/model";
+import type { PlannerHistory } from "./history";
 
 export type PlannerRequestDayContext = {
   personId: Profile["personId"];
@@ -42,6 +43,7 @@ export type PlannerRequest = {
     days: PlannerRequestDay[];
   };
   people: PlannerRequestPerson[];
+  planningHistory?: PlannerHistory;
   planningRules: {
     mealsPerDay: Array<"breakfast" | "lunch" | "dinner">;
     budget: {
@@ -90,6 +92,7 @@ function mapProfile(profile: Profile): PlannerRequestPerson {
 export function buildPlannerRequestFromWeekContext(
   weekContext: WeekContext,
   profiles: Profile[],
+  planningHistory?: PlannerHistory,
 ): PlannerRequest {
   const homeOfficeTargets = normalizeHomeOfficeTargets(weekContext.homeOfficeTargets);
   const lunchBatchDishCount = normalizeLunchBatchDishCount(weekContext.lunchBatchDishCount);
@@ -122,6 +125,7 @@ export function buildPlannerRequestFromWeekContext(
       days,
     },
     people: profiles.map(mapProfile),
+    ...(planningHistory?.latestWeeks.length ? { planningHistory } : {}),
     planningRules: {
       mealsPerDay: ["breakfast", "lunch", "dinner"],
       budget: {

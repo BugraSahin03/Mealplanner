@@ -10,12 +10,16 @@ import {
   startPlannerJobForWeek,
 } from "../src/planner/job-flow";
 import {
+  completePlannerJob,
+  createPlannerJob,
   getLatestPlannerJob,
   getLatestPlannerJobForWeek,
   getLatestSuccessfulPlannerJobForWeek,
   listPlannerJobsForWeek,
   startPlannerJob,
 } from "../src/planner/repository";
+import { buildDemoPlannerResponse } from "../src/planner/response";
+import { getOrCreateWeekContextById } from "../src/week-context/repository";
 
 let db: SqliteDatabase;
 
@@ -118,5 +122,33 @@ describe("planner job flow", () => {
     expect(adapterCalls).toBe(1);
     expect(listPlannerJobsForWeek(db, "2026-W30")).toHaveLength(1);
     expect(getLatestPlannerJobForWeek(db, "2026-W30")?.status).toBe("success");
+  });
+
+  it("adds the latest four prior successful weeks as compact planning history", () => {
+    const saveSuccessfulRun = (weekId: string, jobId: string) => {
+      getOrCreateWeekContextById(db, weekId);
+      createPlannerJob(db, { weekId, jobId, request: { schemaVersion: "1.0" } });
+      startPlannerJob(db, jobId);
+      completePlannerJob(db, jobId, buildDemoPlannerResponse());
+    };
+
+    saveSuccessfulRun("2026-W25", "w25");
+    saveSuccessfulRun("2026-W26", "w26");
+    saveSuccessfulRun("2026-W27", "w27");
+    saveSuccessfulRun("2026-W28", "w28-first");
+    saveSuccessfulRun("2026-W28", "w28-newest");
+    saveSuccessfulRun("2026-W29", "w29");
+    const target = createPlannerJobForWeek(db, "2026-W30");
+    const request = target.request as {
+      planningHistory?: { latestWeeks: Array<{ weekId: string; meals: { dinner: unknown[] } }> };
+    };
+
+    expect(request.planningHistory?.latestWeeks.map((week) => week.weekId)).toEqual([
+      "2026-W29",
+      "2026-W28",
+      "2026-W27",
+      "2026-W26",
+    ]);
+    expect(request.planningHistory?.latestWeeks[1]?.meals.dinner).toHaveLength(4);
   });
 });
