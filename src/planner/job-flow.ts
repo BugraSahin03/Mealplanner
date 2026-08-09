@@ -2,6 +2,7 @@ import type { SqliteDatabase } from "../db/sqlite";
 import { listProfiles } from "../profiles/repository";
 import { getOrCreateCurrentWeekContext, getOrCreateWeekContextById } from "../week-context/repository";
 import { buildPlannerRequestFromWeekContext } from "./request";
+import { buildPlannerHistory } from "./history";
 import { createPlannerAdapterFromEnv, runPlannerJob, type PlannerAdapter } from "./adapter";
 import {
   completePlannerJob,
@@ -9,6 +10,7 @@ import {
   failPlannerJob,
   getLatestPlannerJob,
   getLatestPlannerJobForWeek,
+  listLatestSuccessfulPlannerJobsBeforeWeek,
   startPlannerJob,
   type PlannerJob,
 } from "./repository";
@@ -25,7 +27,10 @@ export function createPlannerJobForWeek(
 ): PlannerJob {
   const weekContext = getOrCreateWeekContextById(db, weekId);
   const profiles = listProfiles(db);
-  const request = buildPlannerRequestFromWeekContext(weekContext, profiles);
+  const history = buildPlannerHistory(
+    listLatestSuccessfulPlannerJobsBeforeWeek(db, weekContext.weekId),
+  );
+  const request = buildPlannerRequestFromWeekContext(weekContext, profiles, history);
 
   return createPlannerJob(db, {
     weekId: weekContext.weekId,

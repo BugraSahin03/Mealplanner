@@ -119,6 +119,9 @@ describe("planner adapter", () => {
     expect(prompt).toContain("\"defaultDinnerSpanDays\": 2");
     expect(prompt).toContain("planningRules.dinnerLeftoverPlanning.defaultDinnerSpanDays");
     expect(prompt).toContain("dinnerLeftovers.leftoverGroupId");
+    expect(prompt).toContain("planningHistory");
+    expect(prompt).toContain("two most recent history weeks");
+    expect(prompt).toContain("normalizedTitle, coreIngredients, and proteinSource");
     expect(prompt).toContain("gramsPerPortion");
     expect(prompt).toContain("Write all user-facing titles");
     expect(prompt).toContain("in German");

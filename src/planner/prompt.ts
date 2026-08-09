@@ -35,6 +35,13 @@ Important rules:
 - Use stable ids for dayId, mealId, and sourceMealIds.
 - Use personId values "bugra" and "sena".
 - Prefer practical quantities and buying hints over perfect nutrition math.
+- If planningHistory is present, use it as the source of truth for recent meal variety.
+- Do not repeat an identical lunch or dinner from either of the two most recent history weeks unless a hard profile rule, budget, batch-prep, or leftover requirement makes it necessary. State that reason in warnings or plannerNotes.
+- Avoid meals from the older history weeks when a practical alternative exists.
+- Compare normalizedTitle, coreIngredients, and proteinSource together: treat close variants such as baked salmon with potatoes and salmon with potatoes and broccoli as recent repeats, not as distinct ideas.
+- Rotate lunch and dinner protein sources, cuisines, and preparation styles across recent weeks where the other planning rules permit it.
+- For breakfast, use the softer person-specific rule: do not repeat the same breakfast variant for the same person in two consecutive weeks when a practical alternative exists.
+- A dinner leftover group in planningHistory represents one dish, not multiple distinct dinners.
 - Write all user-facing titles, descriptions, notes, plannerNotes, warnings, prepNotes, and buyingHint values in German.
 `;
 }

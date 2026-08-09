@@ -519,6 +519,38 @@ export function getLatestSuccessfulPlannerJobForWeek(
   }))[0] ?? null;
 }
 
+export function listLatestSuccessfulPlannerJobsBeforeWeek(
+  db: SqliteDatabase,
+  beforeWeekId: string,
+): PlannerJob[] {
+  const rows = db
+    .prepare(
+      `
+        SELECT job_id, week_id, status, request_json, response_json, error_message,
+               error_code, created_at, updated_at, completed_at
+        FROM planner_jobs
+        WHERE status = 'success'
+          AND week_id IS NOT NULL
+          AND week_id < ?
+        ORDER BY week_id DESC, completed_at DESC, created_at DESC, rowid DESC
+      `,
+    )
+    .all(beforeWeekId) as PlannerJobRow[];
+
+  return rows.map((row) => ({
+    jobId: row.job_id,
+    weekId: row.week_id,
+    status: row.status,
+    request: parseJson(row.request_json, null),
+    response: row.response_json ? parseJson(row.response_json, null) : null,
+    errorMessage: row.error_message,
+    errorCode: row.error_code,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    completedAt: row.completed_at,
+  }));
+}
+
 export function saveWeekPlan(db: SqliteDatabase, input: WeekPlanInput): WeekPlan {
   db.exec("BEGIN;");
   try {
