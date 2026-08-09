@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPlannerHistory, normalizeMealTitle } from "../src/planner/history";
+import { buildPlannerHistory, findProteinSource, normalizeMealTitle } from "../src/planner/history";
 import type { PlannerJob } from "../src/planner/repository";
 import { buildDemoPlannerResponse } from "../src/planner/response";
 
@@ -24,6 +24,12 @@ describe("planner history", () => {
     expect(normalizeMealTitle("Ofenlachs mit Kartoffeln & Brokkoli!")).toBe(
       "ofenlachs mit kartoffeln brokkoli",
     );
+  });
+
+  it("recognizes egg tokens without mistaking rice for a protein source", () => {
+    expect(findProteinSource(["Reis", "Ei"])).toBe("Ei");
+    expect(findProteinSource(["Reis", "Kartoffeln"])).toBeUndefined();
+    expect(findProteinSource(["Hähnchenbrust", "Reis"])).toBe("Hähnchenbrust");
   });
 
   it("keeps only the newest successful run for each week and limits the lookback", () => {

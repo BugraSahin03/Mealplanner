@@ -24,7 +24,7 @@ export type PlannerHistory = {
   latestWeeks: PlannerHistoryWeek[];
 };
 
-const proteinKeywords = [
+const proteinTokenPrefixes = [
   "huhn",
   "haehnchen",
   "chicken",
@@ -40,12 +40,12 @@ const proteinKeywords = [
   "linsen",
   "bohnen",
   "kichererbsen",
-  "ei",
-  "eier",
   "skyr",
   "quark",
   "feta",
 ];
+
+const exactProteinTokens = new Set(["ei", "eier", "eiklar"]);
 
 export function normalizeMealTitle(value: string): string {
   return value
@@ -59,10 +59,13 @@ export function normalizeMealTitle(value: string): string {
     .replace(/\s+/g, " ");
 }
 
-function findProteinSource(ingredients: string[]): string | undefined {
+export function findProteinSource(ingredients: string[]): string | undefined {
   return ingredients.find((ingredient) => {
-    const normalized = normalizeMealTitle(ingredient);
-    return proteinKeywords.some((keyword) => normalized.includes(keyword));
+    const tokens = normalizeMealTitle(ingredient).split(" ");
+    return tokens.some(
+      (token) => exactProteinTokens.has(token)
+        || proteinTokenPrefixes.some((prefix) => token.startsWith(prefix)),
+    );
   });
 }
 
