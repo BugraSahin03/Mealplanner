@@ -519,6 +519,37 @@ export function getLatestSuccessfulPlannerJobForWeek(
   }))[0] ?? null;
 }
 
+export function replaceSuccessfulPlannerJobResponse(
+  db: SqliteDatabase,
+  jobId: string,
+  response: unknown,
+): PlannerJob {
+  assertPlannerResponse(response);
+  db.exec("BEGIN;");
+  try {
+    const result = db.prepare(
+      `
+        UPDATE planner_jobs
+        SET response_json = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE job_id = ? AND status = 'success'
+      `,
+    ).run(stringifyJson(response), jobId);
+    if (result.changes !== 1) {
+      throw new Error("Der Wochenplan wurde während des Austauschs geändert.");
+    }
+    db.exec("COMMIT;");
+  } catch (error) {
+    db.exec("ROLLBACK;");
+    throw error;
+  }
+
+  const updated = getPlannerJob(db, jobId);
+  if (!updated) {
+    throw new Error("Der aktualisierte Wochenplan konnte nicht geladen werden.");
+  }
+  return updated;
+}
+
 export function listLatestSuccessfulPlannerJobsBeforeWeek(
   db: SqliteDatabase,
   beforeWeekId: string,
