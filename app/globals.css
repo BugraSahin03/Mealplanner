@@ -1514,6 +1514,65 @@ button.calendar-meal:focus-visible {
   margin-bottom: 0;
 }
 
+.dinner-replacement-section {
+  border-top: 1px solid rgba(202, 125, 79, 0.3);
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+}
+
+.dinner-replacement-confirm,
+.dinner-replacement-disclosure summary {
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.65rem 0.85rem;
+}
+
+.dinner-replacement-confirm,
+.dinner-replacement-disclosure summary {
+  background: #dc6e35;
+  border: 1px solid #dc6e35;
+  color: #fff;
+  cursor: pointer;
+  list-style: none;
+}
+
+.dinner-replacement-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.dinner-replacement-disclosure[open] summary {
+  display: none;
+}
+
+.dinner-replacement-confirmation {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dinner-replacement-message {
+  color: #ad4d25;
+  font-weight: 700;
+}
+
+.dinner-replacement-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.calendar-meal-replacing {
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.calendar-meal-loading {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 0.35rem;
+}
+
 .meal-dialog-section p,
 .meal-dialog-section small {
   color: #475569;

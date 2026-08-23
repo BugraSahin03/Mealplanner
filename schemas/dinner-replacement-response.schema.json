@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://essenplanner.local/schemas/dinner-replacement-response.schema.json",
+  "title": "Essenplanner Dinner Replacement Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "targetLeftoverGroupId", "meals"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0" },
+    "targetLeftoverGroupId": { "type": "string" },
+    "meals": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/replacementMeal" }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "warnings": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "replacementMeal": {
+      "type": "object",
+      "required": ["dayId", "mealId", "mealType", "title", "people", "context", "ingredients", "dinnerLeftovers"],
+      "properties": {
+        "dayId": { "type": "string" },
+        "mealId": { "type": "string" },
+        "mealType": { "type": "string", "enum": ["dinner"] },
+        "title": { "type": "string" },
+        "people": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["personId", "gramsPerPortion", "estimatedKcal"],
+            "properties": {
+              "personId": { "type": "string", "enum": ["bugra", "sena"] },
+              "gramsPerPortion": { "type": "number", "minimum": 0 },
+              "estimatedKcal": { "type": "number", "minimum": 0 }
+            }
+          }
+        },
+        "context": { "type": "string", "enum": ["shared"] },
+        "ingredients": { "type": "array", "minItems": 1, "items": { "type": "object" } },
+        "dinnerLeftovers": {
+          "type": "object",
+          "required": ["leftoverGroupId", "role", "plannedDayIds", "plannedWeekdays", "spanDays", "servingNumber", "totalServings"],
+          "properties": {
+            "leftoverGroupId": { "type": "string" },
+            "role": { "type": "string", "enum": ["fresh_cook", "leftover"] },
+            "plannedDayIds": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "string" } },
+            "plannedWeekdays": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "string" } },
+            "spanDays": { "type": "number", "minimum": 2 },
+            "servingNumber": { "type": "number", "minimum": 1 },
+            "totalServings": { "type": "number", "minimum": 2 }
+          }
+        }
+      }
+    }
+  }
+}

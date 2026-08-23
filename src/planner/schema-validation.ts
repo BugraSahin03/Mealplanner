@@ -1,9 +1,10 @@
 import plannerResponseSchema from "../../schemas/planner-response.schema.json";
+import dinnerReplacementResponseSchema from "../../schemas/dinner-replacement-response.schema.json";
 import type { PlannerResponse } from "./response";
 
 type JsonObject = Record<string, unknown>;
 
-type JsonSchema = {
+export type JsonSchema = {
   $ref?: string;
   $defs?: Record<string, JsonSchema>;
   type?: "object" | "array" | "string" | "number" | "boolean";
@@ -88,7 +89,7 @@ function validateType(value: unknown, schema: JsonSchema, path: string): string[
   return [];
 }
 
-function validateAgainstSchema(
+export function validateAgainstSchema(
   value: unknown,
   schema: JsonSchema,
   root: JsonSchema,
@@ -168,6 +169,15 @@ function validateAgainstSchema(
 
 export function validatePlannerResponseAgainstSchema(value: unknown): string[] {
   return validateAgainstSchema(value, plannerResponseSchema as JsonSchema, plannerResponseSchema as JsonSchema, "");
+}
+
+export function validateDinnerReplacementResponseAgainstSchema(value: unknown): string[] {
+  return validateAgainstSchema(
+    value,
+    dinnerReplacementResponseSchema as JsonSchema,
+    dinnerReplacementResponseSchema as JsonSchema,
+    "",
+  );
 }
 
 export function assertPlannerResponseAgainstSchema(value: unknown): PlannerResponse {

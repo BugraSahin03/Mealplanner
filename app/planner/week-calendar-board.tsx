@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import type { MealView, WeekPlanView } from "@/src/planner/week-plan-view";
 import type { DayContext, WeekContext, Weekday } from "@/src/planner/repository";
 import type { PersonId } from "@/src/profiles/repository";
 import { normalizeHomeOfficeTargets, normalizeLunchBatchDishCount } from "@/src/week-context/model";
-import { savePlannerWeekContextAction } from "./actions";
+import { replaceDinnerPairAction, savePlannerWeekContextAction } from "./actions";
 
 type PersonConfig = {
   personId: PersonId;
@@ -76,9 +77,13 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
   const [lunchBatchDishCount, setLunchBatchDishCount] = useState(() =>
     normalizeLunchBatchDishCount(context.lunchBatchDishCount),
   );
+  const [replacementGroupId, setReplacementGroupId] = useState<string | null>(null);
+  const [replacementMessage, setReplacementMessage] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const isInitialCalendarState = useRef(true);
   const [, startTransition] = useTransition();
+  const [isReplacing, startReplacementTransition] = useTransition();
+  const router = useRouter();
   const homeOfficeTargets = normalizeHomeOfficeTargets(context.homeOfficeTargets);
   useEffect(() => {
     if (!selectedMeal) {
@@ -138,6 +143,27 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
 
   function adjustLunchBatchDishCount(delta: number): void {
     setLunchBatchDishCount((current) => normalizeLunchBatchDishCount(current + delta));
+  }
+
+  const selectedDinnerGroupId = selectedMeal?.meal.dinnerLeftoverGroupId ?? null;
+  const replacementDays = selectedDinnerGroupId
+    ? weekPlan?.days.filter((day) =>
+        day.meals.some((meal) => meal.dinnerLeftoverGroupId === selectedDinnerGroupId),
+      ) ?? []
+    : [];
+
+  function confirmDinnerReplacement(leftoverGroupId: string): void {
+    setReplacementGroupId(leftoverGroupId);
+    setReplacementMessage(null);
+    startReplacementTransition(async () => {
+      const result = await replaceDinnerPairAction(context.weekId, leftoverGroupId);
+      setReplacementMessage(result.message);
+      if (result.status === "success") {
+        setReplacementGroupId(null);
+        setSelectedMeal(null);
+        router.refresh();
+      }
+    });
   }
 
   return (
@@ -261,7 +287,7 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                             <button
                               className={
                                 meal.isSharedDinner
-                                  ? "calendar-meal calendar-meal-shared"
+                                  ? `calendar-meal calendar-meal-shared${meal.dinnerLeftoverGroupId === replacementGroupId && isReplacing ? " calendar-meal-replacing" : ""}`
                                   : meal.isPersonalMeal
                                     ? `calendar-meal calendar-meal-personal calendar-meal-${meal.people[0]?.personId}`
                                     : "calendar-meal"
@@ -276,6 +302,9 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                             >
                               <strong>{meal.title}</strong>
                               <p>{meal.ingredientSummary}</p>
+                              {meal.dinnerLeftoverGroupId === replacementGroupId && isReplacing ? (
+                                <small className="calendar-meal-loading">Wird ersetzt …</small>
+                              ) : null}
                             </button>
                           ))
                         ) : (
@@ -384,6 +413,32 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                 {selectedMeal.meal.notes && selectedMeal.meal.notes !== selectedMeal.meal.mealPrepSummary ? (
                   <p>{selectedMeal.meal.notes}</p>
                 ) : null}
+              </section>
+            ) : null}
+
+            {selectedMeal.meal.isSharedDinner && selectedDinnerGroupId ? (
+              <section className="meal-dialog-section dinner-replacement-section">
+                <h3>Abendessen austauschen</h3>
+                <details className="dinner-replacement-disclosure">
+                  <summary>Gericht austauschen</summary>
+                  <div className="dinner-replacement-confirmation" aria-live="polite">
+                    <p>
+                      Dieses Gericht ist für {replacementDays.map((day) => day.label).join(" und ")} geplant.
+                      Beide Tage werden ersetzt.
+                    </p>
+                    {replacementMessage ? <p className="dinner-replacement-message">{replacementMessage}</p> : null}
+                    <div className="dinner-replacement-actions">
+                      <button
+                        className="dinner-replacement-confirm"
+                        disabled={isReplacing}
+                        onClick={() => confirmDinnerReplacement(selectedDinnerGroupId)}
+                        type="button"
+                      >
+                        {isReplacing ? "Wird ersetzt …" : "Beide Tage austauschen"}
+                      </button>
+                    </div>
+                  </div>
+                </details>
               </section>
             ) : null}
           </section>
