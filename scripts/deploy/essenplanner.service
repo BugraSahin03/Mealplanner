@@ -13,7 +13,7 @@ Environment=NODE_ENV=production
 Environment=ESSENPLANNER_DB_PATH=/var/lib/essenplanner/essenplanner.db
 Environment=ESSENPLANNER_PLANNER_ADAPTER=fixture
 Environment=PORT=3008
-Environment=NPM_CONFIG_CACHE=/tmp/essenplanner-npm-cache
+Environment=NPM_CONFIG_CACHE=/var/lib/essenplanner/npm-cache
 ExecStart=/usr/bin/npm run start -- --hostname 127.0.0.1 --port 3008
 Restart=on-failure
 RestartSec=5
@@ -22,7 +22,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
 ProtectHome=true
-ReadWritePaths=/var/lib/essenplanner /var/backups/essenplanner /opt/essenplanner /tmp/essenplanner-npm-cache
+ReadWritePaths=/var/lib/essenplanner /var/backups/essenplanner /opt/essenplanner
 
 [Install]
 WantedBy=multi-user.target
