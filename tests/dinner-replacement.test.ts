@@ -90,6 +90,34 @@ describe("dinner replacement", () => {
     expect(getLatestSuccessfulPlannerJobForWeek(db, "2026-W30")?.response).toEqual(before.response);
   });
 
+  it("rejects swapped leftover roles and duplicate target day metadata", async () => {
+    const before = getLatestSuccessfulPlannerJobForWeek(db, "2026-W30")!;
+    const invalidResponses = [
+      async (request: Parameters<DinnerReplacementAdapter["replaceDinner"]>[0]) => {
+        const valid = await new FixtureDinnerReplacementAdapter().replaceDinner(request);
+        const [fresh, leftover] = valid.meals;
+        fresh!.dinnerLeftovers!.role = "leftover";
+        leftover!.dinnerLeftovers!.role = "fresh_cook";
+        return valid;
+      },
+      async (request: Parameters<DinnerReplacementAdapter["replaceDinner"]>[0]) => {
+        const valid = await new FixtureDinnerReplacementAdapter().replaceDinner(request);
+        for (const meal of valid.meals) {
+          meal.dinnerLeftovers!.plannedDayIds = [request.target.days[0]!.dayId, request.target.days[0]!.dayId];
+          meal.dinnerLeftovers!.plannedWeekdays = [request.target.days[0]!.weekday, request.target.days[0]!.weekday];
+        }
+        return valid;
+      },
+    ];
+
+    for (const replaceDinner of invalidResponses) {
+      await expect(
+        replaceDinnerPairForWeek(db, "2026-W30", "dinner-leftover-bolognese", { replaceDinner }),
+      ).rejects.toThrow("Restetag-Informationen");
+      expect(getLatestSuccessfulPlannerJobForWeek(db, "2026-W30")?.response).toEqual(before.response);
+    }
+  });
+
   it("asks OpenClaw for only the bounded dinner replacement contract", async () => {
     const job = getLatestSuccessfulPlannerJobForWeek(db, "2026-W30")!;
     const request = buildDinnerReplacementRequest(

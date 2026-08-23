@@ -226,8 +226,11 @@ export function assertDinnerReplacement(
     const leftovers = meal.dinnerLeftovers;
     if (
       !leftovers
+      || leftovers.role !== target.role
       || leftovers.plannedDayIds.length !== 2
       || leftovers.plannedWeekdays.length !== 2
+      || new Set(leftovers.plannedDayIds).size !== targetDayIds.size
+      || new Set(leftovers.plannedWeekdays).size !== targetWeekdays.size
       || leftovers.plannedDayIds.some((dayId) => !targetDayIds.has(dayId))
       || leftovers.plannedWeekdays.some((weekday) => !targetWeekdays.has(weekday))
     ) {
