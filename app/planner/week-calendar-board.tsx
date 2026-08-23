@@ -156,12 +156,19 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
     setReplacementGroupId(leftoverGroupId);
     setReplacementMessage(null);
     startReplacementTransition(async () => {
-      const result = await replaceDinnerPairAction(context.weekId, leftoverGroupId);
-      setReplacementMessage(result.message);
-      if (result.status === "success") {
+      try {
+        const result = await replaceDinnerPairAction(context.weekId, leftoverGroupId);
+        setReplacementMessage(result.message);
+        if (result.status === "success") {
+          setReplacementGroupId(null);
+          setSelectedMeal(null);
+          router.refresh();
+        } else {
+          setReplacementGroupId(null);
+        }
+      } catch {
         setReplacementGroupId(null);
-        setSelectedMeal(null);
-        router.refresh();
+        setReplacementMessage("Der Austausch konnte nicht gestartet werden. Bitte lade die Seite neu und versuche es erneut.");
       }
     });
   }

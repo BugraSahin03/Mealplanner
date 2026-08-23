@@ -126,6 +126,7 @@ describe("dinner replacement", () => {
       "dinner-leftover-bolognese",
     );
     const replacement = await new FixtureDinnerReplacementAdapter().replaceDinner(request);
+    replacement.targetLeftoverGroupId = "model-echoed-another-group";
     const calls: Array<{ args: string[]; prompt: string }> = [];
     const adapter = new OpenClawCliDinnerReplacementAdapter({
       command: "openclaw-test",
@@ -143,6 +144,28 @@ describe("dinner replacement", () => {
     expect(calls[0]?.args).toEqual(expect.arrayContaining(["agent", "--message-file", "--json"]));
     expect(calls[0]?.prompt).toContain("Return exactly two meals and nothing else from the week plan.");
     expect(calls[0]?.prompt).toContain("dinner-leftover-bolognese");
+  });
+
+  it("normalizes common German ingredient units from an OpenClaw response", async () => {
+    const job = getLatestSuccessfulPlannerJobForWeek(db, "2026-W30")!;
+    const request = buildDinnerReplacementRequest(
+      job.request as Parameters<typeof buildDinnerReplacementRequest>[0],
+      job.response as ReturnType<typeof buildDemoPlannerResponse>,
+      "dinner-leftover-bolognese",
+    );
+    const replacement = await new FixtureDinnerReplacementAdapter().replaceDinner(request);
+    replacement.meals[0]!.ingredients[0]!.unit = "Stück" as "piece";
+    replacement.meals[0]!.ingredients[1]!.unit = "EL" as "tbsp";
+    const adapter = new OpenClawCliDinnerReplacementAdapter({
+      commandRunner: async () => ({ stdout: JSON.stringify(replacement), stderr: "" }),
+    });
+
+    const normalized = await adapter.replaceDinner(request);
+    expect(normalized.meals[0]?.ingredients.slice(0, 2).map((ingredient) => ingredient.unit)).toEqual([
+      "piece",
+      "tbsp",
+    ]);
+    expect(normalized.targetLeftoverGroupId).toBe(request.target.leftoverGroupId);
   });
 
   it("rejects unsupported OpenClaw thinking levels before starting a replacement", () => {

@@ -21,6 +21,7 @@ Important rules:
 - Use one NEW dinnerLeftovers.leftoverGroupId for both meals, never target.leftoverGroupId.
 - Assign exactly one role fresh_cook and one role leftover.
 - plannedDayIds and plannedWeekdays must name exactly the two target days.
+- For ingredient units use only: g, kg, ml, l, piece, tbsp, tsp, pack, can, jar, bottle. Never use German labels such as Stück, EL, TL, Dose, or Packung.
 - Do not propose any excludedDinners or close variants based on title, core ingredients, or protein source.
 - Respect profiles, planningHistory, otherDinners, and dinner leftover rules.
 - Write user-facing content in German.

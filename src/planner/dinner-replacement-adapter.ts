@@ -43,12 +43,51 @@ async function commandRunner(command: string, args: string[], timeoutMs: number)
   return result.stdout;
 }
 
+const normalizedUnits: Record<string, string> = {
+  gramm: "g",
+  gram: "g",
+  kilogramm: "kg",
+  milliliter: "ml",
+  liter: "l",
+  stueck: "piece",
+  "stück": "piece",
+  pcs: "piece",
+  el: "tbsp",
+  essloeffel: "tbsp",
+  "esslöffel": "tbsp",
+  tl: "tsp",
+  teeloeffel: "tsp",
+  "teelöffel": "tsp",
+  packung: "pack",
+  dose: "can",
+  glas: "jar",
+  flasche: "bottle",
+};
+
+function normalizeReplacementOutput(value: unknown, targetLeftoverGroupId: string): unknown {
+  if (!value || typeof value !== "object") return value;
+  const response = structuredClone(value) as {
+    targetLeftoverGroupId?: unknown;
+    meals?: Array<{ ingredients?: Array<{ unit?: unknown }> }>;
+  };
+  response.targetLeftoverGroupId = targetLeftoverGroupId;
+  for (const meal of response.meals ?? []) {
+    for (const ingredient of meal.ingredients ?? []) {
+      if (typeof ingredient.unit !== "string") continue;
+      const normalized = normalizedUnits[ingredient.unit.trim().toLocaleLowerCase("de-DE")];
+      if (normalized) ingredient.unit = normalized;
+    }
+  }
+  return response;
+}
+
 function parseReplacementOutput(rawOutput: string, request: DinnerReplacementRequest): DinnerReplacementResponse {
   const outer = parseFirstJsonObject(rawOutput);
-  const parsed = (
+  const parsed = normalizeReplacementOutput(
     outer && typeof outer === "object" && Array.isArray((outer as { payloads?: unknown }).payloads)
       ? parseFirstJsonObject(extractOpenClawPlannerText(outer))
-      : outer
+      : outer,
+    request.target.leftoverGroupId,
   ) as DinnerReplacementResponse;
   assertDinnerReplacement(parsed, request);
   return parsed;
