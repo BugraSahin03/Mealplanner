@@ -7,6 +7,7 @@ SERVICE_GROUP="${SERVICE_GROUP:-essenplanner}"
 SERVICE_NAME="${SERVICE_NAME:-essenplanner.service}"
 DB_PATH="${ESSENPLANNER_DB_PATH:-/var/lib/essenplanner/essenplanner.db}"
 BACKUP_DIR="${ESSENPLANNER_BACKUP_DIR:-/var/backups/essenplanner}"
+NPM_CACHE_DIR="${ESSENPLANNER_NPM_CACHE_DIR:-/var/lib/essenplanner/npm-cache}"
 SERVICE_SOURCE="${SERVICE_SOURCE:-$APP_DIR/scripts/deploy/essenplanner.service}"
 HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3008/api/health}"
 
@@ -32,7 +33,7 @@ fi
 install -d -m 0755 -o "$SERVICE_USER" -g "$SERVICE_GROUP" "$APP_DIR"
 install -d -m 0750 -o "$SERVICE_USER" -g "$SERVICE_GROUP" "$(dirname "$DB_PATH")"
 install -d -m 0750 -o "$SERVICE_USER" -g "$SERVICE_GROUP" "$BACKUP_DIR"
-install -d -m 0750 -o "$SERVICE_USER" -g "$SERVICE_GROUP" /tmp/essenplanner-npm-cache
+install -d -m 0750 -o "$SERVICE_USER" -g "$SERVICE_GROUP" "$NPM_CACHE_DIR"
 
 chown -R "$SERVICE_USER:$SERVICE_GROUP" "$APP_DIR"
 
