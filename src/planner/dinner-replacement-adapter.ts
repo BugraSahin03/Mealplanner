@@ -64,9 +64,13 @@ const normalizedUnits: Record<string, string> = {
   flasche: "bottle",
 };
 
-function normalizeIngredientUnits(value: unknown): unknown {
+function normalizeReplacementOutput(value: unknown, targetLeftoverGroupId: string): unknown {
   if (!value || typeof value !== "object") return value;
-  const response = structuredClone(value) as { meals?: Array<{ ingredients?: Array<{ unit?: unknown }> }> };
+  const response = structuredClone(value) as {
+    targetLeftoverGroupId?: unknown;
+    meals?: Array<{ ingredients?: Array<{ unit?: unknown }> }>;
+  };
+  response.targetLeftoverGroupId = targetLeftoverGroupId;
   for (const meal of response.meals ?? []) {
     for (const ingredient of meal.ingredients ?? []) {
       if (typeof ingredient.unit !== "string") continue;
@@ -79,10 +83,11 @@ function normalizeIngredientUnits(value: unknown): unknown {
 
 function parseReplacementOutput(rawOutput: string, request: DinnerReplacementRequest): DinnerReplacementResponse {
   const outer = parseFirstJsonObject(rawOutput);
-  const parsed = normalizeIngredientUnits(
+  const parsed = normalizeReplacementOutput(
     outer && typeof outer === "object" && Array.isArray((outer as { payloads?: unknown }).payloads)
       ? parseFirstJsonObject(extractOpenClawPlannerText(outer))
       : outer,
+    request.target.leftoverGroupId,
   ) as DinnerReplacementResponse;
   assertDinnerReplacement(parsed, request);
   return parsed;

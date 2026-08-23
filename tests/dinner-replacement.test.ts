@@ -126,6 +126,7 @@ describe("dinner replacement", () => {
       "dinner-leftover-bolognese",
     );
     const replacement = await new FixtureDinnerReplacementAdapter().replaceDinner(request);
+    replacement.targetLeftoverGroupId = "model-echoed-another-group";
     const calls: Array<{ args: string[]; prompt: string }> = [];
     const adapter = new OpenClawCliDinnerReplacementAdapter({
       command: "openclaw-test",
@@ -164,6 +165,7 @@ describe("dinner replacement", () => {
       "piece",
       "tbsp",
     ]);
+    expect(normalized.targetLeftoverGroupId).toBe(request.target.leftoverGroupId);
   });
 
   it("rejects unsupported OpenClaw thinking levels before starting a replacement", () => {
