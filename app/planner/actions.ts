@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import { getDb } from "@/src/db/client";
 import {
@@ -48,7 +49,7 @@ export async function runPlannerJobAction(formData: FormData): Promise<void> {
 }
 
 export type DinnerReplacementActionResult = {
-  status: "success" | "error";
+  status: "started" | "error";
   message: string;
 };
 
@@ -62,9 +63,18 @@ export async function replaceDinnerPairAction(
   }
 
   try {
-    await replaceDinnerPairForWeek(getDb(), weekId, leftoverGroupId);
-    revalidatePlannerViews();
-    return { status: "success", message: "Das Dinner-Paar wurde ersetzt." };
+    after(async () => {
+      try {
+        await replaceDinnerPairForWeek(getDb(), weekId, leftoverGroupId);
+        revalidatePlannerViews();
+      } catch (error) {
+        console.error("Dinner replacement failed.", error);
+      }
+    });
+    return {
+      status: "started",
+      message: "Der Austausch läuft im Hintergrund. Du kannst die Seite verlassen.",
+    };
   } catch (error) {
     return {
       status: "error",

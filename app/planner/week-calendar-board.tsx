@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 import type { MealView, WeekPlanView } from "@/src/planner/week-plan-view";
 import type { DayContext, WeekContext, Weekday } from "@/src/planner/repository";
@@ -78,12 +77,12 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
     normalizeLunchBatchDishCount(context.lunchBatchDishCount),
   );
   const [replacementGroupId, setReplacementGroupId] = useState<string | null>(null);
+  const [replacementQueued, setReplacementQueued] = useState(false);
   const [replacementMessage, setReplacementMessage] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const isInitialCalendarState = useRef(true);
   const [, startTransition] = useTransition();
   const [isReplacing, startReplacementTransition] = useTransition();
-  const router = useRouter();
   const homeOfficeTargets = normalizeHomeOfficeTargets(context.homeOfficeTargets);
   useEffect(() => {
     if (!selectedMeal) {
@@ -154,14 +153,14 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
 
   function confirmDinnerReplacement(leftoverGroupId: string): void {
     setReplacementGroupId(leftoverGroupId);
+    setReplacementQueued(true);
     setReplacementMessage(null);
     startReplacementTransition(async () => {
       const result = await replaceDinnerPairAction(context.weekId, leftoverGroupId);
       setReplacementMessage(result.message);
-      if (result.status === "success") {
+      if (result.status === "error") {
+        setReplacementQueued(false);
         setReplacementGroupId(null);
-        setSelectedMeal(null);
-        router.refresh();
       }
     });
   }
@@ -430,11 +429,11 @@ export function WeekCalendarBoard({ context, weekPlan, people, days }: Props) {
                     <div className="dinner-replacement-actions">
                       <button
                         className="dinner-replacement-confirm"
-                        disabled={isReplacing}
+                        disabled={isReplacing || replacementQueued}
                         onClick={() => confirmDinnerReplacement(selectedDinnerGroupId)}
                         type="button"
                       >
-                        {isReplacing ? "Wird ersetzt …" : "Beide Tage austauschen"}
+                        {isReplacing || replacementQueued ? "Wird ersetzt …" : "Beide Tage austauschen"}
                       </button>
                     </div>
                   </div>
